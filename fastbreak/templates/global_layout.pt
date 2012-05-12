@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8"/>
-    <title metal:define-slot="page-title">${view.title}</title>
+    <title metal:define-slot="page-title">${heading|view.heading}</title>
 
     <!--[if lt IE 9]>
     <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -50,6 +50,9 @@
 
 
 <div class="container">
+    <heading>
+        <h1>${heading|view.heading}</h1>
+    </heading>
     <div metal:define-slot="main">
     </div>
 </div>

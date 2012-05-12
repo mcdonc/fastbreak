@@ -1,5 +1,5 @@
 <div metal:use-macro="view.macros['layout']">
     <div metal:fill-slot="main">
-        <p>This site lists documents.</p>
+        ${structure: body}, topic: ${topic}
     </div>
 </div>
