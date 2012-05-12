@@ -116,7 +116,6 @@ class Document(Persistent):
         for topicid in topics:
             objectmap.disconnect(self, topicid, DOCUMENTTOTOPIC)
 
-    @property
     def topics(self):
         objectmap = find_service(self, 'objectmap')
         return objectmap.targets(self, DOCUMENTTOTOPIC)
@@ -166,7 +165,6 @@ class Topic(Persistent):
     def texts(self): # for indexing
         return self.title
 
-    @property
     def documents(self):
         objectmap = find_service(self, 'objectmap')
         return objectmap.sources(self, DOCUMENTTOTOPIC)

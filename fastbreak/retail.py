@@ -1,4 +1,5 @@
 from pyramid.url import resource_url
+from pyramid.decorator import reify
 from pyramid.view import view_config
 
 from substanced.site import ISite
@@ -15,13 +16,13 @@ class SplashView(Layout):
         self.context = context
         self.request = request
 
-    @property
+    @reify
     def documents(self):
         search_catalog = self.request.search_catalog
         count, docids, resolver = search_catalog(interfaces=(IDocument,))
         return [resolver(docid) for docid in docids]
 
-    @property
+    @reify
     def topics(self):
         search_catalog = self.request.search_catalog
         count, docids, resolver = search_catalog(interfaces=(ITopic,))
@@ -30,7 +31,7 @@ class SplashView(Layout):
     @view_config(renderer='templates/siteroot_view.pt',
                  context=ISite)
     def siteroot_view(self):
-        return dict(title='Welcome to My Site')
+        return dict(heading='Welcome to My Site')
 
     @view_config(renderer='templates/documents_list.pt',
                  name='documents',
@@ -44,22 +45,14 @@ class SplashView(Layout):
                      'title': document.title,
                      })
 
-        return dict(title='My Documents', documents=documents)
+        return dict(heading='My Documents', documents=documents)
 
     @view_config(renderer='templates/document_view.pt',
                  context=IDocument)
     def document_view(self):
-        self.title = self.context.title
-
-        objectid = -1099536351
-        from substanced.service import find_service
-
-        objectmap = find_service(self.context, 'objectmap')
-        topic = objectmap.object_for(objectid)
-
-        return dict(title=self.context.title,
+        return dict(heading=self.context.title,
                     body=self.context.body,
-                    topic=topic)
+                    topics=self.context.topics())
 
     @view_config(renderer='templates/topics_list.pt',
                  name='topics',
@@ -73,19 +66,11 @@ class SplashView(Layout):
                      'title': topic.title,
                      })
 
-        return dict(title='My Topics', topics=topics)
+        return dict(heading='My Topics', topics=topics)
 
     @view_config(renderer='templates/topic_view.pt',
                  context=ITopic)
     def topic_view(self):
-        documents = self.documents
-
-        # TODO this is just temporary until I wire up widget
-        from substanced.util import oid_of
-
-        oid = oid_of(self.context)
-
-        return dict(title=self.context.title,
-                    oid=oid,
-                    documents=documents)
+        return dict(heading=self.context.title,
+                    documents=self.context.documents())
 

@@ -1,6 +1,5 @@
 <div metal:use-macro="view.macros['layout']">
     <div metal:fill-slot="main">
-        OID: ${oid} is used by the following documents:
         <ul tal:repeat="document documents">
             <li>${document.title}</li>
         </ul>

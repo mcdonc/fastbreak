@@ -1,5 +1,11 @@
 <div metal:use-macro="view.macros['layout']">
     <div metal:fill-slot="main">
-        ${structure: body}, topic: ${topic}
+        ${structure: body}
+        <h4>Topics</h4>
+        <ul>
+            <li tal:repeat="topic topics">
+                ${topic.title}
+            </li>
+        </ul>
     </div>
 </div>
