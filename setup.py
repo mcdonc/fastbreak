@@ -28,7 +28,8 @@ except:
     CHANGES = ''
 
 requires = [
-    'waitress', # debug arg
+    'waitress',
+    'pyramid_tm',
     ]
 
 if sys.version_info <(2,6,0):
