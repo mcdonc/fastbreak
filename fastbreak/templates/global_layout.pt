@@ -30,6 +30,14 @@
                 <li>
                     <a href="${request.application_url}">Home</a>
                 </li>
+                <li>
+                    <a href="${request.application_url}/documents">
+                        Documents</a>
+                </li>
+                <li>
+                    <a href="${request.application_url}/topics">
+                        Topics</a>
+                </li>
             </ul>
             <ul class="nav pull-right">
                 <li>
@@ -42,9 +50,6 @@
 
 
 <div class="container">
-    <header>
-        <h1>${heading | view.heading}</h1>
-    </header>
     <div metal:define-slot="main">
     </div>
 </div>
