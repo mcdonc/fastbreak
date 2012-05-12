@@ -1,15 +1,14 @@
 from pyramid.url import resource_url
 from pyramid.view import view_config
 
-from substanced.interfaces import (
-    ISite
-    )
+from substanced.site import ISite
 
 from .interfaces import (
     IDocument,
     ITopic
     )
 from .layout import Layout
+
 
 class SplashView(Layout):
     def __init__(self, context, request):
@@ -34,7 +33,8 @@ class SplashView(Layout):
         return dict(title='Welcome to My Site')
 
     @view_config(renderer='templates/documents_list.pt',
-                 name='documents')
+                 name='documents',
+                 context=ISite)
     def documents_list(self):
         documents = []
         for document in self.documents:
@@ -55,22 +55,15 @@ class SplashView(Layout):
         from substanced.service import find_service
 
         objectmap = find_service(self.context, 'objectmap')
-        rel = 'document-to-topic'
         topic = objectmap.object_for(objectid)
-        print list(objectmap.sources(topic, rel))
-        print list(objectmap.targets(self.context, rel))
-        #objectmap.connect(self.context, topic, 'document-to-topic')
-
-
-
-
 
         return dict(title=self.context.title,
                     body=self.context.body,
                     topic=topic)
 
     @view_config(renderer='templates/topics_list.pt',
-                 name='topics')
+                 name='topics',
+                 context=ISite)
     def topics_list(self):
         topics = []
         for topic in self.topics:

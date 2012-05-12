@@ -1,11 +1,9 @@
 import colander
 from pyramid.httpexceptions import HTTPFound
 
+from substanced.site import ISite
 from substanced.sdi import mgmt_view
 from substanced.form import FormView
-from substanced.interfaces import (
-    IFolder,
-    )
 
 from .interfaces import (
     IDocument,
@@ -23,7 +21,7 @@ name = colander.SchemaNode(
     )
 
 @mgmt_view(
-    context=IFolder,
+    context=ISite,
     name='add_document',
     tab_title='Add Document',
     permission='sdi.add-content',
@@ -33,7 +31,6 @@ name = colander.SchemaNode(
 class AddDocumentView(FormView):
     title = 'Add Document'
     schema = DocumentSchema()
-    schema
     buttons = ('add',)
 
     def add_success(self, appstruct):
@@ -46,7 +43,7 @@ class AddDocumentView(FormView):
         return HTTPFound(self.request.mgmt_path(document, '@@properties'))
 
 @mgmt_view(
-    context=IFolder,
+    context=ISite,
     name='add_topic',
     tab_title='Add Topic',
     permission='sdi.add-content',

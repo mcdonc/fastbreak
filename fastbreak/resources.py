@@ -1,8 +1,11 @@
 import colander
 import deform.widget
 from deform_bootstrap.widget import ChosenSingleWidget
-
 from persistent import Persistent
+from pyramid.security import (
+    Allow,
+    Everyone,
+    )
 
 from substanced.schema import Schema
 from substanced.content import content
@@ -14,7 +17,7 @@ from .interfaces import (
     ITopic
     )
 
-DocumentToTopic = 'document-to-topic'
+DOCUMENTTOTOPIC = 'document-to-topic'
 
 @colander.deferred
 def topics_widget(node, kw):
@@ -100,23 +103,23 @@ class Document(Persistent):
 
     def get_topicids(self):
         objectmap = find_service(self, 'objectmap')
-        return objectmap.targetids(self, DocumentToTopic)
+        return objectmap.targetids(self, DOCUMENTTOTOPIC)
 
     def connect(self, *topics):
         objectmap = find_service(self, 'objectmap')
         for topicid in topics:
-            objectmap.connect(self, topicid, DocumentToTopic)
+            objectmap.connect(self, topicid, DOCUMENTTOTOPIC)
 
     def disconnect(self):
         topics = self.get_topicids()
         objectmap = find_service(self, 'objectmap')
         for topicid in topics:
-            objectmap.disconnect(self, topicid, DocumentToTopic)
+            objectmap.disconnect(self, topicid, DOCUMENTTOTOPIC)
 
     @property
     def topics(self):
         objectmap = find_service(self, 'objectmap')
-        return objectmap.targets(self, DocumentToTopic)
+        return objectmap.targets(self, DOCUMENTTOTOPIC)
 
 
 # Topics
@@ -166,5 +169,5 @@ class Topic(Persistent):
     @property
     def documents(self):
         objectmap = find_service(self, 'objectmap')
-        return objectmap.sources(self, DocumentToTopic)
+        return objectmap.sources(self, DOCUMENTTOTOPIC)
 
