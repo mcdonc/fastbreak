@@ -55,7 +55,7 @@ class DocumentBasicPropertySheet(PropertySheet):
         context = self.context
 
         # Need the objectid of the first referenced team
-        teams = list(context.get_teamids())
+        teams = context.get_relations(DOCUMENTTOTEAM)
         if not teams:
             team = colander.null
         else:
@@ -97,9 +97,9 @@ class Document(Persistent):
     def texts(self): # for indexing
         return self.title, self.body
 
-    def get_teamids(self):
+    def get_relations(self, relation_name):
         objectmap = find_service(self, 'objectmap')
-        return objectmap.targetids(self, DOCUMENTTOTEAM)
+        return list(objectmap.targetids(self, relation_name))
 
     def connect(self, *teams):
         objectmap = find_service(self, 'objectmap')
@@ -107,7 +107,7 @@ class Document(Persistent):
             objectmap.connect(self, teamid, DOCUMENTTOTEAM)
 
     def disconnect(self):
-        teams = self.get_teamids()
+        teams = self.get_relations(DOCUMENTTOTEAM)
         objectmap = find_service(self, 'objectmap')
         for teamid in teams:
             objectmap.disconnect(self, teamid, DOCUMENTTOTEAM)

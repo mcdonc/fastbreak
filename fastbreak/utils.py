@@ -2,8 +2,8 @@
 # Constants
 DOCUMENTTOTEAM = 'document-to-team'
 PLAYERTOTEAM = 'player-to-team'
-PLAYERTOPRIMARYGUARDIAN = 'player-to-primaryguardian'
-PLAYERTOOTHERGUARDIAN = 'player-to-otherguardian'
+PLAYERTOPG = 'player-to-primaryguardian'
+PLAYERTOOG = 'player-to-otherguardian'
 HEADCOACHTTOTEAM = 'headcoach-to-team'
 ASSISTANTCOACHTTOTEAM = 'assistantcoach-to-team'
 MANAGERTOTEAM = 'manager-to-team'

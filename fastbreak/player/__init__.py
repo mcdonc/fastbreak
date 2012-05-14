@@ -14,7 +14,8 @@ from fastbreak.interfaces import (
     )
 from fastbreak.utils import (
     PLAYERTOTEAM,
-    PLAYERTOPRIMARYGUARDIAN
+    PLAYERTOPG,
+    PLAYERTOOG
     )
 
 
@@ -60,6 +61,11 @@ class PlayerSchema(Schema):
         widget=guardian_widget,
         missing=colander.null
     )
+    other_guardian = colander.SchemaNode(
+        colander.Int(),
+        widget=guardian_widget,
+        missing=colander.null
+    )
 
 
 class PlayerBasicPropertySheet(PropertySheet):
@@ -73,24 +79,32 @@ class PlayerBasicPropertySheet(PropertySheet):
         context = self.context
 
         # Need the objectid of the first referenced team
-        teams = list(context.get_teamids())
+        teams = context.get_relations(PLAYERTOTEAM)
         if not teams:
             team = colander.null
         else:
             team = teams[0]
 
         # Need the objectid of the primary guardian
-        primary_guardians = list(context.get_primary_guardianids())
+        primary_guardians = context.get_relations(PLAYERTOPG)
         if not primary_guardians:
             primary_guardian = colander.null
         else:
             primary_guardian = primary_guardians[0]
 
+        # Need the objectid of the other guardian
+        other_guardians = context.get_relations(PLAYERTOOG)
+        if not other_guardians:
+            other_guardian = colander.null
+        else:
+            other_guardian = other_guardians[0]
+
         return dict(
             name=context.__name__,
             title=context.title,
             team=team,
-            primary_guardian=primary_guardian
+            primary_guardian=primary_guardian,
+            other_guardian=other_guardian
         )
 
     def set(self, struct):
@@ -101,6 +115,7 @@ class PlayerBasicPropertySheet(PropertySheet):
         context.disconnect()
         context.connect_team(struct['team'])
         context.connect_primary_guardian(struct['primary_guardian'])
+        context.connect_other_guardian(struct['other_guardian'])
 
 
 @content(
@@ -114,20 +129,16 @@ class PlayerBasicPropertySheet(PropertySheet):
     catalog=True,
     )
 class Player(Persistent):
-    def __init__(self, title, team, primary_guardian):
+    def __init__(self, title, team, primary_guardian, other_guardian):
         self.title = title
         # We don't care about storing team
 
     def texts(self): # for indexing
         return self.title
 
-    def get_teamids(self):
+    def get_relations(self, relation_name):
         objectmap = find_service(self, 'objectmap')
-        return objectmap.targetids(self, PLAYERTOTEAM)
-
-    def get_primary_guardianids(self):
-        objectmap = find_service(self, 'objectmap')
-        return objectmap.targetids(self, PLAYERTOPRIMARYGUARDIAN)
+        return list(objectmap.targetids(self, relation_name))
 
     def connect_team(self, *teams):
         objectmap = find_service(self, 'objectmap')
@@ -137,17 +148,25 @@ class Player(Persistent):
     def connect_primary_guardian(self, *primary_guardian):
         objectmap = find_service(self, 'objectmap')
         for adultid in primary_guardian:
-            objectmap.connect(self, adultid, PLAYERTOPRIMARYGUARDIAN)
+            objectmap.connect(self, adultid, PLAYERTOPG)
+
+    def connect_other_guardian(self, *other_guardian):
+        objectmap = find_service(self, 'objectmap')
+        for adultid in other_guardian:
+            objectmap.connect(self, adultid, PLAYERTOOG)
 
     def disconnect(self):
-        teams = self.get_teamids()
-        primary_guardian = self.get_primary_guardianids()
         objectmap = find_service(self, 'objectmap')
+
+        teams = self.get_relations(PLAYERTOTEAM)
         for teamid in teams:
             objectmap.disconnect(self, teamid, PLAYERTOTEAM)
+        primary_guardian = self.get_relations(PLAYERTOPG)
         for adultid in primary_guardian:
-            objectmap.disconnect(self, adultid,
-                                 PLAYERTOPRIMARYGUARDIAN)
+            objectmap.disconnect(self, adultid, PLAYERTOPG)
+        other_guardian = self.get_relations(PLAYERTOOG)
+        for adultid in other_guardian:
+            objectmap.disconnect(self, adultid, PLAYERTOOG)
 
     def teams(self):
         objectmap = find_service(self, 'objectmap')
