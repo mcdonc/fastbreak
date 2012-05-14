@@ -7,41 +7,16 @@ from substanced.site import ISite
 
 from fastbreak.utils import make_name
 
-from .interfaces import (
-    IDocument,
+from fastbreak.interfaces import (
     ITeam,
+    IDocument,
     IProgram
     )
-from .resources import (
-    ProgramSchema,
+from fastbreak.resources import (
     DocumentSchema,
     DocumentBasicPropertySheet
     )
-from fastbreak.team import (
-    TeamBasicPropertySheet
-)
-
-@mgmt_view(
-    context=ISite,
-    name='add_program',
-    permission='sdi.add-content',
-    renderer='substanced.sdi:templates/form.pt',
-    tab_condition=False,
-    )
-class AddProgramView(FormView):
-    title = 'Add Program'
-    schema = ProgramSchema()
-    buttons = ('add',)
-
-    def add_success(self, appstruct):
-        name = make_name(appstruct['title'])
-        request = self.request
-        program = request.registry.content.create(IProgram,
-                                                  **appstruct)
-        self.context[name] = program
-        loc = request.mgmt_path(self.context, name, '@@properties')
-        return HTTPFound(location=loc)
-
+from fastbreak.team import TeamBasicPropertySheet
 
 @mgmt_view(
     context=IProgram,
