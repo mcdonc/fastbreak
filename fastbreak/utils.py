@@ -1,7 +1,7 @@
 
 # Constants
 DOCUMENTTOTEAM = 'document-to-team'
-
+PLAYERTOTEAM = 'player-to-team'
 
 def make_name(title):
     # Policy for automatically generating unique names from titles. For

@@ -9,3 +9,7 @@ class ITeam(Interface):
 class IProgram(Interface):
     """A group of teams and events in an organization"""
     pass
+
+class IPlayer(Interface):
+    """A player on multiples teams and multiple programs"""
+    pass

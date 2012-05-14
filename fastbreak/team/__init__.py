@@ -7,7 +7,7 @@ from substanced.schema import Schema
 from substanced.service import find_service
 
 from fastbreak.interfaces import ITeam
-from fastbreak.utils import DOCUMENTTOTEAM
+from fastbreak.utils import PLAYERTOTEAM
 
 # Teams
 class TeamSchema(Schema):
@@ -52,7 +52,7 @@ class Team(Persistent):
     def texts(self): # for indexing
         return self.title
 
-    def documents(self):
+    def players(self):
         objectmap = find_service(self, 'objectmap')
-        return objectmap.sources(self, DOCUMENTTOTEAM)
+        return objectmap.sources(self, PLAYERTOTEAM)
 

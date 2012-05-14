@@ -1,8 +1,8 @@
 <div metal:use-macro="view.macros['layout']">
     <div metal:fill-slot="main">
-        Used by the following documents:
-        <ul tal:repeat="document documents">
-            <li>${document.title}</li>
+        Roster:
+        <ul tal:repeat="player players">
+            <li>${player.title}</li>
         </ul>
     </div>
 </div>

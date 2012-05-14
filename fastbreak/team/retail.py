@@ -40,5 +40,5 @@ class SplashView(Layout):
                  context=ITeam)
     def team_view(self):
         return dict(heading=self.context.title,
-                    documents=self.context.documents())
+                    players=self.context.players())
 
