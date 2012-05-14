@@ -54,23 +54,3 @@ class SplashView(Layout):
                     body=self.context.body,
                     teams=self.context.teams())
 
-    @view_config(renderer='templates/teams_list.pt',
-                 name='teams',
-                 context=ISite)
-    def teams_list(self):
-        teams = []
-        for team in self.all_teams:
-            teams.append(
-                    {'url': resource_url(team,
-                                         self.request),
-                     'title': team.title,
-                     })
-
-        return dict(heading='My Teams', teams=teams)
-
-    @view_config(renderer='templates/team_view.pt',
-                 context=ITeam)
-    def team_view(self):
-        return dict(heading=self.context.title,
-                    documents=self.context.documents())
-

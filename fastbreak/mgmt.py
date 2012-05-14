@@ -5,25 +5,21 @@ from substanced.schema import Schema
 from substanced.sdi import mgmt_view
 from substanced.site import ISite
 
+from fastbreak.utils import make_name
+
 from .interfaces import (
     IDocument,
     ITeam,
     IProgram
     )
-from .resources import (\
+from .resources import (
     ProgramSchema,
     DocumentSchema,
-    TeamSchema,
-    DocumentBasicPropertySheet,
-    TeamBasicPropertySheet,
+    DocumentBasicPropertySheet
     )
-
-def make_name(title):
-    # Policy for automatically generating unique names from titles. For
-    # now, just lower and replace spaces with dashes
-
-    name = title.replace(' ', '-').lower()
-    return name
+from fastbreak.team import (
+    TeamBasicPropertySheet
+)
 
 @mgmt_view(
     context=ISite,
@@ -68,30 +64,6 @@ class AddDocumentView(FormView):
         propsheet = DocumentBasicPropertySheet(document, self.request)
         propsheet.set(appstruct)
         return HTTPFound(self.request.mgmt_path(document, '@@properties'))
-
-
-@mgmt_view(
-    context=IProgram,
-    name='add_team',
-    tab_title='Add Team',
-    permission='sdi.add-content',
-    renderer='substanced.sdi:templates/form.pt',
-    tab_condition=False,
-    )
-class AddTeamView(FormView):
-    title = 'Add Team'
-    schema = TeamSchema()
-    buttons = ('add',)
-
-    def add_success(self, appstruct):
-        registry = self.request.registry
-        name = make_name(appstruct['title'])
-        team = registry.content.create(ITeam, **appstruct)
-        self.context[name] = team
-        propsheet = TeamBasicPropertySheet(team, self.request)
-        propsheet.set(appstruct)
-        return HTTPFound(self.request.mgmt_path(team, '@@properties'))
-
 
 @mgmt_view(
     context=ISite,
