@@ -38,6 +38,10 @@
                     <a href="${request.application_url}/teams">
                         Teams</a>
                 </li>
+                <li>
+                    <a href="${request.application_url}/adults">
+                        Adults</a>
+                </li>
             </ul>
             <ul class="nav pull-right">
                 <li>

@@ -1,0 +1,11 @@
+<div metal:use-macro="view.macros['layout']">
+    <div metal:fill-slot="main">
+        <h4>Players</h4>
+        <p>Children related to this adult.</p>
+        <ul>
+            <li tal:repeat="player players">
+                ${player.title}
+            </li>
+        </ul>
+    </div>
+</div>

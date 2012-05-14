@@ -13,3 +13,7 @@ class IProgram(Interface):
 class IPlayer(Interface):
     """A player on multiples teams and multiple programs"""
     pass
+
+class IAdult(Interface):
+    """An adult who is a guardian, coach, team manager. """
+    pass
