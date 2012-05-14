@@ -6,7 +6,7 @@ from substanced.site import ISite
 
 from .interfaces import (
     IDocument,
-    ITopic
+    ITeam
     )
 from .layout import Layout
 
@@ -25,7 +25,7 @@ class SplashView(Layout):
     @reify
     def topics(self):
         search_catalog = self.request.search_catalog
-        count, docids, resolver = search_catalog(interfaces=(ITopic,))
+        count, docids, resolver = search_catalog(interfaces=(ITeam,))
         return [resolver(docid) for docid in docids]
 
     @view_config(renderer='templates/siteroot_view.pt',
@@ -69,7 +69,7 @@ class SplashView(Layout):
         return dict(heading='My Topics', topics=topics)
 
     @view_config(renderer='templates/topic_view.pt',
-                 context=ITopic)
+                 context=ITeam)
     def topic_view(self):
         return dict(heading=self.context.title,
                     documents=self.context.documents())

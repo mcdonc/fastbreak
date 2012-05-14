@@ -2,10 +2,6 @@ import colander
 import deform.widget
 from deform_bootstrap.widget import ChosenSingleWidget
 from persistent import Persistent
-from pyramid.security import (
-    Allow,
-    Everyone,
-    )
 
 from substanced.schema import Schema
 from substanced.content import content
@@ -14,7 +10,7 @@ from substanced.service import find_service
 
 from .interfaces import (
     IDocument,
-    ITopic
+    ITeam
     )
 
 DOCUMENTTOTOPIC = 'document-to-topic'
@@ -23,7 +19,7 @@ DOCUMENTTOTOPIC = 'document-to-topic'
 def topics_widget(node, kw):
     request = kw['request']
     search_catalog = request.search_catalog
-    count, oids, resolver = search_catalog(interfaces=(ITopic,))
+    count, oids, resolver = search_catalog(interfaces=(ITeam,))
     values = []
     for oid in oids:
         title = resolver(oid).title
@@ -148,7 +144,7 @@ class TopicBasicPropertySheet(PropertySheet):
 
 
 @content(
-    ITopic,
+    ITeam,
     name='Topic',
     icon='icon-align-left',
     add_view='add_topic',
