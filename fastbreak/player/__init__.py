@@ -158,15 +158,10 @@ class Player(Persistent):
     def disconnect(self):
         objectmap = find_service(self, 'objectmap')
 
-        teams = self.get_relations(PLAYERTOTEAM)
-        for teamid in teams:
-            objectmap.disconnect(self, teamid, PLAYERTOTEAM)
-        primary_guardian = self.get_relations(PLAYERTOPG)
-        for adultid in primary_guardian:
-            objectmap.disconnect(self, adultid, PLAYERTOPG)
-        other_guardian = self.get_relations(PLAYERTOOG)
-        for adultid in other_guardian:
-            objectmap.disconnect(self, adultid, PLAYERTOOG)
+        targets = (PLAYERTOTEAM, PLAYERTOPG, PLAYERTOOG)
+        for target in targets:
+            for oid in self.get_relations(target):
+                objectmap.disconnect(self, oid, target)
 
     def teams(self):
         objectmap = find_service(self, 'objectmap')
