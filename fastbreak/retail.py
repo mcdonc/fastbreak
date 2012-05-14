@@ -23,7 +23,7 @@ class SplashView(Layout):
         return [resolver(docid) for docid in docids]
 
     @reify
-    def topics(self):
+    def all_teams(self):
         search_catalog = self.request.search_catalog
         count, docids, resolver = search_catalog(interfaces=(ITeam,))
         return [resolver(docid) for docid in docids]
@@ -52,25 +52,25 @@ class SplashView(Layout):
     def document_view(self):
         return dict(heading=self.context.title,
                     body=self.context.body,
-                    topics=self.context.topics())
+                    teams=self.context.teams())
 
-    @view_config(renderer='templates/topics_list.pt',
-                 name='topics',
+    @view_config(renderer='templates/teams_list.pt',
+                 name='teams',
                  context=ISite)
-    def topics_list(self):
-        topics = []
-        for topic in self.topics:
-            topics.append(
-                    {'url': resource_url(topic,
+    def teams_list(self):
+        teams = []
+        for team in self.all_teams:
+            teams.append(
+                    {'url': resource_url(team,
                                          self.request),
-                     'title': topic.title,
+                     'title': team.title,
                      })
 
-        return dict(heading='My Topics', topics=topics)
+        return dict(heading='My Teams', teams=teams)
 
-    @view_config(renderer='templates/topic_view.pt',
+    @view_config(renderer='templates/team_view.pt',
                  context=ITeam)
-    def topic_view(self):
+    def team_view(self):
         return dict(heading=self.context.title,
                     documents=self.context.documents())
 

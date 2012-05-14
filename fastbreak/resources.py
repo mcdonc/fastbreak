@@ -13,10 +13,10 @@ from .interfaces import (
     ITeam
     )
 
-DOCUMENTTOTOPIC = 'document-to-topic'
+DOCUMENTTOTEAM = 'document-to-team'
 
 @colander.deferred
-def topics_widget(node, kw):
+def teams_widget(node, kw):
     request = kw['request']
     search_catalog = request.search_catalog
     count, oids, resolver = search_catalog(interfaces=(ITeam,))
@@ -35,11 +35,11 @@ class DocumentSchema(Schema):
     )
     body = colander.SchemaNode(
         colander.String(),
-        widget=deform.widget.RichTextWidget()
+        widget=deform.widget.RichTextWidget(),
     )
-    topic = colander.SchemaNode(
+    team = colander.SchemaNode(
         colander.Int(),
-        widget=topics_widget,
+        widget=teams_widget,
         missing=colander.null
     )
 
@@ -54,18 +54,18 @@ class DocumentBasicPropertySheet(PropertySheet):
     def get(self):
         context = self.context
 
-        # Need the objectid of the first referenced topic
-        topics = list(context.get_topicids())
-        if not topics:
-            topic = colander.null
+        # Need the objectid of the first referenced team
+        teams = list(context.get_teamids())
+        if not teams:
+            team = colander.null
         else:
-            topic = topics[0]
+            team = teams[0]
 
         return dict(
             name=context.__name__,
             title=context.title,
             body=context.body,
-            topic=topic
+            team=team
         )
 
     def set(self, struct):
@@ -75,7 +75,7 @@ class DocumentBasicPropertySheet(PropertySheet):
 
         # Disconnect old relations, make new relations
         context.disconnect()
-        context.connect(struct['topic'])
+        context.connect(struct['team'])
 
 
 @content(
@@ -89,43 +89,43 @@ class DocumentBasicPropertySheet(PropertySheet):
     catalog=True,
     )
 class Document(Persistent):
-    def __init__(self, title, body, topic):
+    def __init__(self, title, body, team):
         self.title = title
         self.body = body
-        self.topic = topic
+        self.team = team
 
     def texts(self): # for indexing
         return self.title, self.body
 
-    def get_topicids(self):
+    def get_teamids(self):
         objectmap = find_service(self, 'objectmap')
-        return objectmap.targetids(self, DOCUMENTTOTOPIC)
+        return objectmap.targetids(self, DOCUMENTTOTEAM)
 
-    def connect(self, *topics):
+    def connect(self, *teams):
         objectmap = find_service(self, 'objectmap')
-        for topicid in topics:
-            objectmap.connect(self, topicid, DOCUMENTTOTOPIC)
+        for teamid in teams:
+            objectmap.connect(self, teamid, DOCUMENTTOTEAM)
 
     def disconnect(self):
-        topics = self.get_topicids()
+        teams = self.get_teamids()
         objectmap = find_service(self, 'objectmap')
-        for topicid in topics:
-            objectmap.disconnect(self, topicid, DOCUMENTTOTOPIC)
+        for teamid in teams:
+            objectmap.disconnect(self, teamid, DOCUMENTTOTEAM)
 
-    def topics(self):
+    def teams(self):
         objectmap = find_service(self, 'objectmap')
-        return objectmap.targets(self, DOCUMENTTOTOPIC)
+        return objectmap.targets(self, DOCUMENTTOTEAM)
 
 
-# Topics
-class TopicSchema(Schema):
+# Teams
+class TeamSchema(Schema):
     title = colander.SchemaNode(
         colander.String(),
     )
 
 
-class TopicBasicPropertySheet(PropertySheet):
-    schema = TopicSchema()
+class TeamBasicPropertySheet(PropertySheet):
+    schema = TeamSchema()
 
     def __init__(self, context, request):
         self.context = context
@@ -145,16 +145,16 @@ class TopicBasicPropertySheet(PropertySheet):
 
 @content(
     ITeam,
-    name='Topic',
+    name='Team',
     icon='icon-align-left',
-    add_view='add_topic',
+    add_view='add_team',
     propertysheets=(
-        ('Basic', TopicBasicPropertySheet),
+        ('Basic', TeamBasicPropertySheet),
         ),
     catalog=True,
     )
 
-class Topic(Persistent):
+class Team(Persistent):
     def __init__(self, title):
         self.title = title
 
@@ -163,5 +163,5 @@ class Topic(Persistent):
 
     def documents(self):
         objectmap = find_service(self, 'objectmap')
-        return objectmap.sources(self, DOCUMENTTOTOPIC)
+        return objectmap.sources(self, DOCUMENTTOTEAM)
 

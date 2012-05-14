@@ -12,9 +12,9 @@ from .interfaces import (
     )
 from .resources import (
     DocumentSchema,
-    TopicSchema,
+    TeamSchema,
     DocumentBasicPropertySheet,
-    TopicBasicPropertySheet,
+    TeamBasicPropertySheet,
     )
 
 name = colander.SchemaNode(
@@ -46,25 +46,25 @@ class AddDocumentView(FormView):
 
 @mgmt_view(
     context=ISite,
-    name='add_topic',
-    tab_title='Add Topic',
+    name='add_team',
+    tab_title='Add Team',
     permission='sdi.add-content',
     renderer='substanced.sdi:templates/form.pt',
     tab_condition=False,
     )
-class AddTopicView(FormView):
-    title = 'Add Topic'
-    schema = TopicSchema()
+class AddTeamView(FormView):
+    title = 'Add Team'
+    schema = TeamSchema()
     buttons = ('add',)
 
     def add_success(self, appstruct):
         registry = self.request.registry
         name = appstruct['title'].lower()
-        topic = registry.content.create(ITeam, **appstruct)
-        self.context[name] = topic
-        propsheet = TopicBasicPropertySheet(topic, self.request)
+        team = registry.content.create(ITeam, **appstruct)
+        self.context[name] = team
+        propsheet = TeamBasicPropertySheet(team, self.request)
         propsheet.set(appstruct)
-        return HTTPFound(self.request.mgmt_path(topic, '@@properties'))
+        return HTTPFound(self.request.mgmt_path(team, '@@properties'))
 
 
 @mgmt_view(
@@ -88,9 +88,9 @@ class ImportDataView(FormView):
         for title in teams:
             name = title.lower()
             appstruct = dict(title=title)
-            topic = registry.content.create(ITeam, **appstruct)
-            root[name] = topic
-            propsheet = TopicBasicPropertySheet(topic, self.request)
+            team = registry.content.create(ITeam, **appstruct)
+            root[name] = team
+            propsheet = TeamBasicPropertySheet(team, self.request)
             propsheet.set(appstruct)
 
         return HTTPFound(self.request.mgmt_path(self.context,

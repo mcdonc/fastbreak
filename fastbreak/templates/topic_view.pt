@@ -1,7 +1,0 @@
-<div metal:use-macro="view.macros['layout']">
-    <div metal:fill-slot="main">
-        <ul tal:repeat="document documents">
-            <li>${document.title}</li>
-        </ul>
-    </div>
-</div>

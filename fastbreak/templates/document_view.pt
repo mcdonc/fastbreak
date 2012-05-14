@@ -1,10 +1,10 @@
 <div metal:use-macro="view.macros['layout']">
     <div metal:fill-slot="main">
         ${structure: body}
-        <h4>Topics</h4>
+        <h4>Teams</h4>
         <ul>
-            <li tal:repeat="topic topics">
-                ${topic.title}
+            <li tal:repeat="team teams">
+                ${team.title}
             </li>
         </ul>
     </div>

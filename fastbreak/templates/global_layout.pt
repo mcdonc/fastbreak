@@ -35,8 +35,8 @@
                         Documents</a>
                 </li>
                 <li>
-                    <a href="${request.application_url}/topics">
-                        Topics</a>
+                    <a href="${request.application_url}/teams">
+                        Teams</a>
                 </li>
             </ul>
             <ul class="nav pull-right">
