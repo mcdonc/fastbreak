@@ -31,8 +31,8 @@
                     <a href="${request.application_url}">Home</a>
                 </li>
                 <li>
-                    <a href="${request.application_url}/documents">
-                        Documents</a>
+                    <a href="${request.application_url}/players">
+                        Players</a>
                 </li>
                 <li>
                     <a href="${request.application_url}/teams">

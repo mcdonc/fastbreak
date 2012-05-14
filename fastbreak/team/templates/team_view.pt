@@ -2,7 +2,9 @@
     <div metal:fill-slot="main">
         Roster:
         <ul tal:repeat="player players">
-            <li>${player.title}</li>
+            <li>
+                <a href="${player.url}">${player.title}</a>
+            </li>
         </ul>
     </div>
 </div>

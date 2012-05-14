@@ -3,7 +3,7 @@
         <ul>
             <li tal:repeat="player players">
                 <a href="${player.url}">
-                    ${doc.title}
+                    ${player.title}
                 </a>
             </li>
         </ul>
