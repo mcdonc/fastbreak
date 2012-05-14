@@ -1,5 +1,4 @@
 # Constants
-DOCUMENTTOTEAM = 'document-to-team'
 PLAYERTOTEAM = 'player-to-team'
 PLAYERTOPG = 'player-to-primaryguardian'
 PLAYERTOOG = 'player-to-otherguardian'
@@ -14,7 +13,7 @@ def make_name(title):
     name = title.replace(' ', '-').lower()
     return name
 
-white_familes = [
+white_families = [
     (u'Jim Hoover', u'Cheri Hoover', u'Peanut Hoover'),
     (u'Paul Everitt', u'Herveline Everitt', u'Morgan Everitt'),
     (u'Kristen Buechner', u'Chris Buechner', u'Kennedy Buechner')
@@ -24,6 +23,6 @@ orange_families = [
 ]
 
 sample_data = dict(
-    Blue=[], White=white_families, Orange=orange_familes,
+    Blue=[], White=white_families, Orange=orange_families,
     Black=[], Silver=[]
 )
