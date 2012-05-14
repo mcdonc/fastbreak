@@ -1,3 +1,4 @@
+import colander
 from pyramid.httpexceptions import HTTPFound
 
 from substanced.form import FormView
@@ -19,6 +20,7 @@ from fastbreak.interfaces import (
     )
 from fastbreak.adult import AdultBasicPropertySheet
 from fastbreak.player import PlayerBasicPropertySheet
+from fastbreak.program import ProgramBasicPropertySheet
 from fastbreak.team import TeamBasicPropertySheet
 
 
@@ -44,22 +46,37 @@ class ImportDataView(FormView):
         appstruct = dict(title='STORM')
         storm = registry.content.create(IProgram, **appstruct)
         root[name] = storm
-        propsheet = TeamBasicPropertySheet(storm, self.request)
+        propsheet = ProgramBasicPropertySheet(storm, self.request)
         propsheet.set(appstruct)
 
         # Add some Teams and families
-        for team_title, families in sample_data.items():
-            # First make a team
+        for team_title, team_data in sample_data.items():
+
+            # Head coach
+            hc_title = team_data['head_coach']
+            hc_name = make_name(hc_title)
+            appstruct = dict(title=hc_title)
+            hc_adult = registry.content.create(IAdult,
+                                               **appstruct)
+            root[hc_name] = hc_adult
+            propsheet = AdultBasicPropertySheet(hc_adult,
+                                                self.request)
+            propsheet.set(appstruct)
+            hc_oid = objectmap.objectid_for(hc_adult)
+
+            # Make a team
             name = make_name(team_title)
-            appstruct = dict(title=team_title)
+            appstruct = dict(
+                title=team_title,
+                head_coach=hc_oid)
             team = registry.content.create(ITeam, **appstruct)
             storm[name] = team
             propsheet = TeamBasicPropertySheet(team, self.request)
             propsheet.set(appstruct)
             team_oid = objectmap.objectid_for(team)
 
-            # Make values for each family
-            for family in families:
+        # Make values for each family
+            for family in team_data['families']:
                 # Primary guardian
                 primary_title = family[0]
                 primary_name = make_name(primary_title)

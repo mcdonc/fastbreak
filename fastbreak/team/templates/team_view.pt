@@ -1,10 +1,12 @@
 <div metal:use-macro="view.macros['layout']">
     <div metal:fill-slot="main">
-        Roster:
+        Players:
         <ul tal:repeat="player players">
             <li>
                 <a href="${player.url}">${player.title}</a>
             </li>
         </ul>
+        Head Coach:
+        <p tal:condition="view.head_coach">${view.head_coach.title}</p>
     </div>
 </div>

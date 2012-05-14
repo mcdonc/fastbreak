@@ -6,13 +6,15 @@ from substanced.property import PropertySheet
 from substanced.schema import Schema
 
 from fastbreak.interfaces import (
-    IAdult,
+    IAdult
     )
+
 
 class AdultSchema(Schema):
     title = colander.SchemaNode(
         colander.String(),
     )
+
 
 class AdultBasicPropertySheet(PropertySheet):
     schema = AdultSchema()
@@ -33,8 +35,6 @@ class AdultBasicPropertySheet(PropertySheet):
         context = self.context
         context.title = struct['title']
 
-
-
 @content(
     IAdult,
     name='Adult',
@@ -51,3 +51,4 @@ class Adult(Persistent):
 
     def texts(self): # for indexing
         return self.title
+

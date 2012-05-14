@@ -24,12 +24,35 @@
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container-fluid">
-            <a class="brand" href="home_path">My Site</a>
+            <a class="brand" href="${request.application_url}">
+                STORM Dashboard
+            </a>
 
             <ul class="nav">
                 <li>
-                    <a href="${request.application_url}">Home</a>
+                    <a href="${request.application_url}/storm/blue">
+                        Blue
+                    </a>
                 </li>
+                <li>
+                    <a
+                            href="${request.application_url}/storm/orange">
+                        Orange
+                    </a>
+                </li>
+                <li>
+                    <a
+                            href="${request.application_url}/storm/white">White</a>
+                </li>
+                <li>
+                    <a
+                            href="${request.application_url}/storm/black">Black</a>
+                </li>
+                <li>
+                    <a
+                            href="${request.application_url}/storm/silver">Silver</a>
+                </li>
+                <li>|</li>
                 <li>
                     <a href="${request.application_url}/players">
                         Players</a>
@@ -55,7 +78,13 @@
 
 <div class="container">
     <heading>
-        <h1>${heading|view.heading}</h1>
+        <div class="subnav" tal:condition="view.subnav_items|None">
+            <ul class="nav nav-pills">
+                <li tal:repeat="si view.subnav_items">
+                    <a href="${si.url}">${si.title}</a>
+                </li>
+            </ul>
+        </div>
     </heading>
     <div metal:define-slot="main">
     </div>
