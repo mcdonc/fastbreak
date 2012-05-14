@@ -1,4 +1,3 @@
-import colander
 from pyramid.httpexceptions import HTTPFound
 
 from substanced.form import FormView
@@ -8,21 +7,48 @@ from substanced.site import ISite
 
 from .interfaces import (
     IDocument,
-    ITeam
+    ITeam,
+    IProgram
     )
-from .resources import (
+from .resources import (\
+    ProgramSchema,
     DocumentSchema,
     TeamSchema,
     DocumentBasicPropertySheet,
     TeamBasicPropertySheet,
     )
 
-name = colander.SchemaNode(
-    colander.String(),
-)
+def make_name(title):
+    # Policy for automatically generating unique names from titles. For
+    # now, just lower and replace spaces with dashes
+
+    name = title.replace(' ', '-').lower()
+    return name
 
 @mgmt_view(
     context=ISite,
+    name='add_program',
+    permission='sdi.add-content',
+    renderer='substanced.sdi:templates/form.pt',
+    tab_condition=False,
+    )
+class AddProgramView(FormView):
+    title = 'Add Program'
+    schema = ProgramSchema()
+    buttons = ('add',)
+
+    def add_success(self, appstruct):
+        name = make_name(appstruct['title'])
+        request = self.request
+        program = request.registry.content.create(IProgram,
+                                                  **appstruct)
+        self.context[name] = program
+        loc = request.mgmt_path(self.context, name, '@@properties')
+        return HTTPFound(location=loc)
+
+
+@mgmt_view(
+    context=IProgram,
     name='add_document',
     tab_title='Add Document',
     permission='sdi.add-content',
@@ -36,7 +62,7 @@ class AddDocumentView(FormView):
 
     def add_success(self, appstruct):
         registry = self.request.registry
-        name = appstruct['title']
+        name = make_name(appstruct['title'])
         document = registry.content.create(IDocument, **appstruct)
         self.context[name] = document
         propsheet = DocumentBasicPropertySheet(document, self.request)
@@ -45,7 +71,7 @@ class AddDocumentView(FormView):
 
 
 @mgmt_view(
-    context=ISite,
+    context=IProgram,
     name='add_team',
     tab_title='Add Team',
     permission='sdi.add-content',
@@ -59,7 +85,7 @@ class AddTeamView(FormView):
 
     def add_success(self, appstruct):
         registry = self.request.registry
-        name = appstruct['title'].lower()
+        name = make_name(appstruct['title'])
         team = registry.content.create(ITeam, **appstruct)
         self.context[name] = team
         propsheet = TeamBasicPropertySheet(team, self.request)
@@ -83,13 +109,21 @@ class ImportDataView(FormView):
         root = self.request.root
         registry = self.request.registry
 
+        # First add STORM as a program
+        name = u'storm'
+        appstruct = dict(title='STORM')
+        storm = registry.content.create(IProgram, **appstruct)
+        root[name] = storm
+        propsheet = TeamBasicPropertySheet(storm, self.request)
+        propsheet.set(appstruct)
+
         # Add some Teams
         teams = (u'Blue', u'Orange', u'White', u'Black', u'Silver')
         for title in teams:
-            name = title.lower()
+            name = make_name(title)
             appstruct = dict(title=title)
             team = registry.content.create(ITeam, **appstruct)
-            root[name] = team
+            storm[name] = team
             propsheet = TeamBasicPropertySheet(team, self.request)
             propsheet.set(appstruct)
 
