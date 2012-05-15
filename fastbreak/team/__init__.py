@@ -19,7 +19,7 @@ from fastbreak.utils import (
     )
 
 @colander.deferred
-def team_widget(node, kw):
+def adult_widget(node, kw):
     request = kw['request']
     search_catalog = request.search_catalog
     count, oids, resolver = search_catalog(interfaces=(IAdult,))
@@ -39,7 +39,17 @@ class TeamSchema(Schema):
     )
     head_coach = colander.SchemaNode(
         colander.Int(),
-        widget=team_widget,
+        widget=adult_widget,
+        missing=colander.null
+    )
+    assistant_coach = colander.SchemaNode(
+        colander.Int(),
+        widget=adult_widget,
+        missing=colander.null
+    )
+    team_manager = colander.SchemaNode(
+        colander.Int(),
+        widget=adult_widget,
         missing=colander.null
     )
 
@@ -54,16 +64,30 @@ class TeamBasicPropertySheet(PropertySheet):
     def get(self):
         context = self.context
 
-        # Need the objectid of the first referenced team
         head_coach = context.get_relationids(HEADCOACHTTOTEAM)
         if not head_coach:
             head_coach = colander.null
         else:
             head_coach = head_coach[0]
+
+        assistant_coach = context.get_relationids(ASSISTANTCOACHTTOTEAM)
+        if not assistant_coach:
+            assistant_coach = colander.null
+        else:
+            assistant_coach = assistant_coach[0]
+
+        team_manager = context.get_relationids(MANAGERTOTEAM)
+        if not team_manager:
+            team_manager = colander.null
+        else:
+            team_manager = team_manager[0]
+
         return dict(
             name=context.__name__,
             title=context.title,
-            head_coach=head_coach
+            head_coach=head_coach,
+            assistant_coach=assistant_coach,
+            team_manager=team_manager
         )
 
     def set(self, struct):
@@ -73,6 +97,8 @@ class TeamBasicPropertySheet(PropertySheet):
         # Disconnect old relations, make new relations
         context.disconnect()
         context.connect_head_coach(struct['head_coach'])
+        context.connect_assistant_coach(struct['assistant_coach'])
+        context.connect_team_manager(struct['team_manager'])
 
 
 @content(
@@ -87,17 +113,22 @@ class TeamBasicPropertySheet(PropertySheet):
     )
 
 class Team(BaseContent):
-    disconnect_targets = (HEADCOACHTTOTEAM,)
+    disconnect_targets = (HEADCOACHTTOTEAM, ASSISTANTCOACHTTOTEAM,
+                          MANAGERTOTEAM)
 
-    def __init__(self, title, head_coach=None):
+    def __init__(self, title, head_coach=None,
+                 assistant_coach=None, team_manager=None):
         self.title = title
         # Don't store head_coach etc.
 
-    def connect_head_coach(self, *head_coach):
-        objectmap = find_service(self, 'objectmap')
-        for head_coachid in head_coach:
-            if head_coachid is not colander.null:
-                objectmap.connect(self, head_coachid, HEADCOACHTTOTEAM)
+    def connect_head_coach(self, head_coach):
+        self.connect_role(HEADCOACHTTOTEAM, head_coach)
+
+    def connect_assistant_coach(self, assistant_coach):
+        self.connect_role(ASSISTANTCOACHTTOTEAM, assistant_coach)
+
+    def connect_team_manager(self, assistant_coach):
+        self.connect_role(MANAGERTOTEAM, assistant_coach)
 
     def players(self):
         return list(self.get_sources(PLAYERTOTEAM))
@@ -105,3 +136,8 @@ class Team(BaseContent):
     def head_coach(self):
         return list(self.get_targets(HEADCOACHTTOTEAM))
 
+    def assistant_coach(self):
+        return list(self.get_targets(ASSISTANTCOACHTTOTEAM))
+
+    def team_manager(self):
+        return list(self.get_targets(MANAGERTOTEAM))

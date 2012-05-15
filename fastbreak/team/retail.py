@@ -26,6 +26,28 @@ class SplashView(Layout):
             return False
 
     @reify
+    def assistant_coach(self):
+        ac = self.context.assistant_coach()
+        if ac is not []:
+            return dict(
+                url=resource_url(ac[0], self.request),
+                title=ac[0].title
+            )
+        else:
+            return False
+
+    @reify
+    def team_manager(self):
+        tm = self.context.team_manager()
+        if tm is not []:
+            return dict(
+                url=resource_url(tm[0], self.request),
+                title=tm[0].title
+            )
+        else:
+            return False
+
+    @reify
     def subnav_items(self):
         context = self.context
         request = self.request

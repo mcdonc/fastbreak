@@ -64,11 +64,37 @@ class ImportDataView(FormView):
             propsheet.set(appstruct)
             hc_oid = objectmap.objectid_for(hc_adult)
 
+            # Assistant coach
+            ac_title = team_data['assistant_coach']
+            ac_name = make_name(ac_title)
+            appstruct = dict(title=ac_title)
+            ac_adult = registry.content.create(IAdult,
+                                               **appstruct)
+            root[ac_name] = ac_adult
+            propsheet = AdultBasicPropertySheet(ac_adult,
+                                                self.request)
+            propsheet.set(appstruct)
+            ac_oid = objectmap.objectid_for(ac_adult)
+
+            # Team Manager
+            tm_title = team_data['team_manager']
+            tm_name = make_name(tm_title)
+            appstruct = dict(title=tm_title)
+            tm_adult = registry.content.create(IAdult,
+                                               **appstruct)
+            root[tm_name] = tm_adult
+            propsheet = AdultBasicPropertySheet(tm_adult,
+                                                self.request)
+            propsheet.set(appstruct)
+            tm_oid = objectmap.objectid_for(tm_adult)
+
             # Make a team
             name = make_name(team_title)
             appstruct = dict(
                 title=team_title,
-                head_coach=hc_oid)
+                head_coach=hc_oid,
+                assistant_coach=ac_oid,
+                team_manager=tm_oid)
             team = registry.content.create(ITeam, **appstruct)
             storm[name] = team
             propsheet = TeamBasicPropertySheet(team, self.request)

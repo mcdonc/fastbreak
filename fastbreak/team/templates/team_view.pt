@@ -8,5 +8,11 @@
         </ul>
         Head Coach:
         <p tal:condition="view.head_coach">${view.head_coach.title}</p>
+        Assistant Coach:
+        <p tal:condition="view.head_coach">
+            ${view.assistant_coach.title}</p>
+        Team Manager:
+        <p tal:condition="view.head_coach">
+            ${view.team_manager.title}</p>
     </div>
 </div>
