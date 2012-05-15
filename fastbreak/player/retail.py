@@ -1,4 +1,3 @@
-from pyramid.url import resource_url
 from pyramid.view import view_config
 
 from substanced.site import ISite
@@ -11,31 +10,29 @@ class SplashView(Layout):
         self.context = context
         self.request = request
 
-
     @view_config(renderer='templates/players_list.pt',
                  name='players',
                  context=ISite)
     def players_list(self):
-        players = []
 
-        search_catalog = self.request.search_catalog
-        count, docids, resolver = search_catalog(interfaces=(IPlayer,))
-        all_players = [resolver(docid) for docid in docids]
-        for player in all_players:
-            players.append(
-                    {'url': resource_url(player,
-                                         self.request),
-                     'title': player.title,
-                     })
-
-        return dict(heading='Players', players=players)
+        return dict(
+            heading='Players', players=self.find_interface(IPlayer))
 
 
     @view_config(renderer='templates/player_view.pt',
                  context=IPlayer)
     def player_view(self):
+        title = self.context.first_name + ' ' + self.context.last_name
+        teams = []
+        for team in self.context.teams():
+            teams.append(
+                    {'url': resource_url(team, self.request),
+                     'title': team.title,
+                     })
+
         return dict(
-            heading=self.context.title,
-            teams=self.context.teams()
-        )
+            heading=title,
+            teams=teams,
+            player=self.context,
+            )
 

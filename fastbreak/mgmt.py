@@ -8,10 +8,7 @@ from substanced.service import find_service
 from substanced.site import ISite
 
 from fastbreak.migration import Migration
-from fastbreak.utils import (
-    make_name,
-    sample_data
-    )
+from fastbreak.utils import make_name
 
 from fastbreak.interfaces import (
     ITeam,
@@ -111,6 +108,30 @@ class ImportDataView(FormView):
         for id, p in m.players.items():
             first_name = p['first_name']
             last_name = p['last_name']
+            email = p['email']
+
+            # TODO split this up and put on additional emails
+            additional_emails = colander.null
+
+            mobile_phone = p['mobile_phone']
+            uslax = p['uslax']
+            if p['is_goalie'] == 'TRUE':
+                is_goalie = True
+            else:
+                is_goalie = False
+            if p['grade'] == '':
+                grade = colander.null
+            else:
+                grade = int(p['grade'])
+            grade = p['grade']
+            school = p['school']
+            if p['jersey_number'] == '':
+                jersey_number = colander.null
+            else:
+                jersey_number = int(p['jersey_number'])
+            note = colander.null
+            la_id = id
+
 
             # Some references
             team_name = p['team_ref']
@@ -118,19 +139,32 @@ class ImportDataView(FormView):
             guardian_ref = int(p['guardian_ref'])
             guardian = all_guardians[guardian_ref]
             guardian_oid = objectmap.objectid_for(guardian)
-            print "guardian_oid", guardian_oid
 
             appstruct = dict(
                 first_name=first_name,
                 last_name=last_name,
                 nickname='',
+                email=email,
+                additional_emails=additional_emails,
+                mobile_phone=mobile_phone,
+                uslax=uslax,
+                is_goalie=is_goalie,
+                grade=grade,
+                school=school,
+                jersey_number=jersey_number,
+
+                # References
                 team=team_oid,
                 primary_guardian=guardian_oid,
-                other_guardian=colander.null
+                other_guardian=colander.null,
+
+                # Remainder
+                note=note,
+                la_id=la_id
             )
             player = registry.content.create(IPlayer,
                                              **appstruct)
-            player_name = make_name(last_name + ' ' + first_name)
+            player_name = make_name(first_name + ' ' + last_name)
             root[player_name] = player
             propsheet = PlayerBasicPropertySheet(player,
                                                  self.request)
@@ -139,135 +173,3 @@ class ImportDataView(FormView):
         return HTTPFound(self.request.mgmt_path(self.context,
                                                 '@@contents'))
 
-
-    def import_success_old(self, appstruct):
-        root = self.request.root
-        registry = self.request.registry
-        import_dir = registry.settings['import_dir']
-        objectmap = find_service(self.context, 'objectmap')
-
-        m = Migration(import_dir)
-        for team in ('Blue', 'Orange', 'White', 'Black', 'Silver'):
-            name = make_name(team_title)
-            appstruct = dict(
-                title=team_title,
-                head_coach=hc_oid,
-                assistant_coach=ac_oid,
-                team_manager=tm_oid)
-            team = registry.content.create(ITeam, **appstruct)
-            storm[name] = team
-            propsheet = TeamBasicPropertySheet(team, self.request)
-            propsheet.set(appstruct)
-            team_oid = objectmap.objectid_for(team)
-
-
-        # First add STORM as a program
-        appstruct = dict(title='STORM')
-        storm = registry.content.create(IProgram, **appstruct)
-        root['storm'] = storm
-        propsheet = ProgramBasicPropertySheet(storm, self.request)
-        propsheet.set(appstruct)
-
-
-
-
-
-        # Add some Teams and families
-        for team_title, team_data in sample_data.items():
-            # Head coach
-            hc_title = team_data['head_coach']
-            hc_name = make_name(hc_title)
-            appstruct = dict(title=hc_title)
-            hc_adult = registry.content.create(IAdult,
-                                               **appstruct)
-            root[hc_name] = hc_adult
-            propsheet = AdultBasicPropertySheet(hc_adult,
-                                                self.request)
-            propsheet.set(appstruct)
-            hc_oid = objectmap.objectid_for(hc_adult)
-
-            # Assistant coach
-            ac_title = team_data['assistant_coach']
-            ac_name = make_name(ac_title)
-            appstruct = dict(title=ac_title)
-            ac_adult = registry.content.create(IAdult,
-                                               **appstruct)
-            root[ac_name] = ac_adult
-            propsheet = AdultBasicPropertySheet(ac_adult,
-                                                self.request)
-            propsheet.set(appstruct)
-            ac_oid = objectmap.objectid_for(ac_adult)
-
-            # Team Manager
-            tm_title = team_data['team_manager']
-            tm_name = make_name(tm_title)
-            appstruct = dict(title=tm_title)
-            tm_adult = registry.content.create(IAdult,
-                                               **appstruct)
-            root[tm_name] = tm_adult
-            propsheet = AdultBasicPropertySheet(tm_adult,
-                                                self.request)
-            propsheet.set(appstruct)
-            tm_oid = objectmap.objectid_for(tm_adult)
-
-            # Make a team
-            name = make_name(team_title)
-            appstruct = dict(
-                title=team_title,
-                head_coach=hc_oid,
-                assistant_coach=ac_oid,
-                team_manager=tm_oid)
-            team = registry.content.create(ITeam, **appstruct)
-            storm[name] = team
-            propsheet = TeamBasicPropertySheet(team, self.request)
-            propsheet.set(appstruct)
-            team_oid = objectmap.objectid_for(team)
-
-            # Make values for each family
-            for family in team_data['families']:
-                # Primary guardian
-                primary_title = family[0]
-                primary_name = make_name(primary_title)
-                appstruct = dict(title=primary_title)
-                primary_adult = registry.content.create(IAdult,
-                                                        **appstruct)
-                root[primary_name] = primary_adult
-                propsheet = AdultBasicPropertySheet(primary_adult,
-                                                    self.request)
-                propsheet.set(appstruct)
-                primary_oid = objectmap.objectid_for(primary_adult)
-
-                # Other guardian
-                other_title = family[1]
-                other_name = make_name(other_title)
-                appstruct = dict(title=other_title)
-                other_adult = registry.content.create(IAdult,
-                                                      **appstruct)
-                root[other_name] = other_adult
-                propsheet = AdultBasicPropertySheet(other_adult,
-                                                    self.request)
-                propsheet.set(appstruct)
-                other_oid = objectmap.objectid_for(other_adult)
-
-                # Player
-                player_title = family[2]
-                player_fn, player_ln = player_title.split(' ')
-                player_nickname = 'Peanut'
-                player_name = make_name(player_title)
-                appstruct = dict(
-                    first_name=player_fn,
-                    last_name=player_ln,
-                    nickname=player_nickname,
-                    team=team_oid,
-                    primary_guardian=primary_oid,
-                    other_guardian=other_oid
-                )
-                player = registry.content.create(IPlayer,
-                                                 **appstruct)
-                root[player_name] = player
-                propsheet = PlayerBasicPropertySheet(player,
-                                                     self.request)
-                propsheet.set(appstruct)
-
-        return HTTPFound(self.request.mgmt_path(self.context,
-                                                '@@contents'))

@@ -29,7 +29,7 @@ class AddPlayerView(FormView):
 
     def add_success(self, appstruct):
         registry = self.request.registry
-        title = appstruct['last_name'] + ' ' + appstruct['first_name']
+        title = appstruct['first_name'] + ' ' + appstruct['last_name']
         name = make_name(title)
         player = registry.content.create(IPlayer, **appstruct)
         self.context[name] = player

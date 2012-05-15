@@ -29,7 +29,8 @@ class AddAdultView(FormView):
 
     def add_success(self, appstruct):
         registry = self.request.registry
-        name = make_name(appstruct['title'])
+        title = appstruct['first_name'] + ' ' + appstruct['last_name']
+        name = make_name(title)
         adult = registry.content.create(IAdult, **appstruct)
         self.context[name] = adult
         propsheet = AdultBasicPropertySheet(adult, self.request)

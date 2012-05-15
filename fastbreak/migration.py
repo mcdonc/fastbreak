@@ -34,12 +34,3 @@ class Migration:
 
             # Keep track of guardian ids
             self.guardian_ids[p['guardian_ref']] = None
-
-
-if __name__ == '__main__':
-    import_dir = '/Users/paul/projects/scratchpad/stormlax/var'
-    m = Migration(import_dir)
-    for team in ('Blue', 'Orange', 'White', 'Black', 'Silver'):
-        m.add_team(team)
-    m.load_adults()
-    m.load_players()

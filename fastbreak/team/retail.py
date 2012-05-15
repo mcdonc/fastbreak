@@ -68,25 +68,6 @@ class SplashView(Layout):
             url=resource_url(player, self.request)
         )
 
-    @view_config(renderer='templates/teams_list.pt',
-                 name='teams',
-                 context=ISite)
-    def teams_list(self):
-
-        search_catalog = self.request.search_catalog
-        count, docids, resolver = search_catalog(interfaces=(ITeam,))
-        all_teams = [resolver(docid) for docid in docids]
-
-        teams = []
-        for team in all_teams:
-            teams.append(
-                    {'url': resource_url(team,
-                                         self.request),
-                     'title': team.title,
-                     })
-
-        return dict(heading='My Teams', teams=teams)
-
     @view_config(renderer='templates/team_view.pt',
                  context=ITeam)
     def team_view(self):
