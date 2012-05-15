@@ -4,9 +4,7 @@ from pyramid.view import view_config
 
 from substanced.site import ISite
 
-from fastbreak.interfaces import (
-    ITeam
-    )
+from fastbreak.interfaces import ITeam
 from fastbreak.layout import Layout
 
 class SplashView(Layout):
@@ -63,6 +61,13 @@ class SplashView(Layout):
             ]
         return items
 
+    def player_data(self, player):
+        return dict(
+            last_name=player.last_name,
+            first_name=player.first_name,
+            url=resource_url(player, self.request)
+        )
+
     @view_config(renderer='templates/teams_list.pt',
                  name='teams',
                  context=ISite)
@@ -87,11 +92,7 @@ class SplashView(Layout):
     def team_view(self):
         players = []
         for player in self.context.players():
-            players.append(
-                    {'url': resource_url(player,
-                                         self.request),
-                     'title': player.title,
-                     })
+            players.append(self.player_data(player))
 
         return dict(
             heading=self.context.title,

@@ -3,7 +3,7 @@
         Players:
         <ul tal:repeat="player players">
             <li>
-                <a href="${player.url}">${player.title}</a>
+                <a href="${player.url}">${player.last_name}</a>
             </li>
         </ul>
         Head Coach:

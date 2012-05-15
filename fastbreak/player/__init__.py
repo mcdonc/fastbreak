@@ -48,9 +48,16 @@ def guardian_widget(node, kw):
 
 
 class PlayerSchema(Schema):
-    title = colander.SchemaNode(
+    first_name = colander.SchemaNode(
         colander.String(),
     )
+    last_name = colander.SchemaNode(
+        colander.String(),
+    )
+    nickname = colander.SchemaNode(
+        colander.String(),
+        missing=colander.null,
+        )
     team = colander.SchemaNode(
         colander.Int(),
         widget=team_widget,
@@ -101,7 +108,9 @@ class PlayerBasicPropertySheet(PropertySheet):
 
         return dict(
             name=context.__name__,
-            title=context.title,
+            first_name=context.first_name,
+            last_name=context.last_name,
+            nickname=context.nickname,
             team=team,
             primary_guardian=primary_guardian,
             other_guardian=other_guardian
@@ -109,7 +118,9 @@ class PlayerBasicPropertySheet(PropertySheet):
 
     def set(self, struct):
         context = self.context
-        context.title = struct['title']
+        context.first_name = struct['first_name']
+        context.last_name = struct['last_name']
+        context.nickname = struct['nickname']
 
         # Disconnect old relations, make new relations
         context.disconnect()
@@ -129,12 +140,19 @@ class PlayerBasicPropertySheet(PropertySheet):
     catalog=True,
     )
 class Player(Persistent):
-    def __init__(self, title, team, primary_guardian, other_guardian):
-        self.title = title
+    def __init__(self, first_name, last_name, nickname,
+                 team, primary_guardian, other_guardian):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.nickname = nickname
         # We don't care about storing team
 
     def texts(self): # for indexing
-        return self.title
+        nickname = self.nickname
+        if self.nickname is colander.null:
+            nickname = ''
+        t = ' '.join([self.first_name, self.last_name, nickname])
+        return t
 
     def get_relations(self, relation_name):
         objectmap = find_service(self, 'objectmap')
@@ -143,16 +161,22 @@ class Player(Persistent):
     def connect_team(self, *teams):
         objectmap = find_service(self, 'objectmap')
         for teamid in teams:
+            if teamid is colander.null:
+                continue
             objectmap.connect(self, teamid, PLAYERTOTEAM)
 
     def connect_primary_guardian(self, *primary_guardian):
         objectmap = find_service(self, 'objectmap')
         for adultid in primary_guardian:
+            if adultid is colander.null:
+                continue
             objectmap.connect(self, adultid, PLAYERTOPG)
 
     def connect_other_guardian(self, *other_guardian):
         objectmap = find_service(self, 'objectmap')
         for adultid in other_guardian:
+            if adultid is colander.null:
+                continue
             objectmap.connect(self, adultid, PLAYERTOOG)
 
     def disconnect(self):
