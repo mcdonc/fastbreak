@@ -4,7 +4,6 @@ from deform_bootstrap.widget import ChosenSingleWidget
 from substanced.content import content
 from substanced.property import PropertySheet
 from substanced.schema import Schema
-from substanced.service import find_service
 
 from fastbreak.interfaces import (
     IAdult,

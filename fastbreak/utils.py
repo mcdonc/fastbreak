@@ -10,6 +10,7 @@ PLAYERTOOG = 'player-to-otherguardian'
 HEADCOACHTTOTEAM = 'headcoach-to-team'
 ASSISTANTCOACHTTOTEAM = 'assistantcoach-to-team'
 MANAGERTOTEAM = 'manager-to-team'
+PLAYERTOSIGNUP = 'player-to-signup'
 
 def make_name(title):
     # Policy for automatically generating unique names from titles. For

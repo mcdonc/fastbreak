@@ -1,0 +1,26 @@
+<div metal:use-macro="view.macros['layout']">
+    <div metal:fill-slot="main">
+        <div tal:condition="teams">
+            <h4>Teams</h4>
+
+            <p>Teams related to this player.</p>
+            <ul>
+                <li tal:repeat="t teams">
+                    <a href="${view.make_url(t)}">${t.title}</a>
+                </li>
+            </ul>
+        </div>
+        <div tal:condition="all_guardians">
+            <h4>Guardians</h4>
+
+            <p>Parents/guardians related to this player.</p>
+            <ul>
+                <li tal:repeat="g all_guardians">
+                    <a href="${view.make_url(g)}">
+                        ${g.first_name} ${g.last_name}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

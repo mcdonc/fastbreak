@@ -1,6 +1,7 @@
 import colander
 from pyramid.httpexceptions import HTTPFound
 
+from substanced.folder import IFolder
 from substanced.form import FormView
 from substanced.schema import Schema
 from substanced.sdi import mgmt_view
@@ -46,6 +47,11 @@ class ImportDataView(FormView):
         root['storm'] = storm
         propsheet = ProgramBasicPropertySheet(storm, self.request)
         propsheet.set(appstruct)
+
+        # A People folder
+        appstruct = dict(title='People')
+        people = registry.content.create(IFolder)
+        root['people'] = people
 
         m = Migration(self.context, self.request)
 
@@ -121,7 +127,7 @@ class ImportDataView(FormView):
                 )
                 person = registry.content.create(IAdult,
                                                  **appstruct)
-                root[name] = person
+                people[name] = person
                 propsheet = AdultBasicPropertySheet(person, self.request)
                 propsheet.set(appstruct)
 
@@ -200,7 +206,7 @@ class ImportDataView(FormView):
             player = registry.content.create(IPlayer,
                                              **appstruct)
             player_name = make_name(first_name + ' ' + last_name)
-            root[player_name] = player
+            people[player_name] = player
             propsheet = PlayerBasicPropertySheet(player,
                                                  self.request)
             propsheet.set(appstruct)
