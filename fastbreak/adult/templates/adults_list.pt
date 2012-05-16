@@ -24,5 +24,6 @@
                 <td>${a.mobile_phone}</td>
             </tr>
             </tbody>
-        </table>    </div>
+        </table>
+    </div>
 </div>
