@@ -51,3 +51,9 @@ class BaseContent(Persistent):
         for oid in seq:
             if oid is not colander.null:
                 objectmap.connect(self, oid, role)
+
+    def nickname_or_first_name(self):
+        if self.nickname and self.nickname != '':
+            return self.nickname
+        else:
+            return first_name

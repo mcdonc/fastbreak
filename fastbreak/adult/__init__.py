@@ -9,7 +9,14 @@ from substanced.schema import Schema
 from fastbreak.interfaces import (
     IAdult
     )
-from fastbreak.utils import BaseContent
+from fastbreak.utils import (
+    BaseContent,
+    PLAYERTOPG,
+    PLAYERTOOG,
+    HEADCOACHTTOTEAM,
+    ASSISTANTCOACHTTOTEAM,
+    MANAGERTOTEAM
+    )
 
 class AdultSchema(Schema):
     first_name = colander.SchemaNode(
@@ -155,3 +162,20 @@ class Adult(BaseContent):
             nickname = ''
         t = ' '.join([self.first_name, self.last_name, nickname])
         return t
+
+    def players(self):
+        """All the children that this Adult has a relation to"""
+        players = list(self.get_sources(PLAYERTOPG)) +\
+                  list(self.get_sources(PLAYERTOOG))
+        return players
+
+    def teams_coached(self):
+        """All the teams that this Adult has a coaching relation to"""
+        teams = list(self.get_sources(HEADCOACHTTOTEAM)) +\
+                  list(self.get_sources(ASSISTANTCOACHTTOTEAM))
+        return teams
+
+    def teams_managed(self):
+        """All the teams that this Adult has a manage relation to"""
+        teams = list(self.get_sources(MANAGERTOTEAM))
+        return teams

@@ -14,6 +14,10 @@ class SplashView(Layout):
                  name='players',
                  context=ISite)
     def players_list(self):
+
+        for p in self.find_interface(IPlayer):
+            p.all_emails()
+
         return dict(
             heading='Players', players=self.find_interface(IPlayer))
 
@@ -22,16 +26,11 @@ class SplashView(Layout):
                  context=IPlayer)
     def player_view(self):
         title = self.context.first_name + ' ' + self.context.last_name
-        teams = []
-        for team in self.context.teams():
-            teams.append(
-                    {'url': resource_url(team, self.request),
-                     'title': team.title,
-                     })
 
         return dict(
             heading=title,
-            teams=teams,
             player=self.context,
+            all_guardians=self.context.all_guardians(),
+            teams=self.context.teams(),
             )
 

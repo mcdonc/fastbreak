@@ -206,30 +206,29 @@ class PlayerBasicPropertySheet(PropertySheet):
     catalog=True,
     )
 class Player(BaseContent):
-
     disconnect_targets = (PLAYERTOTEAM, PLAYERTOPG, PLAYERTOOG)
 
     def __init__(self, first_name, last_name, nickname, email,
-                     additional_emails, mobile_phone, uslax, is_goalie,
-                     grade, school, jersey_number,
-                     # References
-                     team, primary_guardian, other_guardian,
-                     note, la_id
-        ):
-            self.first_name = first_name
-            self.last_name = last_name
-            self.nickname = nickname
-            self.email = email
-            self.additional_emails = additional_emails
-            self.mobile_phone = mobile_phone
-            self.uslax = uslax
-            self.is_goalie = is_goalie
-            self.grade = grade
-            self.school = school
-            self.jersey_number = jersey_number
-            self.note = note
-            self.la_id = la_id
-            # We don't care about storing team
+                 additional_emails, mobile_phone, uslax, is_goalie,
+                 grade, school, jersey_number,
+                 # References
+                 team, primary_guardian, other_guardian,
+                 note, la_id
+    ):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.nickname = nickname
+        self.email = email
+        self.additional_emails = additional_emails
+        self.mobile_phone = mobile_phone
+        self.uslax = uslax
+        self.is_goalie = is_goalie
+        self.grade = grade
+        self.school = school
+        self.jersey_number = jersey_number
+        self.note = note
+        self.la_id = la_id
+        # We don't care about storing team
 
     @property
     def title(self):
@@ -253,3 +252,52 @@ class Player(BaseContent):
 
     def teams(self):
         return list(self.get_targets(PLAYERTOTEAM))
+
+    def primary_guardian(self):
+        return list(self.get_targets(PLAYERTOPG))
+
+    def all_guardians(self):
+        guardians = list(self.get_targets(PLAYERTOPG)) +\
+                    list(self.get_targets(PLAYERTOOG))
+        return guardians
+
+    def email_or_guardian_email(self):
+        """If player has an email address, use it, else guardian"""
+
+        # Split it up on semicolon if necessary
+        if self.email:
+            email = self.email
+        else:
+            email = self.primary_guardian().email
+
+        return email.strip().split(';')[0].strip()
+
+    def all_emails(self):
+        """For a player, return a unique list of split-up email
+        addresses for player and primary guardian,
+        including additional email address"""
+
+        addresses = {}
+
+        def parse_address(s, first_name, last_name):
+            sub = address.strip()
+            if sub:
+                addresses[sub] = dict(
+                    first_name=first_name,
+                    last_name=last_name
+                )
+
+        # Player email
+        for address in self.email.strip().split(';'):
+            parse_address(address, self.first_name, self.last_name)
+            # Player.addtional_emails
+        for address in self.email.strip().split(';'):
+            parse_address(address, self.first_name, self.last_name)
+            # Primary Guardian.addtional_emails
+        pg = self.primary_guardian()[0]
+        for address in pg.email.strip().split(';'):
+            parse_address(address, pg.first_name, pg.last_name)
+            # Primary Guardian.addtional_emails
+        for address in pg.email.strip().split(';'):
+            parse_address(address, pg.first_name, pg.last_name)
+

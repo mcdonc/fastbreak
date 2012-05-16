@@ -74,6 +74,7 @@
 
 <div class="container">
     <heading>
+        <h1>${heading|''}</h1>
         <div class="subnav" tal:condition="view.subnav_items|None">
             <ul class="nav nav-pills">
                 <li tal:repeat="si view.subnav_items">

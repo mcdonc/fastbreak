@@ -6,8 +6,9 @@
             <tr>
                 <th>#</th>
                 <th>Name</th>
-                <th>Jersey</th>
-                <th>Grade</th>
+                <th>Email</th>
+                <th>Mobile Phone</th>
+                <th>Jersey Number</th>
             </tr>
             </thead>
             <tbody>
@@ -18,8 +19,13 @@
                         ${p.last_name},
                         ${p.first_name}</a>
                 </td>
+                <td>
+                    <a href="mailto:${p.email_or_guardian_email()}">
+                        ${p.email_or_guardian_email()}
+                    </a>
+                </td>
+                <td>${p.mobile_phone}</td>
                 <td>${p.jersey_number if p.jersey_number else 'N/A'}</td>
-                <td>${p.school}</td>
             </tr>
             </tbody>
         </table>

@@ -23,7 +23,13 @@ class SplashView(Layout):
     @view_config(renderer='templates/adult_view.pt',
                  context=IAdult)
     def adult_view(self):
+        title = self.context.first_name + ' ' + self.context.last_name
+
         return dict(
-            heading=self.context.title,
-            players=[],
-        )
+            heading=title,
+            players=self.context.players(),
+            teams_coached=self.context.teams_managed(),
+            teams_managed=self.context.teams_coached(),
+            adult=self.context,
+            )
+
