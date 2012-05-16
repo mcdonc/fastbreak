@@ -58,10 +58,6 @@
                         Players</a>
                 </li>
                 <li>
-                    <a href="${request.application_url}/teams">
-                        Teams</a>
-                </li>
-                <li>
                     <a href="${request.application_url}/adults">
                         Adults</a>
                 </li>

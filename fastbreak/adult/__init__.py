@@ -37,10 +37,6 @@ class AdultSchema(Schema):
         colander.String(),
         missing=colander.null
     )
-    uslax = colander.SchemaNode(
-        colander.Int(),
-        missing=colander.null
-    )
     address1 = colander.SchemaNode(
         colander.String(),
         missing=colander.null
@@ -91,7 +87,6 @@ class AdultBasicPropertySheet(PropertySheet):
             additional_emails=context.additional_emails,
             home_phone=context.home_phone,
             mobile_phone=context.mobile_phone,
-            uslax=context.uslax,
             address1=context.address1,
             address2=context.address2,
             city=context.city,
@@ -108,9 +103,8 @@ class AdultBasicPropertySheet(PropertySheet):
         context.nickname = struct['nickname']
         context.email = struct['email']
         context.additional_emails = struct['additional_emails']
-        context.home_phone = struct['mobile_phone']
+        context.home_phone = struct['home_phone']
         context.mobile_phone = struct['mobile_phone']
-        context.uslax = struct['uslax']
         context.address1 = struct['address1']
         context.address2 = struct['address2']
         context.city = struct['city']
@@ -132,7 +126,7 @@ class AdultBasicPropertySheet(PropertySheet):
     )
 class Adult(BaseContent):
     def __init__(self, first_name, last_name, nickname, email,
-                 additional_emails, home_phone, mobile_phone, uslax,
+                 additional_emails, home_phone, mobile_phone,
                  address1, address2, city, state, zip,
                  note, la_id
     ):
@@ -143,7 +137,6 @@ class Adult(BaseContent):
         self.additional_emails = additional_emails
         self.home_phone = home_phone
         self.mobile_phone = mobile_phone
-        self.uslax = uslax
         self.address1 = address1
         self.address2 = address2
         self.city = city
@@ -156,3 +149,9 @@ class Adult(BaseContent):
     def title(self):
         return ' '.join((self.last_name, self.first_name))
 
+    def texts(self): # for indexing
+        nickname = self.nickname
+        if self.nickname is colander.null:
+            nickname = ''
+        t = ' '.join([self.first_name, self.last_name, nickname])
+        return t

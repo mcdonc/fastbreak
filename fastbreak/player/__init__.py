@@ -131,21 +131,21 @@ class PlayerBasicPropertySheet(PropertySheet):
         context = self.context
 
         # Need the objectid of the first referenced team
-        teams = context.get_relations(PLAYERTOTEAM)
+        teams = context.get_relationids(PLAYERTOTEAM)
         if not teams:
             team = colander.null
         else:
             team = teams[0]
 
         # Need the objectid of the primary guardian
-        primary_guardians = context.get_relations(PLAYERTOPG)
+        primary_guardians = context.get_relationids(PLAYERTOPG)
         if not primary_guardians:
             primary_guardian = colander.null
         else:
             primary_guardian = primary_guardians[0]
 
         # Need the objectid of the other guardian
-        other_guardians = context.get_relations(PLAYERTOOG)
+        other_guardians = context.get_relationids(PLAYERTOOG)
         if not other_guardians:
             other_guardian = colander.null
         else:
@@ -205,28 +205,31 @@ class PlayerBasicPropertySheet(PropertySheet):
         ),
     catalog=True,
     )
-class Player(Persistent):
+class Player(BaseContent):
+
+    disconnect_targets = (PLAYERTOTEAM, PLAYERTOPG, PLAYERTOOG)
+
     def __init__(self, first_name, last_name, nickname, email,
-                 additional_emails, mobile_phone, uslax, is_goalie,
-                 grade, school, jersey_number,
-                 # References
-                 team, primary_guardian, other_guardian,
-                 note, la_id
-    ):
-        self.first_name = first_name
-        self.last_name = last_name
-        self.nickname = nickname
-        self.email = email
-        self.additional_emails = additional_emails
-        self.mobile_phone = mobile_phone
-        self.uslax = uslax
-        self.is_goalie = is_goalie
-        self.grade = grade
-        self.school = school
-        self.jersey_number = jersey_number
-        self.note = note
-        self.la_id = la_id
-        # We don't care about storing team
+                     additional_emails, mobile_phone, uslax, is_goalie,
+                     grade, school, jersey_number,
+                     # References
+                     team, primary_guardian, other_guardian,
+                     note, la_id
+        ):
+            self.first_name = first_name
+            self.last_name = last_name
+            self.nickname = nickname
+            self.email = email
+            self.additional_emails = additional_emails
+            self.mobile_phone = mobile_phone
+            self.uslax = uslax
+            self.is_goalie = is_goalie
+            self.grade = grade
+            self.school = school
+            self.jersey_number = jersey_number
+            self.note = note
+            self.la_id = la_id
+            # We don't care about storing team
 
     @property
     def title(self):
@@ -239,39 +242,14 @@ class Player(Persistent):
         t = ' '.join([self.first_name, self.last_name, nickname])
         return t
 
-    def get_relations(self, relation_name):
-        objectmap = find_service(self, 'objectmap')
-        return list(objectmap.targetids(self, relation_name))
+    def connect_team(self, team):
+        self.connect_role(PLAYERTOTEAM, team)
 
-    def connect_team(self, *teams):
-        objectmap = find_service(self, 'objectmap')
-        for teamid in teams:
-            if teamid is colander.null:
-                continue
-            objectmap.connect(self, teamid, PLAYERTOTEAM)
+    def connect_primary_guardian(self, primary_guardian):
+        self.connect_role(PLAYERTOPG, primary_guardian)
 
-    def connect_primary_guardian(self, *primary_guardian):
-        objectmap = find_service(self, 'objectmap')
-        for adultid in primary_guardian:
-            if adultid is colander.null:
-                continue
-            objectmap.connect(self, adultid, PLAYERTOPG)
-
-    def connect_other_guardian(self, *other_guardian):
-        objectmap = find_service(self, 'objectmap')
-        for adultid in other_guardian:
-            if adultid is colander.null:
-                continue
-            objectmap.connect(self, adultid, PLAYERTOOG)
-
-    def disconnect(self):
-        objectmap = find_service(self, 'objectmap')
-
-        targets = (PLAYERTOTEAM, PLAYERTOPG, PLAYERTOOG)
-        for target in targets:
-            for oid in self.get_relations(target):
-                objectmap.disconnect(self, oid, target)
+    def connect_other_guardian(self, other_guardian):
+        self.connect_role(PLAYERTOOG, other_guardian)
 
     def teams(self):
-        objectmap = find_service(self, 'objectmap')
-        return objectmap.targets(self, PLAYERTOTEAM)
+        return list(self.get_targets(PLAYERTOTEAM))

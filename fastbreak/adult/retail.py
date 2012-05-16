@@ -16,19 +16,8 @@ class SplashView(Layout):
                  name='adults',
                  context=ISite)
     def adults_list(self):
-        adults = []
-
-        search_catalog = self.request.search_catalog
-        count, docids, resolver = search_catalog(interfaces=(IAdult,))
-        all_adults = [resolver(docid) for docid in docids]
-        for adult in all_adults:
-            adults.append(
-                    {'url': resource_url(adult,
-                                         self.request),
-                     'title': adult.title,
-                     })
-
-        return dict(heading='Adults', adults=adults)
+        return dict(
+            heading='Adults', adults=self.find_interface(IAdult))
 
 
     @view_config(renderer='templates/adult_view.pt',

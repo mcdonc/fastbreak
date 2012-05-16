@@ -14,7 +14,6 @@ class SplashView(Layout):
                  name='players',
                  context=ISite)
     def players_list(self):
-
         return dict(
             heading='Players', players=self.find_interface(IPlayer))
 

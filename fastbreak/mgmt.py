@@ -73,6 +73,25 @@ class ImportDataView(FormView):
         gids = m.guardian_ids.keys()
         all_guardians = {}
         for id, p in m.adults.items():
+
+            # Data
+            first_name = p['first_name']
+            last_name = p['last_name']
+            email = p['email']
+
+            # TODO split this up and put on additional emails
+            additional_emails = colander.null
+            home_phone = p['home_phone']
+            mobile_phone = p['mobile_phone']
+            address1 = p['address_1']
+            address2 = p['address_2']
+            city = p['city']
+            state = p['state']
+            zip = p['zip']
+            note = colander.null
+            la_id = id
+
+            # References
             head_coach = p['primary_coach_ref']
             assistant_coach = p['coach_ref']
             team_manager = p['manager_ref']
@@ -81,9 +100,25 @@ class ImportDataView(FormView):
                team_manager != '' or id in m.guardian_ids:
                 first_name = p['first_name']
                 last_name = p['last_name']
-                title = last_name + ' ' + first_name
+                title = first_name + ' ' + last_name
                 name = make_name(title)
-                appstruct = dict(title=title)
+                appstruct = dict(
+                    first_name=first_name,
+                    last_name=last_name,
+                    nickname='',
+                    email=email,
+                    additional_emails=additional_emails,
+                    home_phone=home_phone,
+                    mobile_phone=mobile_phone,
+                    address1=address1,
+                    address2=address2,
+                    city=city,
+                    state=state,
+                    zip=zip,
+                    note=note,
+                    la_id=la_id
+
+                )
                 person = registry.content.create(IAdult,
                                                  **appstruct)
                 root[name] = person
