@@ -13,39 +13,6 @@ class SplashView(Layout):
         self.request = request
 
     @reify
-    def head_coach(self):
-        hc = self.context.head_coach()
-        if hc is not []:
-            return dict(
-                url=resource_url(hc[0], self.request),
-                title=hc[0].title
-            )
-        else:
-            return False
-
-    @reify
-    def assistant_coach(self):
-        ac = self.context.assistant_coach()
-        if ac is not []:
-            return dict(
-                url=resource_url(ac[0], self.request),
-                title=ac[0].title
-            )
-        else:
-            return False
-
-    @reify
-    def team_manager(self):
-        tm = self.context.team_manager()
-        if tm is not []:
-            return dict(
-                url=resource_url(tm[0], self.request),
-                title=tm[0].title
-            )
-        else:
-            return False
-
-    @reify
     def subnav_items(self):
         context = self.context
         request = self.request
@@ -61,22 +28,26 @@ class SplashView(Layout):
             ]
         return items
 
-    def player_data(self, player):
-        return dict(
-            last_name=player.last_name,
-            first_name=player.first_name,
-            url=resource_url(player, self.request)
-        )
-
     @view_config(renderer='templates/team_view.pt',
                  context=ITeam)
     def team_view(self):
-        players = []
-        for player in self.context.players():
-            players.append(self.player_data(player))
+
+        head_coach = self.context.head_coach()
+        if head_coach:
+            head_coach = head_coach[0]
+        assistant_coach = self.context.assistant_coach()
+        if assistant_coach:
+            assistant_coach = assistant_coach[0]
+        team_manager = self.context.team_manager()
+        if team_manager:
+            team_manager = team_manager[0]
 
         return dict(
             heading=self.context.title,
-            players=players,
+            team=self.context,
+            players=self.context.players(),
+            head_coach=head_coach,
+            assistant_coach=assistant_coach,
+            team_manager=team_manager,
             )
 

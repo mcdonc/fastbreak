@@ -1,18 +1,42 @@
 <div metal:use-macro="view.macros['layout']">
     <div metal:fill-slot="main">
-        Players:
-        <ul tal:repeat="player players">
+        <div tal:condition="head_coach">
+            <h4>Head Coach</h4>
+
+            <p>
+                <a href="${view.make_url(head_coach)}">
+                    ${head_coach.first_name}
+                    ${head_coach.last_name}
+                </a>
+            </p>
+        </div>
+        <div tal:condition="assistant_coach">
+            <h4>Assistant Coach</h4>
+
+            <p>
+                <a href="${view.make_url(assistant_coach)}">
+                    ${assistant_coach.first_name}
+                    ${assistant_coach.last_name}
+                </a>
+            </p>
+        </div>
+        <div tal:condition="team_manager">
+            <h4>Team Manager</h4>
+
+            <p>
+                <a href="${view.make_url(team_manager)}">
+                    ${team_manager.first_name}
+                    ${team_manager.last_name}
+                </a>
+            </p>
+        </div>
+        <h4>Players</h4>
+        <ul tal:repeat="p players">
             <li>
-                <a href="${player.url}">${player.last_name}</a>
+                <a href="${view.make_url(p)}">
+                    ${p.first_name} ${p.last_name}</a>
             </li>
         </ul>
-        Head Coach:
-        <p tal:condition="view.head_coach">${view.head_coach.title}</p>
-        Assistant Coach:
-        <p tal:condition="view.head_coach">
-            ${view.assistant_coach.title}</p>
-        Team Manager:
-        <p tal:condition="view.head_coach">
-            ${view.team_manager.title}</p>
+
     </div>
 </div>
