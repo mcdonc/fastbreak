@@ -36,3 +36,27 @@ class AddPlayerView(FormView):
         propsheet = PlayerBasicPropertySheet(player, self.request)
         propsheet.set(appstruct)
         return HTTPFound(self.request.mgmt_path(player, '@@properties'))
+
+@mgmt_view(
+    context=IPlayer,
+    name='update_dues',
+    tab_title='Update Dues',
+    permission='sdi.add-content',
+    renderer='substanced.sdi:templates/form.pt',
+    tab_condition=False,
+    )
+class UpdateDuesView(FormView):
+    title = 'Edit Dues'
+    schema = PlayerSchema()
+    buttons = ('update',)
+
+    def add_success(self, appstruct):
+        registry = self.request.registry
+        print 9999
+        title = appstruct['first_name'] + ' ' + appstruct['last_name']
+        name = make_name(title)
+        player = registry.content.create(IPlayer, **appstruct)
+        self.context[name] = player
+        propsheet = PlayerBasicPropertySheet(player, self.request)
+        propsheet.set(appstruct)
+        return HTTPFound(self.request.mgmt_path(player, '@@properties'))

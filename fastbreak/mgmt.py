@@ -8,19 +8,25 @@ from substanced.sdi import mgmt_view
 from substanced.service import find_service
 from substanced.site import ISite
 
-from fastbreak.migration import Migration
+from fastbreak.migration import (
+    Migration,
+    regs
+    )
 from fastbreak.utils import make_name
 
 from fastbreak.interfaces import (
     ITeam,
     IProgram,
     IAdult,
-    IPlayer
+    IPlayer,
+    IRegistration,
+    ISignup
     )
 from fastbreak.adult import AdultBasicPropertySheet
 from fastbreak.player import PlayerBasicPropertySheet
 from fastbreak.program import ProgramBasicPropertySheet
 from fastbreak.team import TeamBasicPropertySheet
+from fastbreak.signup import SignupBasicPropertySheet
 
 
 @mgmt_view(
@@ -38,7 +44,6 @@ class ImportDataView(FormView):
     def import_success(self, appstruct):
         root = self.request.root
         registry = self.request.registry
-        import_dir = registry.settings['import_dir']
         objectmap = find_service(self.context, 'objectmap')
 
         # First add STORM as a program
@@ -54,6 +59,17 @@ class ImportDataView(FormView):
         root['people'] = people
 
         m = Migration(self.context, self.request)
+
+        # Make some Registrations
+        for short_name, reg in regs.items():
+            appstruct = dict(
+                title=reg.title,
+                cost=reg.cost
+            )
+            registration = registry.content.create(IRegistration,
+                                                   **appstruct)
+            storm[reg.name] = registration
+            reg.content = registration
 
         # Load the data, but not content, for some teams
         all_teams = {}
@@ -79,7 +95,6 @@ class ImportDataView(FormView):
         gids = m.guardian_ids.keys()
         all_guardians = {}
         for id, p in m.adults.items():
-
             # Data
             first_name = p['first_name']
             last_name = p['last_name']
@@ -146,6 +161,7 @@ class ImportDataView(FormView):
                     t.connect_team_manager(person)
 
         # Add players
+        la_players = {}
         for id, p in m.players.items():
             first_name = p['first_name']
             last_name = p['last_name']
@@ -156,20 +172,10 @@ class ImportDataView(FormView):
 
             mobile_phone = p['mobile_phone']
             uslax = p['uslax']
-            if p['is_goalie'] == 'TRUE':
-                is_goalie = True
-            else:
-                is_goalie = False
-            if p['grade'] == '':
-                grade = colander.null
-            else:
-                grade = int(p['grade'])
+            is_goalie = p['is_goalie']
             grade = p['grade']
             school = p['school']
-            if p['jersey_number'] == '':
-                jersey_number = colander.null
-            else:
-                jersey_number = int(p['jersey_number'])
+            jersey_number=p['jersey_number']
             note = colander.null
             la_id = id
 
@@ -209,6 +215,25 @@ class ImportDataView(FormView):
             people[player_name] = player
             propsheet = PlayerBasicPropertySheet(player,
                                                  self.request)
+            propsheet.set(appstruct)
+            la_players[la_id] = player
+
+        # Now make Signup instances for each Player's stuff
+        m.load_registrations()
+        for s in m.signups:
+            player = la_players[s['player_ref']]
+            registration = storm[s['event_ref']]
+            title = player.first_name + ' ' + player.last_name
+
+            appstruct = dict(
+                    status=s['status'],
+                    title=title,
+                    note='',
+                    player=player,
+                    )
+            signup = registry.content.create(ISignup, **appstruct)
+            registration[make_name(title)] = signup
+            propsheet = SignupBasicPropertySheet(signup, self.request)
             propsheet.set(appstruct)
 
         return HTTPFound(self.request.mgmt_path(self.context,

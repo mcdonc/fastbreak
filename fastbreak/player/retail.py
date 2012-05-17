@@ -27,6 +27,8 @@ class SplashView(Layout):
     def player_view(self):
         title = self.context.first_name + ' ' + self.context.last_name
 
+        self.context.signups()
+
         return dict(
             heading=title,
             player=self.context,

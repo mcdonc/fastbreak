@@ -51,3 +51,11 @@ class SplashView(Layout):
             team_manager=team_manager,
             )
 
+    @view_config(renderer='templates/team_tournaments.pt',
+                 name='tournaments',
+                 context=ITeam)
+    def tournaments_view(self):
+        return dict(
+            heading='Tournaments',
+            players = self.context.players(),
+        )

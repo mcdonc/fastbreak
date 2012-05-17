@@ -12,7 +12,6 @@ from substanced.schema import Schema
 from fastbreak.interfaces import (
     IPlayer,
     ISignup,
-    IRegistration
     )
 from fastbreak.utils import (
     BaseContent,
@@ -21,7 +20,7 @@ from fastbreak.utils import (
 
 status_choices = (
     (0, 'Not Playing'),
-    (1, 'Uknown'),
+    (1, 'Unknown'),
     (2, 'Maybe'),
     (3, 'Playing'),
     )
@@ -117,3 +116,7 @@ class Signup(BaseContent):
 
     def player(self):
         return list(self.get_targets(PLAYERTOSIGNUP))
+
+    def registration(self):
+        # Walk up and get the Registration this Signup is contained in
+        return self.__parent__

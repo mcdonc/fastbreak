@@ -1,12 +1,14 @@
 import colander
-from deform.widget import TextAreaWidget
+from deform.widget import (
+    TextAreaWidget,
+    SelectWidget
+    )
 from deform_bootstrap.widget import ChosenSingleWidget
 from persistent import Persistent
 
 from substanced.content import content
 from substanced.property import PropertySheet
 from substanced.schema import Schema
-from substanced.service import find_service
 
 from fastbreak.interfaces import (
     IPlayer,
@@ -17,7 +19,9 @@ from fastbreak.utils import (
     PLAYERTOTEAM,
     PLAYERTOPG,
     PLAYERTOOG,
-    BaseContent
+    PLAYERTOSIGNUP,
+    BaseContent,
+    dues_choices
     )
 
 
@@ -195,6 +199,46 @@ class PlayerBasicPropertySheet(PropertySheet):
         context.connect_other_guardian(struct['other_guardian'])
 
 
+class DuesSchema(Schema):
+    registration = colander.SchemaNode(
+        colander.String(),
+        widget=SelectWidget(values=dues_choices),
+        missing=colander.null
+    )
+    balance = colander.SchemaNode(
+        colander.Int(),
+        missing=colander.null
+    )
+    dues_note = colander.SchemaNode(
+        colander.String(),
+        widget=TextAreaWidget(rows=10, cols=60),
+        missing=colander.null
+    )
+
+
+class PlayerDuesPropertySheet(PropertySheet):
+    schema = DuesSchema()
+
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request
+
+    def get(self):
+        context = self.context
+
+        return dict(
+            registration=context.registration,
+            balance=context.balance,
+            dues_note=context.dues_note
+        )
+
+    def set(self, struct):
+        context = self.context
+        context.registration = struct['registration']
+        context.balance = struct['balance']
+        context.dues_note = struct['dues_note']
+
+
 @content(
     IPlayer,
     name='Player',
@@ -202,6 +246,7 @@ class PlayerBasicPropertySheet(PropertySheet):
     add_view='add_player',
     propertysheets=(
         ('Basic', PlayerBasicPropertySheet),
+        ('Dues', PlayerDuesPropertySheet)
         ),
     catalog=True,
     )
@@ -229,6 +274,11 @@ class Player(BaseContent):
         self.note = note
         self.la_id = la_id
         # We don't care about storing team
+
+        # Some stuff from the other property sheet
+        self.registration = colander.null
+        self.balance = colander.null
+        self.dues_note = colander.null
 
     @property
     def title(self):
@@ -260,6 +310,14 @@ class Player(BaseContent):
         guardians = list(self.get_targets(PLAYERTOPG)) +\
                     list(self.get_targets(PLAYERTOOG))
         return guardians
+
+    def signups(self):
+        # Unpack this player's signups into a dict
+        all_signups = {}
+        for s in self.get_sources(PLAYERTOSIGNUP):
+            reg = s.registration()
+            all_signups[reg.__name__] = s
+        return all_signups
 
     def email_or_guardian_email(self):
         """If player has an email address, use it, else guardian"""

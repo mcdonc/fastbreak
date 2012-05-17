@@ -12,6 +12,17 @@ ASSISTANTCOACHTTOTEAM = 'assistantcoach-to-team'
 MANAGERTOTEAM = 'manager-to-team'
 PLAYERTOSIGNUP = 'player-to-signup'
 
+# TODO XXX Hard-coding the list of dues choices
+dues_choices = (
+    (765, 'Fall/Full Season 2012: $765'),
+    (300, 'Fall Season 2012 $300'),
+    (550, 'Full Season 2012: $550'),
+    (300, 'Short Season Blue/Orange/White 2012: $300'),
+    (320, 'Short Season Silver 2012: $320'),
+    (270, 'Short Season Black 2012: $270'),
+    )
+
+
 def make_name(title):
     # Policy for automatically generating unique names from titles. For
     # now, just lower and replace spaces with dashes
@@ -41,7 +52,6 @@ class BaseContent(Persistent):
 
     def disconnect(self):
         objectmap = find_service(self, 'objectmap')
-
 
         for target in self.disconnect_targets:
             for oid in self.get_relationids(target):
