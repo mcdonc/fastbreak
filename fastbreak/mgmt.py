@@ -41,7 +41,7 @@ from fastbreak.signup import SignupBasicPropertySheet
 class ImportDataView(FormView):
     title = 'Import Data'
     schema = Schema()
-    buttons = ('import', 'sync')
+    buttons = ('import', 'sync', 'init_players', 'sync_players')
 
     def find_la_id(self, la_id):
         """Find the resource matching a LeagueAthletics ID"""
@@ -53,9 +53,32 @@ class ImportDataView(FormView):
 
         return result
 
+    def init_players_success(self, appstruct):
+        g = GDocSync()
+
+        search_catalog = self.request.search_catalog
+        count, docids, resolver = search_catalog(
+            interfaces=(IPlayer,),
+            sort_index=('title'),
+            )
+        players = [resolver(docid) for docid in docids]
+
+        g.init_players(players)
+
+        return HTTPFound(self.request.mgmt_path(self.context,
+                                                '@@contents'))
+
+    def sync_players_success(self, appstruct):
+        g = GDocSync()
+        g.append_people('players')
+
+        return HTTPFound(self.request.mgmt_path(self.context,
+                                                '@@contents'))
 
     def sync_success(self, appstruct):
         g = GDocSync()
+
+
         results = g.get_rows('tourneys',
             ('Blue', 'Orange', 'White', 'Black', 'Silver'))
 
