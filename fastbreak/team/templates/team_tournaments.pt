@@ -8,7 +8,9 @@
                 <th>#</th>
                 <th>Name</th>
                 <th>Jersey</th>
-                <th>Southern Lax</th>
+                <th tal:repeat="tn tourney_names">
+                    ${tn}
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -19,10 +21,10 @@
                         ${p.last_name},
                         ${p.first_name}</a>
                 </td>
-                <td>${p.jersey_number}</td>
-                <tal:block tal:define="s p.signups()">
-                    <td>${s['so_lax'].status}</td>
-                </tal:block>
+                <td>${p.jersey_number if p.jersey_number else 'None'}</td>
+                <td tal:repeat="tn tourney_names">
+                    ${p.tourney_data[tn]}
+                </td>
             </tr>
             </tbody>
         </table>

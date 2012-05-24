@@ -358,4 +358,3 @@ class Player(BaseContent):
             # Primary Guardian.addtional_emails
         for address in pg.email.strip().split(';'):
             parse_address(address, pg.first_name, pg.last_name)
-

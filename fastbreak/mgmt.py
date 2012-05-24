@@ -1,4 +1,5 @@
 import colander
+from persistent.mapping import PersistentMapping
 from pyramid.httpexceptions import HTTPFound
 
 from substanced.folder import IFolder
@@ -23,6 +24,7 @@ from fastbreak.interfaces import (
     ISignup
     )
 from fastbreak.adult import AdultBasicPropertySheet
+from fastbreak.gspread_sync import GDocSync
 from fastbreak.player import PlayerBasicPropertySheet
 from fastbreak.program import ProgramBasicPropertySheet
 from fastbreak.team import TeamBasicPropertySheet
@@ -39,7 +41,42 @@ from fastbreak.signup import SignupBasicPropertySheet
 class ImportDataView(FormView):
     title = 'Import Data'
     schema = Schema()
-    buttons = ('import',)
+    buttons = ('import', 'sync')
+
+    def find_la_id(self, la_id):
+        """Find the resource matching a LeagueAthletics ID"""
+        search_catalog = self.request.search_catalog
+        count, docids, resolver = search_catalog(
+            la_id=(la_id,),
+            )
+        result = [resolver(docid) for docid in docids][0]
+
+        return result
+
+
+    def sync_success(self, appstruct):
+        g = GDocSync()
+        results = g.get_rows('tourneys',
+            ('Blue', 'Orange', 'White', 'Black', 'Silver'))
+
+        # Iterate over spreadsheet results for each player and update
+        # player.tourney_data
+        for team in results.values():
+            for row in team:
+                la_id = int(row['ID'])
+                player = self.find_la_id(la_id)
+                player.tourney_data = PersistentMapping()
+                for k,v in row.items():
+                    # Strip whitespace off spreadsheet data
+                    try:
+                        player.tourney_data[k.strip()] = v.strip()
+                    except AttributeError:
+                        # Must not be an int
+                        player.tourney_data[k] = v
+
+        return HTTPFound(self.request.mgmt_path(self.context,
+                                                '@@contents'))
+
 
     def import_success(self, appstruct):
         root = self.request.root

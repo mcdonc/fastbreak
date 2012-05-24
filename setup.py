@@ -30,6 +30,7 @@ except:
 requires = [
     'waitress',
     'pyramid_tm',
+    'gspread',
     ]
 
 if sys.version_info <(2,6,0):

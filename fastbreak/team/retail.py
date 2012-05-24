@@ -55,7 +55,21 @@ class SplashView(Layout):
                  name='tournaments',
                  context=ITeam)
     def tournaments_view(self):
+
+        # Hard-wire the tourney names for each team
+        team_name = self.context.title
+        if team_name in ('Blue', 'Orange'):
+            tourney_names = ('Southern Lacrosse', 'Nations Cup',
+                'Beach Blast Tourney', 'Beach Blast Camp',
+                'Capital Cup')
+        elif team_name in ('White', 'Silver'):
+            tourney_names = ('Southern Lacrosse', 'Rock the Field',
+                             'Beach Blast Tourney', 'Beach Blast Camp')
+        elif team_name in ('Black'):
+            tourney_names = ('Southern Lacrosse', 'Sun and Surf')
+
         return dict(
             heading='Tournaments',
             players = self.context.players(),
+            tourney_names = tourney_names
         )

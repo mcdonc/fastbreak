@@ -15,4 +15,5 @@ def includeme(config):
     config.add_catalog_index('title', FieldIndex(get_title))
     config.add_catalog_index('interfaces', KeywordIndex(get_interfaces))
     config.add_catalog_index('texts', TextIndex(get_textrepr))
+    config.add_catalog_index('la_id', FieldIndex('la_id'))
 
