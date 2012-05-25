@@ -23,9 +23,15 @@ from fastbreak.interfaces import (
     IRegistration,
     ISignup
     )
-from fastbreak.adult import AdultBasicPropertySheet
+from fastbreak.adult import (
+    AdultSchema,
+    AdultBasicPropertySheet
+)
 from fastbreak.gspread_sync import GDocSync
-from fastbreak.player import PlayerBasicPropertySheet
+from fastbreak.player import (
+    PlayerSchema,
+    PlayerBasicPropertySheet
+    )
 from fastbreak.program import ProgramBasicPropertySheet
 from fastbreak.team import TeamBasicPropertySheet
 from fastbreak.signup import SignupBasicPropertySheet
@@ -33,26 +39,15 @@ from fastbreak.signup import SignupBasicPropertySheet
 
 @mgmt_view(
     context=ISite,
-    name='import_data',
-    tab_title='Import Data',
+    name='gsync_data',
+    tab_title='GSpread Sync',
     permission='sdi.add-content',
     renderer='substanced.sdi:templates/form.pt',
     )
-class ImportDataView(FormView):
-    title = 'Import Data'
+class GspreadSyncView(FormView):
+    title = 'GSpread Sync'
     schema = Schema()
-    buttons = ('import', 'init_adults', 'init_players',
-               'sync_adults', 'sync_players', 'sync_tourneys', )
-
-    def find_la_id(self, la_id):
-        """Find the resource matching a LeagueAthletics ID"""
-        search_catalog = self.request.search_catalog
-        count, docids, resolver = search_catalog(
-            la_id=(la_id,),
-            )
-        result = [resolver(docid) for docid in docids][0]
-
-        return result
+    buttons = ('init_adults', 'init_players')
 
     def init_players_success(self, appstruct):
         g = GDocSync()
@@ -64,7 +59,7 @@ class ImportDataView(FormView):
             )
         players = [resolver(docid) for docid in docids]
 
-        g.init_players(players)
+        g.init_resources('players', PlayerSchema, players)
 
         return HTTPFound(self.request.mgmt_path(self.context,
                                                 '@@contents'))
@@ -79,10 +74,34 @@ class ImportDataView(FormView):
             )
         adults = [resolver(docid) for docid in docids]
 
-        g.init_adults(adults)
+        g.init_resources('adults', AdultSchema, adults)
 
         return HTTPFound(self.request.mgmt_path(self.context,
                                                 '@@contents'))
+
+
+@mgmt_view(
+    context=ISite,
+    name='import_data',
+    tab_title='Import Data',
+    permission='sdi.add-content',
+    renderer='substanced.sdi:templates/form.pt',
+    )
+class ImportDataView(FormView):
+    title = 'Import Data'
+    schema = Schema()
+    buttons = ('import', 'sync_adults', 'sync_players', 'sync_tourneys')
+
+    def find_la_id(self, la_id):
+        """Find the resource matching a LeagueAthletics ID"""
+        search_catalog = self.request.search_catalog
+        count, docids, resolver = search_catalog(
+            la_id=(la_id,),
+        )
+        result = [resolver(docid) for docid in docids][0]
+
+        return result
+
 
     def sync_adults_success(self, appstruct):
         # Read data from GSpread. If an adult doesn't exist,
@@ -92,7 +111,7 @@ class ImportDataView(FormView):
         people = self.request.root['people']
 
         g = GDocSync()
-        rows = g.get_rows('adults', ['Sheet1',])['Sheet1']
+        rows = g.get_rows('adults', ['Sheet1', ])['Sheet1']
 
         for p in rows:
             name = make_name(p['first_name'] + ' ' + p['last_name'])
@@ -119,7 +138,6 @@ class ImportDataView(FormView):
             propsheet = AdultBasicPropertySheet(person, self.request)
             propsheet.set(appstruct)
 
-
         return HTTPFound(self.request.mgmt_path(self.context,
                                                 '@@contents'))
 
@@ -133,9 +151,8 @@ class ImportDataView(FormView):
         teams = self.request.root['storm']
         people = self.request.root['people']
 
-
         g = GDocSync()
-        rows = g.get_rows('players', ['Sheet1',])['Sheet1']
+        rows = g.get_rows('players', ['Sheet1', ])['Sheet1']
 
         for p in rows:
             # Some references
@@ -175,7 +192,7 @@ class ImportDataView(FormView):
             )
             player = registry.content.create(IPlayer,
                                              **appstruct)
-            player_name = make_name(p['first_name'] + ' ' + \
+            player_name = make_name(p['first_name'] + ' ' +\
                                     p['last_name'])
             people[player_name] = player
             propsheet = PlayerBasicPropertySheet(player,
@@ -188,7 +205,6 @@ class ImportDataView(FormView):
     def sync__tourneys_success(self, appstruct):
         g = GDocSync()
 
-
         results = g.get_rows('tourneys',
             ('Blue', 'Orange', 'White', 'Black', 'Silver'))
 
@@ -199,7 +215,7 @@ class ImportDataView(FormView):
                 la_id = int(row['ID'])
                 player = self.find_la_id(la_id)
                 player.tourney_data = PersistentMapping()
-                for k,v in row.items():
+                for k, v in row.items():
                     # Strip whitespace off spreadsheet data
                     try:
                         player.tourney_data[k.strip()] = v.strip()
@@ -209,6 +225,15 @@ class ImportDataView(FormView):
 
         return HTTPFound(self.request.mgmt_path(self.context,
                                                 '@@contents'))
+
+
+    ######
+
+
+
+
+
+
 
 
     def import_success(self, appstruct):
@@ -345,7 +370,7 @@ class ImportDataView(FormView):
             is_goalie = p['is_goalie']
             grade = p['grade']
             school = p['school']
-            jersey_number=p['jersey_number']
+            jersey_number = p['jersey_number']
             note = colander.null
             la_id = id
 
@@ -396,11 +421,11 @@ class ImportDataView(FormView):
             title = player.first_name + ' ' + player.last_name
 
             appstruct = dict(
-                    status=s['status'],
-                    title=title,
-                    note='',
-                    player=player,
-                    )
+                status=s['status'],
+                title=title,
+                note='',
+                player=player,
+                )
             signup = registry.content.create(ISignup, **appstruct)
             registration[make_name(title)] = signup
             propsheet = SignupBasicPropertySheet(signup, self.request)

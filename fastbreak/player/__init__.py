@@ -127,19 +127,22 @@ class PlayerSchema(Schema):
         Set(allow_empty=True),
         widget=teams_widget,
         missing=colander.null,
-        preparer=lambda users: set(map(int, users))
+        preparer=lambda users: set(map(int, users)),
+        relation=PLAYERTOTEAM
     )
     primary_guardian = colander.SchemaNode(
         colander.Int(),
         widget=one_adult_widget,
-        missing=colander.null
+        missing=colander.null,
+        relation=PLAYERTOPG
     )
     other_guardians = colander.SchemaNode(
         Set(allow_empty=True),
         widget=multiple_adult_widget,
         missing=colander.null,
         preparer=lambda users: set(map(int, users)),
-        )
+        relation=PLAYERTOOG
+    )
 
 
 class PlayerBasicPropertySheet(PropertySheet):
@@ -202,6 +205,7 @@ class PlayerBasicPropertySheet(PropertySheet):
         context.la_id = struct['la_id']
 
         context.connect_all(struct)
+
 
 class DuesSchema(Schema):
     registration = colander.SchemaNode(
@@ -317,7 +321,7 @@ class Player(BaseContent):
 
     def all_guardians(self):
         return self.get_targets(PLAYERTOPG) +\
-                    self.get_targets(PLAYERTOOG)
+               self.get_targets(PLAYERTOOG)
 
     def signups(self):
         # Unpack this player's signups into a dict

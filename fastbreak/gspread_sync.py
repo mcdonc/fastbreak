@@ -4,16 +4,16 @@ import gspread
 import colander
 
 spreadsheet_keys = dict(
-    tourneys = '0AheWwIghVZlTdEdlRUZlaFBha2xFd1lLMUNXeEcyMnc',
-    players = '0AheWwIghVZlTdEs4QkdjMG1hRTZPY3ZvWk9IeGVEUFE',
-    adults = '0AheWwIghVZlTdEVQcDNUcV9aUktXZlppWWU4cldxZ3c'
+    tourneys='0AheWwIghVZlTdEdlRUZlaFBha2xFd1lLMUNXeEcyMnc',
+    players='0AheWwIghVZlTdEs4QkdjMG1hRTZPY3ZvWk9IeGVEUFE',
+    adults='0AheWwIghVZlTdEVQcDNUcV9aUktXZlppWWU4cldxZ3c'
 )
 
 player_fields = (
     'last_name', 'first_name', 'nickname', 'email', 'additional_emails',
     'mobile_phone', 'uslax', 'is_goalie', 'grade', 'school',
     'jersey_number', 'note',
-)
+    )
 
 adult_fields = (
     'last_name', 'first_name', 'nickname', 'email', 'additional_emails',
@@ -21,12 +21,33 @@ adult_fields = (
     'city', 'state', 'zip', 'note', 'la_id'
     )
 
+cols = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
-def serialize(value):
-    return 'None' if value == colander.null else value
+def serialize(resource, node):
+    # Smart serialization
+
+    # If schema node has a flag for relation, then we won't have a
+    # value on the instance. We have to look it up.
+    reference_name = getattr(node, 'relation', None)
+    if reference_name:
+        relations = resource.get_relationids(reference_name)
+        v = ';'.join([str(i) for i in relations])
+        return v
+
+    value = getattr(resource, node.name)
+
+    # <colander.null> -> 'None'
+    if value is colander.null:
+        return 'None'
+    # Clean up strings
+    if type(value) is str:
+        return value.strip()
+
+    # Otherwise, just hand it back
+    return value
+
 
 class GDocSync:
-
     def __init__(self):
         self.un = environ['GDOC_UN']
         self.pw = environ['GDOC_PW']
@@ -35,7 +56,6 @@ class GDocSync:
 
 
     def get_rows(self, spreadsheet, worksheet_ids):
-
         spreadsheet = self.gc.open_by_key(spreadsheet_keys[spreadsheet])
 
         results = {}
@@ -45,28 +65,49 @@ class GDocSync:
 
         return results
 
-    def init_players(self, players):
-        # Initial sync of player data to spreadsheet
+    def init_resources(self, wks_key, schema, resources):
+        # Initial sync of data to spreadsheet
 
-        spreadsheet = self.gc.open_by_key(spreadsheet_keys['players'])
+        spreadsheet = self.gc.open_by_key(spreadsheet_keys[wks_key])
         wks = spreadsheet.sheet1
 
-        row_data = []
-        for player in players:
-            for field in player_fields:
-                v = serialize(getattr(player, field))
-                row_data.append(v)
-            # Now the references
-            team = player.teams()[0].title
-            row_data.append(team)
-            pg_id = player.primary_guardian()[0].la_id
-            row_data.append(pg_id)
-            og_id = player.all_guardians()[0].la_id
-            row_data.append(og_id)
-            # And housekeeping
-            row_data.append(player.la_id)
+        # If the spreadsheet isn't empty, bail out
+        top_left = wks.acell('A1').value
+        if top_left is not None:
+            raise ValueError, 'Players spreadsheet is not empty'
 
-        cell_list = wks.range('A2:P' + str(len(players)))
+        # Otherwise, wipe all the rows, make appropriate # of cols,
+        # reserve the right number of rows
+        wks.resize(rows=len(resources)+3,
+                   cols=len(schema.nodes) - 1)
+
+        # Some info about the schema nodes. Skip the first one, as it
+        # is the special _csrf node used for substanced.schema
+        nodes = schema.nodes[1:]
+        num_cols = len(nodes)-1
+        last_col = cols[num_cols]
+
+        # Provide some header rows
+        cell_list = wks.range('A1:' + last_col + '1')
+        counter = 0
+        for cell in cell_list:
+            cell.value = nodes[counter].name
+            counter += 1
+        wks.update_cells(cell_list)
+
+        # Let's write some data
+        row_data = []
+        for resource in resources:
+            for node in nodes:
+                # Get the value of the field via the node.name of this
+                # schema field
+                v = serialize(resource, node)
+                row_data.append(v)
+
+
+        cell_addr = 'A2:' + str(last_col) + str(len(resources)+1)
+        print cell_addr, len(row_data)
+        cell_list = wks.range(cell_addr)
         counter = 0
         for cell in cell_list:
             cell.value = row_data[counter]
@@ -99,7 +140,6 @@ class GDocSync:
         return
 
     def append_people(self, spreadsheet):
-
         # Given a list of rows, if the LeagueAthletics ID doesn't yet
         # exist, append a new row. Sort all the rows first based on
         # last_name first_name.
@@ -117,7 +157,6 @@ class GDocSync:
 def main():
     un = 'paulweveritt'
     pw = environ['GDOC_PW']
-
 
 
 if __name__ == '__main__':
