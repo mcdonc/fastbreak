@@ -41,7 +41,8 @@ from fastbreak.signup import SignupBasicPropertySheet
 class ImportDataView(FormView):
     title = 'Import Data'
     schema = Schema()
-    buttons = ('import', 'sync', 'init_players', 'sync_players')
+    buttons = ('import', 'init_adults', 'init_players',
+               'sync_adults', 'sync_players', 'sync_tourneys', )
 
     def find_la_id(self, la_id):
         """Find the resource matching a LeagueAthletics ID"""
@@ -68,14 +69,122 @@ class ImportDataView(FormView):
         return HTTPFound(self.request.mgmt_path(self.context,
                                                 '@@contents'))
 
-    def sync_players_success(self, appstruct):
+    def init_adults_success(self, appstruct):
         g = GDocSync()
-        g.append_people('players')
+
+        search_catalog = self.request.search_catalog
+        count, docids, resolver = search_catalog(
+            interfaces=(IAdult,),
+            sort_index=('title'),
+            )
+        adults = [resolver(docid) for docid in docids]
+
+        g.init_adults(adults)
 
         return HTTPFound(self.request.mgmt_path(self.context,
                                                 '@@contents'))
 
-    def sync_success(self, appstruct):
+    def sync_adults_success(self, appstruct):
+        # Read data from GSpread. If an adult doesn't exist,
+        # create them. If an adult does exist, update them.
+
+        registry = self.request.registry
+        people = self.request.root['people']
+
+        g = GDocSync()
+        rows = g.get_rows('adults', ['Sheet1',])['Sheet1']
+
+        for p in rows:
+            name = make_name(p['first_name'] + ' ' + p['last_name'])
+            appstruct = dict(
+                first_name=p['first_name'],
+                last_name=p['last_name'],
+                nickname=p['nickname'],
+                email=p['email'],
+                additional_emails=p['additional_emails'],
+                home_phone=p['home_phone'],
+                mobile_phone=p['mobile_phone'],
+                address1=p['address1'],
+                address2=p['address2'],
+                city=p['city'],
+                state=p['state'],
+                zip=p['zip'],
+                note=p['note'],
+                la_id=p['la_id']
+
+            )
+            person = registry.content.create(IAdult,
+                                             **appstruct)
+            people[name] = person
+            propsheet = AdultBasicPropertySheet(person, self.request)
+            propsheet.set(appstruct)
+
+
+        return HTTPFound(self.request.mgmt_path(self.context,
+                                                '@@contents'))
+
+
+    def sync_players_success(self, appstruct):
+        # Read data from GSpread. If a player doesn't exist,
+        # create them. If a player does exist, update them.
+
+        registry = self.request.registry
+        objectmap = find_service(self.context, 'objectmap')
+        teams = self.request.root['storm']
+        people = self.request.root['people']
+
+
+        g = GDocSync()
+        rows = g.get_rows('players', ['Sheet1',])['Sheet1']
+
+        for p in rows:
+            # Some references
+            team_name = p['team']
+            team_oid = objectmap.objectid_for(
+                teams[team_name.lower()]
+            )
+            guardian_ref = int(p['primary_guardian'])
+            try:
+                guardian = self.find_la_id(guardian_ref)
+            except IndexError:
+                print guardian_ref
+            guardian_oid = objectmap.objectid_for(guardian)
+
+            appstruct = dict(
+                first_name=p['first_name'],
+                last_name=p['last_name'],
+                nickname=p['nickname'],
+                email=p['email'],
+                additional_emails=p['additional_emails'],
+                mobile_phone=p['mobile_phone'],
+                uslax=p['uslax'],
+                is_goalie=p['is_goalie'],
+                grade=p['grade'],
+                school=p['school'],
+                jersey_number=p['jersey_number'],
+
+                # References
+                team=team_oid,
+                primary_guardian=guardian_oid,
+                other_guardian=colander.null,
+
+                # Remainder
+                note=p['note'],
+                la_id=p['la_id']
+            )
+            player = registry.content.create(IPlayer,
+                                             **appstruct)
+            player_name = make_name(p['first_name'] + ' ' + \
+                                    p['last_name'])
+            people[player_name] = player
+            propsheet = PlayerBasicPropertySheet(player,
+                                                 self.request)
+            propsheet.set(appstruct)
+
+        return HTTPFound(self.request.mgmt_path(self.context,
+                                                '@@contents'))
+
+    def sync__tourneys_success(self, appstruct):
         g = GDocSync()
 
 

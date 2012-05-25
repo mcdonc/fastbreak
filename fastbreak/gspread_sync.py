@@ -6,13 +6,21 @@ import colander
 spreadsheet_keys = dict(
     tourneys = '0AheWwIghVZlTdEdlRUZlaFBha2xFd1lLMUNXeEcyMnc',
     players = '0AheWwIghVZlTdEs4QkdjMG1hRTZPY3ZvWk9IeGVEUFE',
+    adults = '0AheWwIghVZlTdEVQcDNUcV9aUktXZlppWWU4cldxZ3c'
 )
 
-fields = (
+player_fields = (
     'last_name', 'first_name', 'nickname', 'email', 'additional_emails',
     'mobile_phone', 'uslax', 'is_goalie', 'grade', 'school',
     'jersey_number', 'note',
 )
+
+adult_fields = (
+    'last_name', 'first_name', 'nickname', 'email', 'additional_emails',
+    'home_phone', 'mobile_phone', 'address1', 'address2',
+    'city', 'state', 'zip', 'note', 'la_id'
+    )
+
 
 def serialize(value):
     return 'None' if value == colander.null else value
@@ -45,7 +53,7 @@ class GDocSync:
 
         row_data = []
         for player in players:
-            for field in fields:
+            for field in player_fields:
                 v = serialize(getattr(player, field))
                 row_data.append(v)
             # Now the references
@@ -62,7 +70,29 @@ class GDocSync:
         counter = 0
         for cell in cell_list:
             cell.value = row_data[counter]
-            counter = counter + 1
+            counter += 1
+
+        wks.update_cells(cell_list)
+
+        return
+
+    def init_adults(self, adults):
+        # Initial sync of adult data to spreadsheet
+
+        spreadsheet = self.gc.open_by_key(spreadsheet_keys['adults'])
+        wks = spreadsheet.sheet1
+
+        row_data = []
+        for adult in adults:
+            for field in adult_fields:
+                v = serialize(getattr(adult, field))
+                row_data.append(v)
+
+        cell_list = wks.range('A2:N' + str(len(adults)))
+        counter = 0
+        for cell in cell_list:
+            cell.value = row_data[counter]
+            counter += 1
 
         wks.update_cells(cell_list)
 
