@@ -32,23 +32,12 @@ class SplashView(Layout):
                  context=ITeam)
     def team_view(self):
 
-        head_coach = self.context.head_coach()
-        if head_coach:
-            head_coach = head_coach[0]
-        assistant_coach = self.context.assistant_coach()
-        if assistant_coach:
-            assistant_coach = assistant_coach[0]
-        team_manager = self.context.team_manager()
-        if team_manager:
-            team_manager = team_manager[0]
-
         return dict(
             heading=self.context.title,
             team=self.context,
             players=self.context.players(),
-            head_coach=head_coach,
-            assistant_coach=assistant_coach,
-            team_manager=team_manager,
+            coaches=self.context.coaches(),
+            team_managers=self.context.team_managers(),
             )
 
     @view_config(renderer='templates/team_tournaments.pt',

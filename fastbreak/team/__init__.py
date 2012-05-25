@@ -1,5 +1,6 @@
 import colander
-from deform_bootstrap.widget import ChosenSingleWidget
+import deform
+from deform_bootstrap.widget import ChosenMultipleWidget
 
 from substanced.content import content
 from substanced.property import PropertySheet
@@ -12,8 +13,7 @@ from fastbreak.interfaces import (
 from fastbreak.utils import (
     BaseContent,
     PLAYERTOTEAM,
-    HEADCOACHTTOTEAM,
-    ASSISTANTCOACHTTOTEAM,
+    COACHTTOTEAM,
     MANAGERTOTEAM
     )
 
@@ -28,7 +28,7 @@ def adult_widget(node, kw):
         values.append(
             (str(oid), title)
         )
-    return ChosenSingleWidget(values=values)
+    return ChosenMultipleWidget(values=values)
 
 
 # Teams
@@ -36,21 +36,18 @@ class TeamSchema(Schema):
     title = colander.SchemaNode(
         colander.String(),
     )
-    head_coach = colander.SchemaNode(
-        colander.Int(),
+    coaches = colander.SchemaNode(
+        deform.Set(allow_empty=True),
         widget=adult_widget,
-        missing=colander.null
-    )
-    assistant_coach = colander.SchemaNode(
-        colander.Int(),
+        missing=colander.null,
+        preparer=lambda users: set(map(int, users)),
+        )
+    team_managers = colander.SchemaNode(
+        deform.Set(allow_empty=True),
         widget=adult_widget,
-        missing=colander.null
-    )
-    team_manager = colander.SchemaNode(
-        colander.Int(),
-        widget=adult_widget,
-        missing=colander.null
-    )
+        missing=colander.null,
+        preparer=lambda users: set(map(int, users)),
+        )
 
 
 class TeamBasicPropertySheet(PropertySheet):
@@ -63,41 +60,22 @@ class TeamBasicPropertySheet(PropertySheet):
     def get(self):
         context = self.context
 
-        head_coach = context.get_relationids(HEADCOACHTTOTEAM)
-        if not head_coach:
-            head_coach = colander.null
-        else:
-            head_coach = head_coach[0]
-
-        assistant_coach = context.get_relationids(ASSISTANTCOACHTTOTEAM)
-        if not assistant_coach:
-            assistant_coach = colander.null
-        else:
-            assistant_coach = assistant_coach[0]
-
-        team_manager = context.get_relationids(MANAGERTOTEAM)
-        if not team_manager:
-            team_manager = colander.null
-        else:
-            team_manager = team_manager[0]
+        coaches = map(str, context.get_relationids(COACHTTOTEAM))
+        team_managers = map(str, context.get_relationids(MANAGERTOTEAM))
 
         return dict(
             name=context.__name__,
             title=context.title,
-            head_coach=head_coach,
-            assistant_coach=assistant_coach,
-            team_manager=team_manager
+            coaches=coaches,
+            team_managers=team_managers
         )
+
 
     def set(self, struct):
         context = self.context
         context.title = struct['title']
 
-        # Disconnect old relations, make new relations
-        context.disconnect()
-        context.connect_head_coach(struct['head_coach'])
-        context.connect_assistant_coach(struct['assistant_coach'])
-        context.connect_team_manager(struct['team_manager'])
+        context.connect_all(struct)
 
 
 @content(
@@ -112,31 +90,25 @@ class TeamBasicPropertySheet(PropertySheet):
     )
 
 class Team(BaseContent):
-    disconnect_targets = (HEADCOACHTTOTEAM, ASSISTANTCOACHTTOTEAM,
-                          MANAGERTOTEAM)
+    disconnect_targets = (COACHTTOTEAM, MANAGERTOTEAM)
 
-    def __init__(self, title, head_coach=None,
-                 assistant_coach=None, team_manager=None):
+    def __init__(self, title):
         self.title = title
-        # Don't store head_coach etc.
 
-    def connect_head_coach(self, head_coach):
-        self.connect_role(HEADCOACHTTOTEAM, head_coach)
+    def connect_all(self, struct):
+        # Disconnect old relations, make new relations
+        self.disconnect()
 
-    def connect_assistant_coach(self, assistant_coach):
-        self.connect_role(ASSISTANTCOACHTTOTEAM, assistant_coach)
-
-    def connect_team_manager(self, assistant_coach):
-        self.connect_role(MANAGERTOTEAM, assistant_coach)
+        for coach_oid in struct['coaches']:
+            self.connect_role(COACHTTOTEAM, coach_oid)
+        for team_manager_oid in struct['team_managers']:
+            self.connect_role(MANAGERTOTEAM, team_manager_oid)
 
     def players(self):
         return list(self.get_sources(PLAYERTOTEAM))
 
-    def head_coach(self):
-        return list(self.get_targets(HEADCOACHTTOTEAM))
+    def coaches(self):
+        return self.get_targets(COACHTTOTEAM)
 
-    def assistant_coach(self):
-        return list(self.get_targets(ASSISTANTCOACHTTOTEAM))
-
-    def team_manager(self):
-        return list(self.get_targets(MANAGERTOTEAM))
+    def team_managers(self):
+        return self.get_targets(MANAGERTOTEAM)

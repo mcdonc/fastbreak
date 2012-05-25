@@ -13,8 +13,7 @@ from fastbreak.utils import (
     BaseContent,
     PLAYERTOPG,
     PLAYERTOOG,
-    HEADCOACHTTOTEAM,
-    ASSISTANTCOACHTTOTEAM,
+    COACHTTOTEAM,
     MANAGERTOTEAM
     )
 
@@ -171,9 +170,7 @@ class Adult(BaseContent):
 
     def teams_coached(self):
         """All the teams that this Adult has a coaching relation to"""
-        teams = list(self.get_sources(HEADCOACHTTOTEAM)) +\
-                  list(self.get_sources(ASSISTANTCOACHTTOTEAM))
-        return teams
+        return self.get_sources(COACHTTOTEAM)
 
     def teams_managed(self):
         """All the teams that this Adult has a manage relation to"""

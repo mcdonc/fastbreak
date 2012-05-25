@@ -6,22 +6,13 @@
                 <h4>Coaches</h4>
 
                 <ul>
-                    <li>
-                        <a href="${view.make_url(head_coach)}">
-                            ${head_coach.first_name}
-                            ${head_coach.last_name},
-                            <a href="mailto:${head_coach.email}">
-                                ${head_coach.email}</a>,
-                            ${head_coach.mobile_phone}
-                        </a>
-                    </li>
-                    <li tal:condition="assistant_coach">
-                        <a href="${view.make_url(assistant_coach)}">
-                            ${assistant_coach.first_name}
-                            ${assistant_coach.last_name},
-                            <a href="mailto:${assistant_coach.email}">
-                                ${assistant_coach.email}</a>,
-                            ${assistant_coach.mobile_phone}
+                    <li tal:repeat="coach coaches">
+                        <a href="${view.make_url(coach)}">
+                            ${coach.first_name}
+                            ${coach.last_name},
+                            <a href="mailto:${coach.email}">
+                                ${coach.email}</a>,
+                            ${coach.mobile_phone}
                         </a>
                     </li>
                 </ul>
@@ -31,15 +22,16 @@
                 <h4>Team Manager</h4>
 
                 <ul>
-                <li>
-                    <a href="${view.make_url(team_manager)}">
-                        ${team_manager.first_name}
-                        ${team_manager.last_name},
-                        <a href="mailto:${team_manager.email}">
-                            ${team_manager.email}</a>,
-                        ${team_manager.mobile_phone}
-                    </a>
-                </li>
+                    <li tal:repeat="team_manager team_managers">
+                        <a href="${view.make_url(team_manager)}">
+                            ${team_manager.first_name}
+                            ${team_manager.last_name},
+                            <a href="mailto:${team_manager.email}">
+                                ${team_manager.email}</a>,
+                            ${team_manager.mobile_phone}
+                        </a>
+                    </li>
+                </ul>
             </div>
 
         </div>

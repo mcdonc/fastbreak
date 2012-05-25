@@ -7,8 +7,7 @@ from substanced.service import find_service
 PLAYERTOTEAM = 'player-to-team'
 PLAYERTOPG = 'player-to-primaryguardian'
 PLAYERTOOG = 'player-to-otherguardian'
-HEADCOACHTTOTEAM = 'headcoach-to-team'
-ASSISTANTCOACHTTOTEAM = 'assistantcoach-to-team'
+COACHTTOTEAM = 'coach-to-team'
 MANAGERTOTEAM = 'manager-to-team'
 PLAYERTOSIGNUP = 'player-to-signup'
 
@@ -32,7 +31,6 @@ def make_name(title):
 
 # Base class for content
 class BaseContent(Persistent):
-    disconnect_targets = (HEADCOACHTTOTEAM,)
     title = ''
 
     def texts(self): # for indexing
@@ -44,6 +42,7 @@ class BaseContent(Persistent):
 
     def get_sources(self, relation_name):
         objectmap = find_service(self, 'objectmap')
+        # TODO can we get rid of the list() part?
         return list(objectmap.sources(self, relation_name))
 
     def get_targets(self, relation_name):

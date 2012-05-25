@@ -31,8 +31,10 @@ class AddTeamView(FormView):
     def add_success(self, appstruct):
         registry = self.request.registry
         name = make_name(appstruct['title'])
+        coaches = appstruct.pop('coaches')
+        team_managers = appstruct.pop('team_managers')
         team = registry.content.create(ITeam, **appstruct)
         self.context[name] = team
-        propsheet = TeamBasicPropertySheet(team, self.request)
-        propsheet.set(appstruct)
+        team.connect_all(dict(coaches=coaches,
+                              team_managers=team_managers))
         return HTTPFound(self.request.mgmt_path(team, '@@properties'))
