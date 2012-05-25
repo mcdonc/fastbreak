@@ -20,8 +20,10 @@
                         ${a.first_name}</a>
                 </td>
                 <td><a href="mailto:${a.email}">${a.email}</a></td>
-                <td>${a.home_phone}</td>
-                <td>${a.mobile_phone}</td>
+                <td tal:define="hp a.home_phone">
+                    ${hp if hp else 'None'}</td>
+                <td tal:define="mp a.mobile_phone">
+                    ${mp if mp else 'None'}</td>
             </tr>
             </tbody>
         </table>

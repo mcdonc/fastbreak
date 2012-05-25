@@ -1,9 +1,11 @@
 import colander
+from deform import Set
 from deform.widget import (
     TextAreaWidget,
     SelectWidget
     )
 from deform_bootstrap.widget import ChosenSingleWidget
+from deform_bootstrap.widget import ChosenMultipleWidget
 from persistent import Persistent
 
 from substanced.content import content
@@ -26,7 +28,7 @@ from fastbreak.utils import (
 
 
 @colander.deferred
-def team_widget(node, kw):
+def teams_widget(node, kw):
     request = kw['request']
     search_catalog = request.search_catalog
     count, oids, resolver = search_catalog(interfaces=(ITeam,))
@@ -36,11 +38,11 @@ def team_widget(node, kw):
         values.append(
             (str(oid), title)
         )
-    return ChosenSingleWidget(values=values)
+    return ChosenMultipleWidget(values=values)
 
 
 @colander.deferred
-def guardian_widget(node, kw):
+def one_adult_widget(node, kw):
     request = kw['request']
     search_catalog = request.search_catalog
     count, oids, resolver = search_catalog(interfaces=(IAdult,))
@@ -51,6 +53,20 @@ def guardian_widget(node, kw):
             (str(oid), title)
         )
     return ChosenSingleWidget(values=values)
+
+
+@colander.deferred
+def multiple_adult_widget(node, kw):
+    request = kw['request']
+    search_catalog = request.search_catalog
+    count, oids, resolver = search_catalog(interfaces=(IAdult,))
+    values = []
+    for oid in oids:
+        title = resolver(oid).title
+        values.append(
+            (str(oid), title)
+        )
+    return ChosenMultipleWidget(values=values)
 
 
 class PlayerSchema(Schema):
@@ -107,21 +123,23 @@ class PlayerSchema(Schema):
         missing=colander.null
     )
     # References
-    team = colander.SchemaNode(
-        colander.Int(),
-        widget=team_widget,
-        missing=colander.null
+    teams = colander.SchemaNode(
+        Set(allow_empty=True),
+        widget=teams_widget,
+        missing=colander.null,
+        preparer=lambda users: set(map(int, users))
     )
     primary_guardian = colander.SchemaNode(
         colander.Int(),
-        widget=guardian_widget,
+        widget=one_adult_widget,
         missing=colander.null
     )
-    other_guardian = colander.SchemaNode(
-        colander.Int(),
-        widget=guardian_widget,
-        missing=colander.null
-    )
+    other_guardians = colander.SchemaNode(
+        Set(allow_empty=True),
+        widget=multiple_adult_widget,
+        missing=colander.null,
+        preparer=lambda users: set(map(int, users)),
+        )
 
 
 class PlayerBasicPropertySheet(PropertySheet):
@@ -134,12 +152,7 @@ class PlayerBasicPropertySheet(PropertySheet):
     def get(self):
         context = self.context
 
-        # Need the objectid of the first referenced team
-        teams = context.get_relationids(PLAYERTOTEAM)
-        if not teams:
-            team = colander.null
-        else:
-            team = teams[0]
+        teams = map(str, context.get_relationids(PLAYERTOTEAM))
 
         # Need the objectid of the primary guardian
         primary_guardians = context.get_relationids(PLAYERTOPG)
@@ -149,11 +162,7 @@ class PlayerBasicPropertySheet(PropertySheet):
             primary_guardian = primary_guardians[0]
 
         # Need the objectid of the other guardian
-        other_guardians = context.get_relationids(PLAYERTOOG)
-        if not other_guardians:
-            other_guardian = colander.null
-        else:
-            other_guardian = other_guardians[0]
+        other_guardians = map(str, context.get_relationids(PLAYERTOOG))
 
         return dict(
             name=context.__name__,
@@ -171,9 +180,9 @@ class PlayerBasicPropertySheet(PropertySheet):
             jersey_number=context.jersey_number,
             la_id=context.la_id,
             # References
-            team=team,
+            teams=teams,
             primary_guardian=primary_guardian,
-            other_guardian=other_guardian,
+            other_guardians=other_guardians,
             )
 
     def set(self, struct):
@@ -192,12 +201,7 @@ class PlayerBasicPropertySheet(PropertySheet):
         context.jersey_number = struct['jersey_number']
         context.la_id = struct['la_id']
 
-        # Disconnect old relations, make new relations
-        context.disconnect()
-        context.connect_team(struct['team'])
-        context.connect_primary_guardian(struct['primary_guardian'])
-        context.connect_other_guardian(struct['other_guardian'])
-
+        context.connect_all(struct)
 
 class DuesSchema(Schema):
     registration = colander.SchemaNode(
@@ -255,11 +259,7 @@ class Player(BaseContent):
 
     def __init__(self, first_name, last_name, nickname, email,
                  additional_emails, mobile_phone, uslax, is_goalie,
-                 grade, school, jersey_number,
-                 # References
-                 team, primary_guardian, other_guardian,
-                 note, la_id
-    ):
+                 grade, school, jersey_number, note, la_id):
         self.first_name = first_name
         self.last_name = last_name
         self.nickname = nickname
@@ -273,7 +273,6 @@ class Player(BaseContent):
         self.jersey_number = jersey_number
         self.note = note
         self.la_id = la_id
-        # We don't care about storing team
 
         # Some stuff from the other property sheet
         self.registration = colander.null
@@ -291,6 +290,16 @@ class Player(BaseContent):
         t = ' '.join([self.first_name, self.last_name, nickname])
         return t
 
+    def connect_all(self, struct):
+        # Disconnect old relations, make new relations
+        self.disconnect()
+
+        for team_oid in struct['teams']:
+            self.connect_role(PLAYERTOTEAM, team_oid)
+        self.connect_role(PLAYERTOPG, struct['primary_guardian'])
+        for other_guardian_oid in struct['other_guardians']:
+            self.connect_role(PLAYERTOOG, other_guardian_oid)
+
     def connect_team(self, team):
         self.connect_role(PLAYERTOTEAM, team)
 
@@ -301,15 +310,14 @@ class Player(BaseContent):
         self.connect_role(PLAYERTOOG, other_guardian)
 
     def teams(self):
-        return list(self.get_targets(PLAYERTOTEAM))
+        return self.get_targets(PLAYERTOTEAM)
 
     def primary_guardian(self):
-        return list(self.get_targets(PLAYERTOPG))
+        return list(self.get_targets(PLAYERTOPG))[0]
 
     def all_guardians(self):
-        guardians = list(self.get_targets(PLAYERTOPG)) +\
-                    list(self.get_targets(PLAYERTOOG))
-        return guardians
+        return self.get_targets(PLAYERTOPG) +\
+                    self.get_targets(PLAYERTOOG)
 
     def signups(self):
         # Unpack this player's signups into a dict
@@ -319,42 +327,42 @@ class Player(BaseContent):
             all_signups[reg.__name__] = s
         return all_signups
 
-    def email_or_guardian_email(self):
+    def player_emails(self):
+        """Make a unique list of all email addresses"""
+        emails = set()
+        if self.email:
+            for email in self.email.strip().split(';'):
+                emails.add(email.strip())
+        if self.additional_emails:
+            for email in self.email.strip().split(';'):
+                emails.add(email.strip())
+        return emails
+
+    def guardians_emails(self):
+        emails = set()
+        for guardian in self.all_guardians():
+            for email in guardian.adult_emails():
+                emails.add(email)
+
+        return emails
+
+    def primary_email(self):
         """If player has an email address, use it, else guardian"""
 
-        # Split it up on semicolon if necessary
-        if self.email:
-            email = self.email
-        else:
-            email = self.primary_guardian().email
+        email = self.email
+        if email:
+            return email.strip().split(';')[0].strip()
+        email = self.additional_emails
+        if email:
+            return email.strip().split(';')[0].strip()
 
-        return email.strip().split(';')[0].strip()
+        # Let's hope the primary guardian has one
+        return self.primary_guardian().primary_email()
+
 
     def all_emails(self):
         """For a player, return a unique list of split-up email
         addresses for player and primary guardian,
         including additional email address"""
 
-        addresses = {}
-
-        def parse_address(s, first_name, last_name):
-            sub = address.strip()
-            if sub:
-                addresses[sub] = dict(
-                    first_name=first_name,
-                    last_name=last_name
-                )
-
-        # Player email
-        for address in self.email.strip().split(';'):
-            parse_address(address, self.first_name, self.last_name)
-            # Player.addtional_emails
-        for address in self.email.strip().split(';'):
-            parse_address(address, self.first_name, self.last_name)
-            # Primary Guardian.addtional_emails
-        pg = self.primary_guardian()[0]
-        for address in pg.email.strip().split(';'):
-            parse_address(address, pg.first_name, pg.last_name)
-            # Primary Guardian.addtional_emails
-        for address in pg.email.strip().split(';'):
-            parse_address(address, pg.first_name, pg.last_name)
+        return self.player_emails() | self.guardians_emails()

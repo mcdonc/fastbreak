@@ -31,11 +31,17 @@ class AddPlayerView(FormView):
         registry = self.request.registry
         title = appstruct['first_name'] + ' ' + appstruct['last_name']
         name = make_name(title)
+        teams = appstruct.pop('teams')
+        primary_guardian = appstruct.pop('primary_guardian')
+        other_guardians = appstruct.pop('other_guardians')
         player = registry.content.create(IPlayer, **appstruct)
         self.context[name] = player
-        propsheet = PlayerBasicPropertySheet(player, self.request)
-        propsheet.set(appstruct)
+        player.connect_all(dict(
+            teams=teams, primary_guardian=primary_guardian,
+            other_guardians=other_guardians
+        ))
         return HTTPFound(self.request.mgmt_path(player, '@@properties'))
+
 
 @mgmt_view(
     context=IPlayer,
@@ -52,7 +58,6 @@ class UpdateDuesView(FormView):
 
     def add_success(self, appstruct):
         registry = self.request.registry
-        print 9999
         title = appstruct['first_name'] + ' ' + appstruct['last_name']
         name = make_name(title)
         player = registry.content.create(IPlayer, **appstruct)

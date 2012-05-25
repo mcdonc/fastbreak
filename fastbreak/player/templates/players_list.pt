@@ -19,13 +19,17 @@
                         ${p.last_name},
                         ${p.first_name}</a>
                 </td>
-                <td>
-                    <a href="mailto:${p.email_or_guardian_email()}">
-                        ${p.email_or_guardian_email()}
+                <td tal:define="pe p.primary_email()">
+                    <a href="mailto:${p.primary_email()}">
+                        ${pe if pe else 'None'}
                     </a>
                 </td>
-                <td>${p.mobile_phone}</td>
-                <td>${p.jersey_number if p.jersey_number else 'N/A'}</td>
+                <td tal:define="mp p.mobile_phone">
+                    ${mp if mp else 'None'}
+                </td>
+                <td tal:define="jn p.jersey_number">
+                    ${jn if jn else 'None'}
+                </td>
             </tr>
             </tbody>
         </table>

@@ -162,6 +162,29 @@ class Adult(BaseContent):
         t = ' '.join([self.first_name, self.last_name, nickname])
         return t
 
+    def adult_emails(self):
+        emails = set()
+        if self.email:
+            for email in self.email.strip().split(';'):
+                emails.add(email.strip())
+        if self.additional_emails:
+            for email in self.email.strip().split(';'):
+                emails.add(email.strip())
+        return emails
+
+    def primary_email(self):
+        """If player has an email address, use it, else guardian"""
+
+        email = self.email
+        if email:
+            return email.strip().split(';')[0].strip()
+        email = self.additional_emails
+        if email:
+            return email.strip().split(';')[0].strip()
+
+        # Adult doesn't have an email, bail out
+        return None
+
     def players(self):
         """All the children that this Adult has a relation to"""
         players = list(self.get_sources(PLAYERTOPG)) +\

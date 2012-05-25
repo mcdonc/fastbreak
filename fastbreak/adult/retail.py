@@ -1,4 +1,3 @@
-from pyramid.url import resource_url
 from pyramid.view import view_config
 
 from substanced.site import ISite
