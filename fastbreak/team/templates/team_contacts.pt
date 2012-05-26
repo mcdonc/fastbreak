@@ -7,9 +7,9 @@
             <tr>
                 <th>#</th>
                 <th>Name</th>
-                <th tal:repeat="tn tourney_names">
-                    ${tn}
-                </th>
+                <th>Primary Email</th>
+                <th>Parent</th>
+                <th>Parent Email</th>
             </tr>
             </thead>
             <tbody>
@@ -20,9 +20,21 @@
                         ${p.last_name},
                         ${p.first_name}</a>
                 </td>
-                <td tal:repeat="tn tourney_names">
-                    ${p.tourney_data[tn]}
+                <td>
+                    <a href="mailto:${p.primary_email()}">
+                        ${p.primary_email()}
+                    </a>
                 </td>
+                <tal:block tal:define="pg p.primary_guardian()">
+                    <td>
+                        ${pg.last_name}, ${pg.first_name}
+                    </td>
+                    <td>
+                        <a href="mailto:${pg.primary_email()}">
+                            ${pg.primary_email()}
+                        </a>
+                    </td>
+                </tal:block>
             </tr>
             </tbody>
         </table>

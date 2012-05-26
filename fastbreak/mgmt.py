@@ -103,17 +103,37 @@ class ImportDataView(FormView):
 
         return result
 
+    def make_storm_and_people(self):
+        """If storm and people aren't in root, make them and return"""
+
+        registry = self.request.registry
+        root = self.request.root
+
+        try:
+            people = root['people']
+        except KeyError:
+            # Doesn't exist, let's make it
+            appstruct = dict(title='People')
+            people = registry.content.create(IFolder)
+            root['people'] = people
+
+        try:
+            storm = root['storm']
+        except:
+            appstruct = dict(title='STORM')
+            storm = registry.content.create(IProgram, **appstruct)
+            root['storm'] = storm
+
+        return people, storm
+
+
     def sync_teams_success(self, appstruct):
         # Read data from GSpread. If an adult doesn't exist,
         # create them. If an adult does exist, update them.
 
         registry = self.request.registry
-        root = self.request.root
 
-        # Add STORM as a program
-        appstruct = dict(title='STORM')
-        storm = registry.content.create(IProgram, **appstruct)
-        root['storm'] = storm
+        people, storm = self.make_storm_and_people()
 
         g = GDocSync()
         rows = g.get_rows('setup', ['Teams', ])['Teams']
@@ -136,16 +156,9 @@ class ImportDataView(FormView):
         # create them. If an adult does exist, update them.
 
         registry = self.request.registry
-        root = self.request.root
+        objectmap = find_service(self.context, 'objectmap')
 
-        # A People folder
-        try:
-            people = root['people']
-        except KeyError:
-            # Doesn't exist, let's make it
-            appstruct = dict(title='People')
-            people = registry.content.create(IFolder)
-            root['people'] = people
+        people, storm = self.make_storm_and_people()
 
         g = GDocSync()
         rows = g.get_rows('adults', ['Sheet1', ])['Sheet1']
@@ -167,13 +180,43 @@ class ImportDataView(FormView):
                 zip=p['zip'],
                 note=p['note'],
                 la_id=p['la_id']
-
             )
-            person = registry.content.create(IAdult,
-                                             **appstruct)
-            people[name] = person
-            propsheet = AdultBasicPropertySheet(person, self.request)
-            propsheet.set(appstruct)
+            # Do we already have a player? If not, create one
+            try:
+                person = self.find_la_id(p['la_id'])
+                person.update(appstruct)
+            except IndexError:
+                person = registry.content.create(IAdult,
+                                                 **appstruct)
+                people[name] = person
+
+        # Now that we have made the adults, we can wire up the coaches
+        # and team managers for each team, using the la_id.
+        g = GDocSync()
+        rows = g.get_rows('setup', ['Teams', ])['Teams']
+        for row in rows:
+            coaches = set()
+            team_managers = set()
+            team_name = row['name']
+            for la_id in str(row['coaches']).strip().split(';'):
+                if la_id is '':
+                    continue
+                la_id = int(la_id.strip())
+                coach = self.find_la_id(la_id)
+                oid = objectmap.objectid_for(coach)
+                coaches.add(oid)
+            for la_id in str(row['team_managers']).strip().split(';'):
+                if la_id is '':
+                    continue
+                la_id = int(la_id.strip())
+                tm = self.find_la_id(la_id)
+                oid = objectmap.objectid_for(tm)
+                team_managers.add(oid)
+            appstruct = dict(
+                coaches=coaches, team_managers=team_managers
+            )
+            team = storm[team_name]
+            team.connect_all(appstruct)
 
         return HTTPFound(self.request.mgmt_path(self.context,
                                                 '@@contents'))
@@ -207,11 +250,18 @@ class ImportDataView(FormView):
                 note=p['note'],
                 la_id=p['la_id']
             )
-            player = registry.content.create(IPlayer,
-                                             **appstruct)
-            player_name = make_name(p['first_name'] + ' ' +\
-                                    p['last_name'])
-            people[player_name] = player
+
+            # Do we already have a player? If not, create one
+            try:
+                player = self.find_la_id(p['la_id'])
+                player.update(appstruct)
+            except IndexError:
+                # We don't have one, so make one
+                player = registry.content.create(IPlayer,
+                                                 **appstruct)
+                player_name = make_name(p['first_name'] + ' ' +\
+                                        p['last_name'])
+                people[player_name] = player
 
             # Connect references
             # TODO fix guardian ref of 1431127 for Austin Woods
@@ -231,7 +281,7 @@ class ImportDataView(FormView):
         return HTTPFound(self.request.mgmt_path(self.context,
                                                 '@@contents'))
 
-    def sync__tourneys_success(self, appstruct):
+    def sync_tourneys_success(self, appstruct):
         g = GDocSync()
 
         results = g.get_rows('tourneys',
@@ -259,17 +309,8 @@ class ImportDataView(FormView):
         root = self.request.root
         registry = self.request.registry
         objectmap = find_service(self.context, 'objectmap')
-        storm = root['storm']
 
-        # A People folder
-        try:
-            people = root['people']
-        except KeyError:
-            # Doesn't exist, let's make it
-            appstruct = dict(title='People')
-            people = registry.content.create(IFolder)
-            root['people'] = people
-
+        people, storm = self.make_storm_and_people()
 
         # Import data, but not create content, for players/adults
         m = Migration(self.context, self.request)
@@ -281,7 +322,16 @@ class ImportDataView(FormView):
             # Skip duplicate adults in the stupid CSV file. Only import
             # adults who are referenced as a guardian.
             # TODO: Make sure we pick up other_guardians as well
-            if la_id not in m.guardian_ids:
+
+            head_coach = p['primary_coach_ref'].strip()
+            assistant_coach = p['coach_ref'].strip()
+            team_manager = p['manager_ref'].strip()
+
+            is_leadership = (head_coach != '') or\
+                            (assistant_coach != '') or\
+                            (team_manager != '')
+
+            if la_id not in m.guardian_ids and not is_leadership:
                 continue
             appstruct = dict(
                 first_name=p['first_name'],
@@ -338,7 +388,7 @@ class ImportDataView(FormView):
             player.connect_all(dict(
                 teams=[team, ],
                 primary_guardian=primary_guardian_oid,
-                other_guardians=[colander.null,]
+                other_guardians=[colander.null, ]
             ))
 
         return HTTPFound(self.request.mgmt_path(self.context,

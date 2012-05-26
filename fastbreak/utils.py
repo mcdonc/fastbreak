@@ -72,3 +72,11 @@ class BaseContent(Persistent):
             return self.nickname
         else:
             return first_name
+
+    def update(self, values):
+        """Given a dict of values, update only if changed"""
+
+        for k,new_value in values.items():
+            current_value = getattr(self, k)
+            if current_value != new_value:
+                setattr(self, k, new_value)
