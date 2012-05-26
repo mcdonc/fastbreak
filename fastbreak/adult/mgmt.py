@@ -9,10 +9,7 @@ from fastbreak.utils import make_name
 from fastbreak.interfaces import (
     IAdult
     )
-from fastbreak.adult import (
-    AdultSchema,
-    AdultBasicPropertySheet
-    )
+from fastbreak.adult import AdultSchema
 
 @mgmt_view(
     context=ISite,
@@ -33,6 +30,4 @@ class AddAdultView(FormView):
         name = make_name(title)
         adult = registry.content.create(IAdult, **appstruct)
         self.context[name] = adult
-        propsheet = AdultBasicPropertySheet(adult, self.request)
-        propsheet.set(appstruct)
         return HTTPFound(self.request.mgmt_path(adult, '@@properties'))

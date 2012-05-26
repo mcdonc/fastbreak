@@ -55,8 +55,12 @@
                             ${p.last_name},
                             ${p.first_name}</a>
                     </td>
-                    <td>${p.jersey_number}</td>
-                    <td>${p.grade}</td>
+                    <td tal:define="jn p.jersey_number">
+                        ${jn if jn else 'None'}
+                    </td>
+                    <td tal:define="g p.grade">
+                        ${g if g else 'None'}
+                    </td>
                 </tr>
                 </tbody>
             </table>

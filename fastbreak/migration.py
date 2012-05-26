@@ -41,7 +41,7 @@ class Migration:
     def __init__(self, context, request):
         self.adults = {}
         self.players = {}
-        self.guardian_ids = {}
+        self.guardian_ids = set()
         self.signups = []
 
         self.root = request.root
@@ -51,8 +51,6 @@ class Migration:
         self.objectmap = find_service(context, 'objectmap')
 
     def load_adults(self):
-        gids = self.guardian_ids.keys()
-
         fn = join(self.import_dir, 'adults.csv')
         for p in DictReader(open(fn)):
             la_id = int(p['id'])
@@ -81,7 +79,7 @@ class Migration:
 
 
             # Keep track of guardian ids
-            self.guardian_ids[p['guardian_ref']] = None
+            self.guardian_ids.add(p['guardian_ref'])
 
     def load_registrations(self):
         fn = join(self.import_dir, 'registrations.csv')

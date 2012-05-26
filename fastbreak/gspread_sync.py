@@ -6,7 +6,8 @@ import colander
 spreadsheet_keys = dict(
     tourneys='0AheWwIghVZlTdEdlRUZlaFBha2xFd1lLMUNXeEcyMnc',
     players='0AheWwIghVZlTdEs4QkdjMG1hRTZPY3ZvWk9IeGVEUFE',
-    adults='0AheWwIghVZlTdEVQcDNUcV9aUktXZlppWWU4cldxZ3c'
+    adults='0AheWwIghVZlTdEVQcDNUcV9aUktXZlppWWU4cldxZ3c',
+    setup='0AheWwIghVZlTdGY2TkdKeUtQdVlnYklJS2NOaXU4a2c'
 )
 
 player_fields = (
@@ -26,12 +27,20 @@ cols = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 def serialize(resource, node):
     # Smart serialization
 
+    # Serializing the oid of the team will make it hard to use the
+    # spreadsheet. Let's serialize the name instead.
+    if node.name == 'teams':
+        reference_name = getattr(node, 'relation')
+        relations = resource.get_relations(reference_name)
+        v = ';'.join([i.title.lower() for i in relations])
+        return v
+
     # If schema node has a flag for relation, then we won't have a
     # value on the instance. We have to look it up.
     reference_name = getattr(node, 'relation', None)
     if reference_name:
-        relations = resource.get_relationids(reference_name)
-        v = ';'.join([str(i) for i in relations])
+        relations = resource.get_relations(reference_name)
+        v = ';'.join([str(i.la_id) for i in relations])
         return v
 
     value = getattr(resource, node.name)
@@ -106,30 +115,7 @@ class GDocSync:
 
 
         cell_addr = 'A2:' + str(last_col) + str(len(resources)+1)
-        print cell_addr, len(row_data)
         cell_list = wks.range(cell_addr)
-        counter = 0
-        for cell in cell_list:
-            cell.value = row_data[counter]
-            counter += 1
-
-        wks.update_cells(cell_list)
-
-        return
-
-    def init_adults(self, adults):
-        # Initial sync of adult data to spreadsheet
-
-        spreadsheet = self.gc.open_by_key(spreadsheet_keys['adults'])
-        wks = spreadsheet.sheet1
-
-        row_data = []
-        for adult in adults:
-            for field in adult_fields:
-                v = serialize(getattr(adult, field))
-                row_data.append(v)
-
-        cell_list = wks.range('A2:N' + str(len(adults)))
         counter = 0
         for cell in cell_list:
             cell.value = row_data[counter]

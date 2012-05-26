@@ -40,6 +40,11 @@ class BaseContent(Persistent):
         objectmap = find_service(self, 'objectmap')
         return list(objectmap.targetids(self, relation_name))
 
+    def get_relations(self, relation_name):
+        # Get the objects instead
+        objectmap = find_service(self, 'objectmap')
+        return list(objectmap.targets(self, relation_name))
+
     def get_sources(self, relation_name):
         objectmap = find_service(self, 'objectmap')
         # TODO can we get rid of the list() part?

@@ -105,7 +105,8 @@ class Team(BaseContent):
             self.connect_role(MANAGERTOTEAM, team_manager_oid)
 
     def players(self):
-        return list(self.get_sources(PLAYERTOTEAM))
+        players = list(self.get_sources(PLAYERTOTEAM))
+        return sorted(players, key=lambda p: p.title)
 
     def coaches(self):
         return self.get_targets(COACHTTOTEAM)

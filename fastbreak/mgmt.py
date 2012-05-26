@@ -26,7 +26,7 @@ from fastbreak.interfaces import (
 from fastbreak.adult import (
     AdultSchema,
     AdultBasicPropertySheet
-)
+    )
 from fastbreak.gspread_sync import GDocSync
 from fastbreak.player import (
     PlayerSchema,
@@ -90,7 +90,8 @@ class GspreadSyncView(FormView):
 class ImportDataView(FormView):
     title = 'Import Data'
     schema = Schema()
-    buttons = ('import', 'sync_adults', 'sync_players', 'sync_tourneys')
+    buttons = ('sync_teams', 'import',
+               'sync_adults', 'sync_players', 'sync_tourneys')
 
     def find_la_id(self, la_id):
         """Find the resource matching a LeagueAthletics ID"""
@@ -102,13 +103,49 @@ class ImportDataView(FormView):
 
         return result
 
+    def sync_teams_success(self, appstruct):
+        # Read data from GSpread. If an adult doesn't exist,
+        # create them. If an adult does exist, update them.
+
+        registry = self.request.registry
+        root = self.request.root
+
+        # Add STORM as a program
+        appstruct = dict(title='STORM')
+        storm = registry.content.create(IProgram, **appstruct)
+        root['storm'] = storm
+
+        g = GDocSync()
+        rows = g.get_rows('setup', ['Teams', ])['Teams']
+
+        # Load the data, but not content, for some teams
+        for row in rows:
+            appstruct = dict(
+                title=row['title'],
+            )
+            team = registry.content.create(ITeam, **appstruct)
+            name = row['title'].lower()
+            storm[name] = team
+
+        return HTTPFound(self.request.mgmt_path(self.context,
+                                                '@@contents'))
+
 
     def sync_adults_success(self, appstruct):
         # Read data from GSpread. If an adult doesn't exist,
         # create them. If an adult does exist, update them.
 
         registry = self.request.registry
-        people = self.request.root['people']
+        root = self.request.root
+
+        # A People folder
+        try:
+            people = root['people']
+        except KeyError:
+            # Doesn't exist, let's make it
+            appstruct = dict(title='People')
+            people = registry.content.create(IFolder)
+            root['people'] = people
 
         g = GDocSync()
         rows = g.get_rows('adults', ['Sheet1', ])['Sheet1']
@@ -148,26 +185,13 @@ class ImportDataView(FormView):
 
         registry = self.request.registry
         objectmap = find_service(self.context, 'objectmap')
-        teams = self.request.root['storm']
+        storm_teams = self.request.root['storm']
         people = self.request.root['people']
 
         g = GDocSync()
         rows = g.get_rows('players', ['Sheet1', ])['Sheet1']
 
         for p in rows:
-            # Some references
-            team_name = p['team']
-            team_oid = objectmap.objectid_for(
-                teams[team_name.lower()]
-            )
-            guardian_ref = int(p['primary_guardian'])
-            try:
-                guardian = self.find_la_id(guardian_ref)
-            except IndexError:
-                # TODO fix guardian ref of 1431127 for Austin Woods
-                print guardian_ref
-            guardian_oid = objectmap.objectid_for(guardian)
-
             appstruct = dict(
                 first_name=p['first_name'],
                 last_name=p['last_name'],
@@ -180,13 +204,6 @@ class ImportDataView(FormView):
                 grade=p['grade'],
                 school=p['school'],
                 jersey_number=p['jersey_number'],
-
-                # References
-                team=team_oid,
-                primary_guardian=guardian_oid,
-                other_guardian=colander.null,
-
-                # Remainder
                 note=p['note'],
                 la_id=p['la_id']
             )
@@ -195,9 +212,21 @@ class ImportDataView(FormView):
             player_name = make_name(p['first_name'] + ' ' +\
                                     p['last_name'])
             people[player_name] = player
-            propsheet = PlayerBasicPropertySheet(player,
-                                                 self.request)
-            propsheet.set(appstruct)
+
+            # Connect references
+            # TODO fix guardian ref of 1431127 for Austin Woods
+            team_name = p['teams'].strip()
+            team = storm_teams[team_name]
+            team_oid = objectmap.objectid_for(team)
+            primary_guardian_la_id = int(p['primary_guardian'])
+            primary_guardian_oid = objectmap.objectid_for(
+                self.find_la_id(primary_guardian_la_id)
+            )
+            player.connect_all(dict(
+                teams=[team_oid],
+                primary_guardian=primary_guardian_oid,
+                other_guardians=[]
+            ))
 
         return HTTPFound(self.request.mgmt_path(self.context,
                                                 '@@contents'))
@@ -226,6 +255,95 @@ class ImportDataView(FormView):
         return HTTPFound(self.request.mgmt_path(self.context,
                                                 '@@contents'))
 
+    def import_success(self, appstruct):
+        root = self.request.root
+        registry = self.request.registry
+        objectmap = find_service(self.context, 'objectmap')
+        storm = root['storm']
+
+        # A People folder
+        try:
+            people = root['people']
+        except KeyError:
+            # Doesn't exist, let's make it
+            appstruct = dict(title='People')
+            people = registry.content.create(IFolder)
+            root['people'] = people
+
+
+        # Import data, but not create content, for players/adults
+        m = Migration(self.context, self.request)
+        m.load_players()
+        m.load_adults()
+
+        # Adults
+        for la_id, p in m.adults.items():
+            # Skip duplicate adults in the stupid CSV file. Only import
+            # adults who are referenced as a guardian.
+            # TODO: Make sure we pick up other_guardians as well
+            if la_id not in m.guardian_ids:
+                continue
+            appstruct = dict(
+                first_name=p['first_name'],
+                last_name=p['last_name'],
+                nickname='',
+                email=p['email'],
+                additional_emails=colander.null,
+                home_phone=p['home_phone'],
+                mobile_phone=p['mobile_phone'],
+                address1=p['address_1'],
+                address2=p['address_2'],
+                city=p['city'],
+                state=p['state'],
+                zip=p['zip'],
+                note=p['note'],
+                la_id=la_id
+            )
+            title = p['first_name'] + ' ' + p['last_name']
+            name = make_name(title)
+            person = registry.content.create(IAdult,
+                                             **appstruct)
+            people[name] = person
+
+        # Players
+        for la_id, p in m.players.items():
+            appstruct = dict(
+                first_name=p['first_name'],
+                last_name=p['last_name'],
+                nickname='',
+                email=p['email'],
+                additional_emails=colander.null,
+                mobile_phone=p['mobile_phone'],
+                note=p['note'],
+                uslax=p['uslax'],
+                is_goalie=p['is_goalie'],
+                grade=p['grade'],
+                school=p['school'],
+                jersey_number=p['jersey_number'],
+                la_id=la_id
+            )
+            title = p['first_name'] + ' ' + p['last_name']
+            name = make_name(title)
+            player = registry.content.create(IPlayer,
+                                             **appstruct)
+            people[name] = player
+
+            # Make some connections
+            team_name = p['team_ref'].lower()
+            team = storm[team_name]
+            team = objectmap.objectid_for(team)
+            guardian_ref = int(p['guardian_ref'])
+            pg = self.find_la_id(guardian_ref)
+            primary_guardian_oid = objectmap.objectid_for(pg)
+            player.connect_all(dict(
+                teams=[team, ],
+                primary_guardian=primary_guardian_oid,
+                other_guardians=[colander.null,]
+            ))
+
+        return HTTPFound(self.request.mgmt_path(self.context,
+                                                '@@contents'))
+
 
     ######
 
@@ -236,7 +354,7 @@ class ImportDataView(FormView):
 
 
 
-    def import_success(self, appstruct):
+    def xxx_import_success(self, appstruct):
         root = self.request.root
         registry = self.request.registry
         objectmap = find_service(self.context, 'objectmap')

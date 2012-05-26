@@ -60,8 +60,14 @@ class UpdateDuesView(FormView):
         registry = self.request.registry
         title = appstruct['first_name'] + ' ' + appstruct['last_name']
         name = make_name(title)
+        teams = appstruct.pop('teams')
+        primary_guardian = appstruct.pop('primary_guardian')
+        other_guardians = appstruct.pop('other_guardians')
         player = registry.content.create(IPlayer, **appstruct)
         self.context[name] = player
-        propsheet = PlayerBasicPropertySheet(player, self.request)
-        propsheet.set(appstruct)
+        player.connect_all(dict(
+            teams=teams,
+            primary_guardian=primary_guardian,
+            other_guardians=other_guardians
+        ))
         return HTTPFound(self.request.mgmt_path(player, '@@properties'))
