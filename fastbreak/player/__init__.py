@@ -76,7 +76,15 @@ class PlayerSchema(Schema):
     last_name = colander.SchemaNode(
         colander.String(),
     )
+    dues_owed = colander.SchemaNode(
+        colander.Int(),
+        missing=colander.null
+    )
     dues_paid = colander.SchemaNode(
+        colander.Int(),
+        missing=colander.null
+    )
+    uniform_owed = colander.SchemaNode(
         colander.Int(),
         missing=colander.null
     )
@@ -179,7 +187,9 @@ class PlayerBasicPropertySheet(PropertySheet):
             name=context.__name__,
             first_name=context.first_name,
             last_name=context.last_name,
+            dues_owed=context.dues_owed,
             dues_paid=context.dues_paid,
+            uniform_owed=context.uniform_owed,
             uniform_paid=context.uniform_paid,
             note=context.note,
             nickname=context.nickname,
@@ -202,7 +212,9 @@ class PlayerBasicPropertySheet(PropertySheet):
         context = self.context
         context.first_name = struct['first_name']
         context.last_name = struct['last_name']
+        context.dues_owed = struct['dues_owed']
         context.dues_paid = struct['dues_paid']
+        context.uniform_owed = struct['uniform_owed']
         context.uniform_paid = struct['uniform_paid']
         context.note = struct['note']
         context.nickname = struct['nickname']
@@ -274,13 +286,15 @@ class Player(BaseContent):
     disconnect_targets = (PLAYERTOTEAM, PLAYERTOPG, PLAYERTOOG)
 
     def __init__(self, first_name, last_name,
-                 note, dues_paid, uniform_paid,
+                 note, dues_owed, dues_paid, uniform_owed, uniform_paid,
                  nickname, email,
                  additional_emails, mobile_phone, uslax, is_goalie,
                  grade, school, jersey_number, la_id):
         self.first_name = first_name
         self.last_name = last_name
+        self.dues_owed = dues_owed
         self.dues_paid = dues_paid
+        self.uniform_owed = uniform_owed
         self.uniform_paid = uniform_paid
         self.note = note
         self.nickname = nickname

@@ -2,8 +2,6 @@ from pyramid.url import resource_url
 from pyramid.decorator import reify
 from pyramid.view import view_config
 
-from substanced.site import ISite
-
 from fastbreak.interfaces import ITeam
 from fastbreak.layout import Layout
 
@@ -25,6 +23,8 @@ class SplashView(Layout):
                  url=resource_url(context, request, 'contact_info')),
             dict(title='Email Team',
                  url=resource_url(context, request, 'emails')),
+            dict(title='Balances',
+                 url=resource_url(context, request, 'balances')),
             ]
         return items
 
@@ -96,4 +96,32 @@ class SplashView(Layout):
             heading=self.context.title + ' Emails',
             players=players,
             joined_comma=joined_comma
+        )
+
+    @view_config(renderer='templates/team_balances.pt',
+                 name='balances',
+                 context=ITeam)
+    def balances_view(self):
+        balances = []
+        players = self.context.players()
+        for p in players:
+            dues = None
+            uniform = None
+            if p.dues_owed:
+                dues = p.dues_owed - p.dues_paid
+            if p.uniform_owed:
+                uniform = p.uniform_owed - p.uniform_paid
+            if not dues and not uniform:
+                continue
+            balances.append(dict(
+                last_name=p.last_name,
+                first_name=p.first_name,
+                url=self.make_url(self.context),
+                dues=dues,
+                uniform=uniform
+            ))
+
+        return dict(
+            heading=self.context.title + ' Emails',
+            balances=balances
         )

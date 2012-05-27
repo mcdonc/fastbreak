@@ -246,7 +246,9 @@ class ImportDataView(FormView):
             appstruct = dict(
                 first_name=p['first_name'],
                 last_name=p['last_name'],
+                dues_owed=self.unserialize(p['dues_owed']),
                 dues_paid=self.unserialize(p['dues_paid']),
+                uniform_owed=self.unserialize(p['uniform_owed']),
                 uniform_paid=self.unserialize(p['uniform_paid']),
                 note=p['note'],
                 nickname=p['nickname'],
@@ -381,7 +383,9 @@ class ImportDataView(FormView):
                 school=p['school'],
                 jersey_number=p['jersey_number'],
                 la_id=la_id,
+                dues_owed=colander.null,
                 dues_paid=colander.null,
+                uniform_owed=colander.null,
                 uniform_paid=colander.null
             )
             title = p['first_name'] + ' ' + p['last_name']
