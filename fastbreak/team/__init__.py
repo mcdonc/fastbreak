@@ -1,6 +1,8 @@
 import colander
 import deform
 from deform_bootstrap.widget import ChosenMultipleWidget
+from pyramid_mailer import get_mailer
+from pyramid_mailer.message import Message
 
 from substanced.content import content
 from substanced.property import PropertySheet
@@ -113,3 +115,13 @@ class Team(BaseContent):
 
     def team_managers(self):
         return self.get_targets(MANAGERTOTEAM)
+
+    def mail_team(self, request):
+        message = Message(
+            subject = 'Test Message',
+            recipients = ['paul@agendaless.com',],
+            body = 'hi'
+        )
+        mailer = get_mailer(request)
+        mailer.send(message)
+
