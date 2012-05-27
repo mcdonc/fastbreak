@@ -76,6 +76,19 @@ class PlayerSchema(Schema):
     last_name = colander.SchemaNode(
         colander.String(),
     )
+    dues_paid = colander.SchemaNode(
+        colander.Int(),
+        missing=colander.null
+    )
+    uniform_paid = colander.SchemaNode(
+        colander.Int(),
+        missing=colander.null
+    )
+    note = colander.SchemaNode(
+        colander.String(),
+        widget=TextAreaWidget(rows=10, cols=60),
+        missing=colander.null
+    )
     nickname = colander.SchemaNode(
         colander.String(),
         missing=colander.null,
@@ -90,11 +103,6 @@ class PlayerSchema(Schema):
     )
     mobile_phone = colander.SchemaNode(
         colander.String(),
-        missing=colander.null
-    )
-    note = colander.SchemaNode(
-        colander.String(),
-        widget=TextAreaWidget(rows=10, cols=60),
         missing=colander.null
     )
     uslax = colander.SchemaNode(
@@ -171,11 +179,13 @@ class PlayerBasicPropertySheet(PropertySheet):
             name=context.__name__,
             first_name=context.first_name,
             last_name=context.last_name,
+            dues_paid=context.dues_paid,
+            uniform_paid=context.uniform_paid,
+            note=context.note,
             nickname=context.nickname,
             email=context.email,
             additional_emails=context.additional_emails,
             mobile_phone=context.mobile_phone,
-            note=context.note,
             uslax=context.uslax,
             is_goalie=context.is_goalie,
             grade=context.grade,
@@ -192,11 +202,13 @@ class PlayerBasicPropertySheet(PropertySheet):
         context = self.context
         context.first_name = struct['first_name']
         context.last_name = struct['last_name']
+        context.dues_paid = struct['dues_paid']
+        context.uniform_paid = struct['uniform_paid']
+        context.note = struct['note']
         context.nickname = struct['nickname']
         context.email = struct['email']
         context.additional_emails = struct['additional_emails']
         context.mobile_phone = struct['mobile_phone']
-        context.note = struct['note']
         context.uslax = struct['uslax']
         context.is_goalie = struct['is_goalie']
         context.grade = struct['grade']
@@ -261,11 +273,16 @@ class PlayerDuesPropertySheet(PropertySheet):
 class Player(BaseContent):
     disconnect_targets = (PLAYERTOTEAM, PLAYERTOPG, PLAYERTOOG)
 
-    def __init__(self, first_name, last_name, nickname, email,
+    def __init__(self, first_name, last_name,
+                 note, dues_paid, uniform_paid,
+                 nickname, email,
                  additional_emails, mobile_phone, uslax, is_goalie,
-                 grade, school, jersey_number, note, la_id):
+                 grade, school, jersey_number, la_id):
         self.first_name = first_name
         self.last_name = last_name
+        self.dues_paid = dues_paid
+        self.uniform_paid = uniform_paid
+        self.note = note
         self.nickname = nickname
         self.email = email
         self.additional_emails = additional_emails
@@ -275,7 +292,6 @@ class Player(BaseContent):
         self.grade = grade
         self.school = school
         self.jersey_number = jersey_number
-        self.note = note
         self.la_id = la_id
 
         # Some stuff from the other property sheet

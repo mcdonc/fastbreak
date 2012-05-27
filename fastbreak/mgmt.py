@@ -103,6 +103,14 @@ class ImportDataView(FormView):
 
         return result
 
+    def unserialize(self, field_value):
+        # TODO drive this with the actual schema rather than hardwire
+
+        if field_value == 'None':
+            return colander.null
+
+        return field_value
+
     def make_storm_and_people(self):
         """If storm and people aren't in root, make them and return"""
 
@@ -238,16 +246,18 @@ class ImportDataView(FormView):
             appstruct = dict(
                 first_name=p['first_name'],
                 last_name=p['last_name'],
+                dues_paid=self.unserialize(p['dues_paid']),
+                uniform_paid=self.unserialize(p['uniform_paid']),
+                note=p['note'],
                 nickname=p['nickname'],
                 email=p['email'],
                 additional_emails=p['additional_emails'],
                 mobile_phone=p['mobile_phone'],
-                uslax=p['uslax'],
-                is_goalie=p['is_goalie'],
-                grade=p['grade'],
+                uslax=self.unserialize(p['uslax']),
+                is_goalie=self.unserialize(p['is_goalie']),
+                grade=self.unserialize(p['grade']),
                 school=p['school'],
-                jersey_number=p['jersey_number'],
-                note=p['note'],
+                jersey_number=self.unserialize(p['jersey_number']),
                 la_id=p['la_id']
             )
 
@@ -370,7 +380,9 @@ class ImportDataView(FormView):
                 grade=p['grade'],
                 school=p['school'],
                 jersey_number=p['jersey_number'],
-                la_id=la_id
+                la_id=la_id,
+                dues_paid=colander.null,
+                uniform_paid=colander.null
             )
             title = p['first_name'] + ' ' + p['last_name']
             name = make_name(title)

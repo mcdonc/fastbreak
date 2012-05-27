@@ -83,7 +83,7 @@ class GDocSync:
         # If the spreadsheet isn't empty, bail out
         top_left = wks.acell('A1').value
         if top_left is not None:
-            raise ValueError, 'Players spreadsheet is not empty'
+            raise ValueError, wks_key + ' spreadsheet is not empty'
 
         # Otherwise, wipe all the rows, make appropriate # of cols,
         # reserve the right number of rows
