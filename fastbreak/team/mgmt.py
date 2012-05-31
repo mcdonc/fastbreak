@@ -8,10 +8,8 @@ from fastbreak.interfaces import (
     IProgram
     )
 
-from fastbreak.team import (
-    TeamSchema,
-    TeamBasicPropertySheet
-)
+from fastbreak.team import TeamSchema
+
 
 from fastbreak.utils import make_name
 

@@ -1,8 +1,6 @@
 import colander
 import deform
 from deform_bootstrap.widget import ChosenMultipleWidget
-from pyramid_mailer import get_mailer
-from pyramid_mailer.message import Message
 
 from substanced.content import content
 from substanced.property import PropertySheet
@@ -16,7 +14,8 @@ from fastbreak.utils import (
     BaseContent,
     PLAYERTOTEAM,
     COACHTTOTEAM,
-    MANAGERTOTEAM
+    MANAGERTOTEAM,
+    parse_whitelist
     )
 
 @colander.deferred
@@ -116,12 +115,21 @@ class Team(BaseContent):
     def team_managers(self):
         return self.get_targets(MANAGERTOTEAM)
 
-    def mail_team(self, request):
-        message = Message(
-            subject = 'Test Message',
-            recipients = ['paul@agendaless.com',],
-            body = 'hi'
-        )
-        mailer = get_mailer(request)
-        mailer.send(message)
+    def mail_team(self, request, recipients):
+
+        whitelist_fn = request.registry.settings['whitelist']
+        whitelist = parse_whitelist(whitelist_fn)
+
+        for r in recipients:
+            if r not in whitelist:
+                print r, "not on whitelist, skipping"
+                continue
+            message = Message(
+                sender = '"Paul Everitt" <paul@agendaless.com>',
+                subject = 'Test Message',
+                recipients = [r],
+                html = '<h1>hi</h1>'
+            )
+            mailer = get_mailer(request)
+            mailer.send_to_queue(message)
 

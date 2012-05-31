@@ -1,11 +1,22 @@
-from pyramid.url import resource_url
+import colander
+import deform
+
 from pyramid.decorator import reify
+from pyramid.httpexceptions import HTTPFound
+from pyramid.url import resource_url
 from pyramid.view import view_config
+
+from pyramid_mailer import get_mailer
+from pyramid_mailer.message import Message
+
+from substanced.schema import Schema
+from substanced.form import FormView
 
 from fastbreak.interfaces import ITeam
 from fastbreak.layout import Layout
+from fastbreak.utils import parse_whitelist
 
-class SplashView(Layout):
+class TeamView(Layout):
     def __init__(self, context, request):
         self.context = context
         self.request = request
@@ -21,8 +32,10 @@ class SplashView(Layout):
                  url=resource_url(context, request, 'tournaments')),
             dict(title='Contact Info',
                  url=resource_url(context, request, 'contact_info')),
-            dict(title='Email Team',
+            dict(title='List Email Addresses',
                  url=resource_url(context, request, 'emails')),
+#            dict(title='Send Email',
+#                 url=resource_url(context, request, 'email_team')),
             dict(title='Balances',
                  url=resource_url(context, request, 'balances')),
             ]
@@ -98,6 +111,7 @@ class SplashView(Layout):
             joined_comma=joined_comma
         )
 
+
     @view_config(renderer='templates/team_balances.pt',
                  name='balances',
                  context=ITeam)
@@ -125,3 +139,94 @@ class SplashView(Layout):
             heading=self.context.title + ' Emails',
             balances=balances
         )
+
+
+# Sending an email
+class EmailSchema(Schema):
+    to_choices = (
+        ('players', 'Players'),
+        ('parents', 'Parents'),
+        ('coaches', 'Coaches'),
+        )
+    to_addresses = colander.SchemaNode(
+        deform.Set(),
+        widget=deform.widget.CheckboxChoiceWidget(values=to_choices)
+    )
+    from_name = colander.SchemaNode(
+        colander.String(),
+    )
+    from_email = colander.SchemaNode(
+        colander.String(),
+        validator=colander.Email(),
+        )
+    subject = colander.SchemaNode(
+        colander.String(),
+    )
+    text = colander.SchemaNode(
+        colander.String(),
+        widget=deform.widget.RichTextWidget()
+    )
+
+
+@view_config(
+    context=ITeam,
+    name='email_team',
+    renderer='fastbreak:templates/form.pt',
+    )
+class EmailTeamView(FormView, Layout):
+    schema = EmailSchema()
+    buttons = ('send',)
+
+    @reify
+    def subnav_items(self):
+        context = self.context
+        request = self.request
+        items = [
+            dict(title='Roster',
+                 url=resource_url(context, request)),
+            dict(title='Tournaments',
+                 url=resource_url(context, request, 'tournaments')),
+            dict(title='Contact Info',
+                 url=resource_url(context, request, 'contact_info')),
+            dict(title='List Email Addresses',
+                 url=resource_url(context, request, 'emails')),
+            dict(title='Send Email',
+                 url=resource_url(context, request, 'email_team')),
+            dict(title='Balances',
+                 url=resource_url(context, request, 'balances')),
+            ]
+        return items
+
+    @property
+    def heading(self):
+        return 'Send Email To ' + self.context.title
+
+    def send_success(self, appstruct):
+
+        whitelist_fn = self.request.registry.settings['whitelist']
+        whitelist = parse_whitelist(whitelist_fn)
+
+        settings = self.request.registry.settings
+        use_queue = settings.get('mail.queue_path', None)
+
+        # Build up address list
+
+        for r in appstruct['to_addresses']:
+            if r not in whitelist:
+                print r, "not on whitelist, skipping"
+                continue
+            sender = '"%s" <%s>' % (
+                appstruct['from_name'], appstruct['from_email']
+                )
+            message = Message(
+                sender = sender,
+                subject = appstruct['subject'],
+                recipients = [r],
+                html = appstruct['text']
+            )
+            mailer = get_mailer(request)
+            if use_queue:
+                mailer.send_to_queue(message)
+
+        url = self.request.resource_url(self.context)
+        return HTTPFound(location=url)

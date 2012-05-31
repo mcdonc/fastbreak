@@ -21,6 +21,16 @@ dues_choices = (
     (270, 'Short Season Black 2012: $270'),
     )
 
+def parse_whitelist(whitelist_fn):
+    """Given a FQN, return a set of email addresses"""
+
+    try:
+        f = open(whitelist_fn, 'r')
+    except IOError:
+        return None
+    addrs = f.readlines()[1:]
+
+    return addrs
 
 def make_name(title):
     # Policy for automatically generating unique names from titles. For
