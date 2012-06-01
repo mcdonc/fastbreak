@@ -1,8 +1,12 @@
+from csv import DictWriter
+from StringIO import StringIO
+
 import colander
 import deform
 
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound
+from pyramid.response import Response
 from pyramid.url import resource_url
 from pyramid.view import view_config
 
@@ -34,8 +38,8 @@ class TeamView(Layout):
                  url=resource_url(context, request, 'contact_info')),
             dict(title='List Email Addresses',
                  url=resource_url(context, request, 'emails')),
-#            dict(title='Send Email',
-#                 url=resource_url(context, request, 'email_team')),
+            #            dict(title='Send Email',
+            #                 url=resource_url(context, request, 'email_team')),
             dict(title='Balances',
                  url=resource_url(context, request, 'balances')),
             ]
@@ -140,6 +144,29 @@ class TeamView(Layout):
             balances=balances
         )
 
+    @view_config(name='download_team', context=ITeam)
+    def downloadAttachment(self):
+        fieldnames = ['last_name', 'first_name', 'jersey_number',
+                      'grade','primary_email']
+        output = StringIO()
+        writer = DictWriter(output, fieldnames=fieldnames)
+        headers = dict((n, n) for n in fieldnames)
+        writer.writerow(headers)
+        for player in self.context.players():
+            writer.writerow(dict(
+                last_name=player.last_name,
+                first_name=player.first_name,
+                jersey_number=player.jersey_number,
+                grade=player.grade,
+                primary_email=player.primary_email()
+            ))
+
+        fn = self.context.title + '_team.csv'
+        res = Response(content_type='text/csv', )
+        res.content_disposition = 'attachment;filename=%s' % fn
+        res.body = output.getvalue()
+
+        return res
 
 # Sending an email
 class EmailSchema(Schema):
@@ -202,7 +229,6 @@ class EmailTeamView(FormView, Layout):
         return 'Send Email To ' + self.context.title
 
     def send_success(self, appstruct):
-
         whitelist_fn = self.request.registry.settings['whitelist']
         whitelist = parse_whitelist(whitelist_fn)
 
@@ -219,10 +245,10 @@ class EmailTeamView(FormView, Layout):
                 appstruct['from_name'], appstruct['from_email']
                 )
             message = Message(
-                sender = sender,
-                subject = appstruct['subject'],
-                recipients = [r],
-                html = appstruct['text']
+                sender=sender,
+                subject=appstruct['subject'],
+                recipients=[r],
+                html=appstruct['text']
             )
             mailer = get_mailer(request)
             if use_queue:
@@ -230,3 +256,4 @@ class EmailTeamView(FormView, Layout):
 
         url = self.request.resource_url(self.context)
         return HTTPFound(location=url)
+
