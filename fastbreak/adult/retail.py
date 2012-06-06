@@ -12,6 +12,7 @@ class SplashView(Layout):
 
 
     @view_config(renderer='templates/adults_list.pt',
+                 permission='view',
                  name='adults',
                  context=ISite)
     def adults_list(self):
@@ -20,6 +21,7 @@ class SplashView(Layout):
 
 
     @view_config(renderer='templates/adult_view.pt',
+                 permission='view',
                  context=IAdult)
     def adult_view(self):
         title = self.context.first_name + ' ' + self.context.last_name

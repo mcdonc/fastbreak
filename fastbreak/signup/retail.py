@@ -11,6 +11,7 @@ class SplashView(Layout):
         self.request = request
 
     @view_config(renderer='templates/signups_list.pt',
+                 permission='view',
                  name='signups',
                  context=ISite)
     def signups_list(self):
@@ -23,6 +24,7 @@ class SplashView(Layout):
 
 
     @view_config(renderer='templates/signup_view.pt',
+                 permission='view',
                  context=ISignup)
     def signup_view(self):
         return dict(

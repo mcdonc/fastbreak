@@ -11,6 +11,7 @@ class SplashView(Layout):
         self.request = request
 
     @view_config(renderer='templates/players_list.pt',
+                 permission='view',
                  name='players',
                  context=ISite)
     def players_list(self):
@@ -23,6 +24,7 @@ class SplashView(Layout):
 
 
     @view_config(renderer='templates/player_view.pt',
+                 permission='view',
                  context=IPlayer)
     def player_view(self):
         title = self.context.first_name + ' ' + self.context.last_name

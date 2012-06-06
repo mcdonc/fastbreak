@@ -1,0 +1,24 @@
+<div metal:use-macro="view.macros['layout']">
+    <div metal:fill-slot="main">
+        <p>
+            <form action="${url}" method="post" class="well">
+                <input type="hidden" name="came_from"
+                       value="${came_from}"/>
+
+                <label for="login">Username</label>
+                <input class="span3" type="text"
+                       style="height: 1.8em"
+                       name="login" value="${login}"/>
+                <label for="password">Password</label>
+                <input type="password" name="password"
+                       style="height: 1.8em"
+                       value="${password}"/>
+
+                <div>
+                    <button type="submit"
+                            name="form.submitted">Log In
+                    </button>
+                </div>
+            </form>
+        </p>    </div>
+</div>

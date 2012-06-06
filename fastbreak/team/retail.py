@@ -46,6 +46,7 @@ class TeamView(Layout):
         return items
 
     @view_config(renderer='templates/team_view.pt',
+                 permission='view',
                  context=ITeam)
     def team_view(self):
         return dict(
@@ -57,6 +58,7 @@ class TeamView(Layout):
             )
 
     @view_config(renderer='templates/team_tournaments.pt',
+                 permission='view',
                  name='tournaments',
                  context=ITeam)
     def tournaments_view(self):
@@ -82,6 +84,7 @@ class TeamView(Layout):
         )
 
     @view_config(renderer='templates/team_contacts.pt',
+                 permission='view',
                  name='contact_info',
                  context=ITeam)
     def contacts_view(self):
@@ -94,6 +97,7 @@ class TeamView(Layout):
             )
 
     @view_config(renderer='templates/team_emails.pt',
+                 permission='view',
                  name='emails',
                  context=ITeam)
     def emails_view(self):
@@ -117,6 +121,7 @@ class TeamView(Layout):
 
 
     @view_config(renderer='templates/team_balances.pt',
+                 permission='view',
                  name='balances',
                  context=ITeam)
     def balances_view(self):
@@ -144,10 +149,12 @@ class TeamView(Layout):
             balances=balances
         )
 
-    @view_config(name='download_team', context=ITeam)
+    @view_config(name='download_team',
+                 permission='view',
+                 context=ITeam)
     def downloadAttachment(self):
         fieldnames = ['last_name', 'first_name', 'jersey_number',
-                      'grade','primary_email']
+                      'grade', 'primary_email']
         output = StringIO()
         writer = DictWriter(output, fieldnames=fieldnames)
         headers = dict((n, n) for n in fieldnames)
@@ -198,6 +205,7 @@ class EmailSchema(Schema):
 @view_config(
     context=ITeam,
     name='email_team',
+    permission='view',
     renderer='fastbreak:templates/form.pt',
     )
 class EmailTeamView(FormView, Layout):
