@@ -6,9 +6,10 @@ from pyramid.security import (
 from pyramid.view import view_config, forbidden_view_config
 
 from substanced.site import ISite
+from substanced.service import find_service
+from substanced.util import oid_of
 
 from .layout import Layout
-from .security import USERS
 
 class SplashView(Layout):
     def __init__(self, context, request):
@@ -38,10 +39,14 @@ class SplashView(Layout):
         if 'form.submitted' in request.params:
             login = request.params['login']
             password = request.params['password']
-            if USERS.get(login) == password:
-                headers = remember(request, login)
-                return HTTPFound(location=came_from,
-                                 headers=headers)
+            principals = find_service(self.context, 'principals')
+            users = principals['users']
+            user = users.get(login)
+
+            if user is not None and user.check_password(password):
+                headers = remember(self.request, oid_of(user))
+                request.session.flash('Welcome!', 'success')
+                return HTTPFound(location = came_from, headers = headers)
             message = 'Failed login'
 
         return dict(

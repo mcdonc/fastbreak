@@ -9,6 +9,8 @@ class Site(_Site):
         _Site.__init__(self, initial_username, initial_email,
                        initial_password)
 
-        self.__acl__ = [(Allow, 'group:editors', 'view')]
+        self.__acl__.append(
+            (Allow, 'admininstrators', 'view')
+        )
         self.title = 'New World Sports Dashboard'
 

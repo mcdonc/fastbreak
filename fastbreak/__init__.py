@@ -3,7 +3,7 @@ from pyramid.config import Configurator
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 
-from .security import groupfinder
+from substanced.principal import groupfinder
 from .site import Site
 
 def main(global_config, **settings):
