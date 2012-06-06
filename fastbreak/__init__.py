@@ -7,6 +7,7 @@ from .security import groupfinder
 from .site import Site
 
 def main(global_config, **settings):
+    # Add security
     authn_policy = AuthTktAuthenticationPolicy(secret='sosecret',
                                                callback=groupfinder)
     authz_policy = ACLAuthorizationPolicy()
