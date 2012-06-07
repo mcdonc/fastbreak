@@ -278,6 +278,9 @@ class ImportDataView(FormView):
             # Connect references
             # TODO fix guardian ref of 1431127 for Austin Woods
             team_name = p['teams'].strip()
+            if team_name == '':
+                # Someone removed from all teams, skip
+                continue
             if team_name != '':
                 team = storm_teams[team_name]
                 team_oid = objectmap.objectid_for(team)

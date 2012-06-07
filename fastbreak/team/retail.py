@@ -79,6 +79,10 @@ class TeamView(Layout):
         elif team_name in ('Black'):
             tourney_names = ('Southern Lacrosse', 'Sun and Surf')
 
+        for player in self.context.players():
+            td = player.tourney_data
+            print player.last_name, td.keys()
+
         return dict(
             heading=self.context.title + ' Tournaments',
             players=self.context.players(),
