@@ -38,6 +38,8 @@ class TeamView(Layout):
                  url=resource_url(context, request, 'contact_info')),
             dict(title='List Email Addresses',
                  url=resource_url(context, request, 'emails')),
+            dict(title='Download Roster',
+                 url=resource_url(context, request, 'download_roster')),
             #            dict(title='Send Email',
             #                 url=resource_url(context, request, 'email_team')),
             dict(title='Balances',
@@ -149,23 +151,26 @@ class TeamView(Layout):
             balances=balances
         )
 
-    @view_config(name='download_team',
+    @view_config(name='download_roster',
                  permission='view',
                  context=ITeam)
-    def downloadAttachment(self):
+    def download_roster(self):
         fieldnames = ['last_name', 'first_name', 'jersey_number',
-                      'grade', 'primary_email']
+                      'primary_email',
+                      'parent_last_name', 'parent_first_name']
         output = StringIO()
         writer = DictWriter(output, fieldnames=fieldnames)
         headers = dict((n, n) for n in fieldnames)
         writer.writerow(headers)
         for player in self.context.players():
+            g = player.primary_guardian()
             writer.writerow(dict(
                 last_name=player.last_name,
                 first_name=player.first_name,
                 jersey_number=player.jersey_number,
-                grade=player.grade,
-                primary_email=player.primary_email()
+                primary_email=player.primary_email(),
+                parent_last_name=g.last_name,
+                parent_first_name=g.first_name
             ))
 
         fn = self.context.title + '_team.csv'
