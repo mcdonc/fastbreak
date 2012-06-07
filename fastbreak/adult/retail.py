@@ -29,8 +29,8 @@ class SplashView(Layout):
         return dict(
             heading=title,
             players=self.context.players(),
-            teams_coached=self.context.teams_managed(),
-            teams_managed=self.context.teams_coached(),
+            teams_managed=self.context.teams_managed(),
+            teams_coached=self.context.teams_coached(),
             adult=self.context,
             )
 

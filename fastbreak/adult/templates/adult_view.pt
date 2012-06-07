@@ -6,14 +6,15 @@
             <p>Children related to this adult.</p>
             <ul>
                 <li tal:repeat="p players">
-                    ${p.last_name}, ${p.first_name}
+                    <a href="${view.make_url(p)}">
+                        ${p.last_name}, ${p.first_name}</a>
                 </li>
             </ul>
         </div>
         <div tal:condition="teams_coached">
             <h4>Teams Coached</h4>
 
-            <p>Teams related to this adult.</p>
+            <p>Teams coached by this adult.</p>
             <ul>
                 <li tal:repeat="t teams_coached">
                     <a href="${view.make_url(t)}">${t.title}</a>
@@ -23,7 +24,7 @@
         <div tal:condition="teams_managed">
             <h4>Teams Managed</h4>
 
-            <p>Teams related to this adult.</p>
+            <p>Teams managed this adult.</p>
             <ul>
                 <li tal:repeat="t teams_managed">
                     <a href="${view.make_url(t)}">${t.title}</a>
