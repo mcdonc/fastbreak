@@ -278,8 +278,9 @@ class ImportDataView(FormView):
             # Connect references
             # TODO fix guardian ref of 1431127 for Austin Woods
             team_name = p['teams'].strip()
-            team = storm_teams[team_name]
-            team_oid = objectmap.objectid_for(team)
+            if team_name != '':
+                team = storm_teams[team_name]
+                team_oid = objectmap.objectid_for(team)
             primary_guardian_la_id = int(p['primary_guardian'])
             primary_guardian_oid = objectmap.objectid_for(
                 self.find_la_id(primary_guardian_la_id)

@@ -67,11 +67,13 @@
                         Adults</a>
                 </li>
             </ul>
+            <!--
             <ul class="nav pull-right">
                 <li>
                     <a href="${view.manage_prefix}">Management</a>
                 </li>
             </ul>
+            -->
         </div>
     </div>
 </div>
