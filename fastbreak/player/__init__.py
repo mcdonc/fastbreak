@@ -364,11 +364,11 @@ class Player(BaseContent):
     def player_emails(self):
         """Make a unique list of all email addresses"""
         emails = set()
-        if self.email:
+        if self.email and self.email != 'None':
             for email in self.email.strip().split(';'):
                 emails.add(email.strip())
-        if self.additional_emails:
-            for email in self.email.strip().split(';'):
+        if self.additional_emails and self.additional_emails != 'None':
+            for email in self.additional_emails.strip().split(';'):
                 emails.add(email.strip())
         return emails
 
