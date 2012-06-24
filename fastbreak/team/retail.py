@@ -81,7 +81,6 @@ class TeamView(Layout):
 
         for player in self.context.players():
             td = player.tourney_data
-            print player.last_name, td.keys()
 
         return dict(
             heading=self.context.title + ' Tournaments',

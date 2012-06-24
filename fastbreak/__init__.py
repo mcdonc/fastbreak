@@ -14,7 +14,6 @@ def main(global_config, **settings):
     config = Configurator(settings=settings,
                           root_factory=Site.root_factory)
     config.include('substanced')
-    config.include('.catalog')
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
     config.scan()

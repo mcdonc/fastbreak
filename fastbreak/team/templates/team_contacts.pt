@@ -10,6 +10,7 @@
                 <th>Primary Email</th>
                 <th>Parent</th>
                 <th>Parent Email</th>
+                <th>Parent Mobile</th>
             </tr>
             </thead>
             <tbody>
@@ -33,6 +34,9 @@
                         <a href="mailto:${pg.primary_email()}">
                             ${pg.primary_email()}
                         </a>
+                    </td>
+                    <td>
+                        ${pg.mobile_phone}
                     </td>
                 </tal:block>
             </tr>
