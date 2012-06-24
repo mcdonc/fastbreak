@@ -77,7 +77,8 @@ class TeamView(Layout):
             tourney_names = ('Southern Lacrosse', 'Rock the Field',
                              'Beach Blast Tourney', 'Beach Blast Camp')
         elif team_name in ('Black'):
-            tourney_names = ('Southern Lacrosse', 'Sun and Surf')
+            tourney_names = ('Southern Lacrosse', 'Sun and Surf',
+                             'Beach Blast Tourney', 'Beach Blast Camp')
 
         for player in self.context.players():
             td = player.tourney_data
