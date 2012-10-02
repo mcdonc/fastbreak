@@ -1,9 +1,8 @@
-
+env27
 .installed.cfg
 develop-eggs
 eggs
 bin
-var
 *.egg-info
 *.sw?
 
