@@ -5,6 +5,13 @@ develop-eggs
 eggs
 bin
 *.egg-info
-*.sw?
+.*.sw?
 parts
+*.pyc
+*.pyo
+*.pt.py
+*.html.py
+.coverage
+trace_file
+.DS_Store
 
