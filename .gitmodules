@@ -1,0 +1,3 @@
+[submodule "src/fastbreak/fastbreak/static/slickgrid"]
+	path = src/fastbreak/fastbreak/static/slickgrid
+	url = https://github.com/reebalazs/SlickGrid-touch.git
