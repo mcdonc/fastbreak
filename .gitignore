@@ -6,4 +6,5 @@ eggs
 bin
 *.egg-info
 *.sw?
+parts
 
