@@ -31,6 +31,7 @@ requires = [
     'waitress',
     'pyramid_tm',
     'gspread',
+    'substanced',
     ]
 
 if sys.version_info <(2,6,0):
