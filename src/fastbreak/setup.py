@@ -32,9 +32,9 @@ requires = [
     'pyramid_tm',
     'gspread',
     'substanced',
-    ]
+]
 
-if sys.version_info <(2,6,0):
+if sys.version_info < (2, 6, 0):
     requires.append('simplejson')
 
 setupkw = dict(
@@ -45,7 +45,7 @@ setupkw = dict(
     classifiers=[
         "Intended Audience :: Developers",
         "Programming Language :: Python",
-        ],
+    ],
     keywords='sports league',
     author="Paul Everitt, Agendaless Consulting",
     author_email="pauleveritt@me.com",
@@ -56,6 +56,10 @@ setupkw = dict(
     tests_require=requires,
     install_requires=requires,
     test_suite="fastbreak",
-    )
+    entry_points="""\
+      [console_scripts]
+      populate = fastbreak.populate:main
+      """
+)
 
 setup(**setupkw)
