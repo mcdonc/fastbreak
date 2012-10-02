@@ -1,5 +1,0 @@
-<div metal:use-macro="view.macros['layout']">
-    <div metal:fill-slot="main">
-        <p>This site lists documents.</p>
-    </div>
-</div>
