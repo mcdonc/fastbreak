@@ -3,7 +3,7 @@ from pyramid.view import view_config
 from fastbreak.interfaces import (
     ITeams,
     ITeam
-)
+    )
 
 class TeamsView(object):
     title = ''
@@ -47,3 +47,26 @@ class TeamView(object):
             team=self.context,
             players=self.context.players(),
         )
+
+    @view_config(name='players.json',
+                 renderer='json',
+                 permission='view',
+                 context=ITeam
+    )
+    def players_json(self):
+        player_data = []
+        for player in self.context.players():
+            player_data.append(
+                dict(
+                    id='id_' + str(player.external_id),
+                    num=player.external_id,
+                    title=player.title,
+                    last_name=player.last_name,
+                    first_name=player.first_name,
+                    emails=player.props['emails'],
+                    pinnie_size=player.props['pinnie_size'],
+                    shorts_size=player.props['shorts_size'],
+                    jersey_number=player.props['jersey_number'],
+                )
+            )
+        return player_data

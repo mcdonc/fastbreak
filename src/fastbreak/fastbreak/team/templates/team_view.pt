@@ -10,11 +10,6 @@
     </metal:head_more>
 
     <div metal:fill-slot="content">
-        <ul>
-            <li tal:repeat="player players">
-                <a href="${request.resource_url(player)}">${player.title}</a>
-            </li>
-        </ul>
         <div id="myGrid" class="sgt-grid"
              style="width:70%;height:400px"></div>
     </div>
@@ -46,7 +41,9 @@
         <script
                 src="${request.static_url('fastbreak:static/slickgrid/controls/slick.columnpicker.js')}"></script>
         <script
-                src="${request.static_url('fastbreak:static/sgt.js')}"></script>
+                src="${request.static_url('fastbreak:static/demo76.js')}"></script>
+        <!--<script-->
+                <!--src="${request.static_url('fastbreak:static/sgt.js')}"></script>-->
 
         <script
                 src="${request.static_url('fastbreak:static/slickgrid/sgt/lib/json2.js')}"></script>

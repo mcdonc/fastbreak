@@ -8,20 +8,6 @@
 
 (function ($) {
 
-    function get_data() {
-        // prepare the data
-        var new_data = [];
-        var i;
-        for (i = 0; i < 500; i++) {
-            var d = (new_data[i] = {});
-
-            d["id"] = "id_" + i;
-            d["num"] = i;
-            d["title"] = "Task " + i;
-        }
-        return new_data;
-    }
-
     // Proxy a minimal but necessary part of jquery-ui
     // XX TODO, move this to somewhere on its own at some point?
     $.ui = $.ui || {};
@@ -136,11 +122,35 @@
     var grid;
     var data = [];
     var columns = [
+/*
         {id:"sel", name:"#", field:"num", behavior:"select",
             cssClass:"cell-selection", width:40, cannotTriggerInsert:true,
             resizable:false, selectable:false},
-        {id:"title", name:"Title", field:"title", width:120, minWidth:120,
-            cssClass:"cell-title", editor:Slick.Editors.Text,
+*/
+        {id:"last_name", name:"Last Name", field:"last_name",
+            behavior: "select",
+            width:60, minWidth:60,
+            cssClass:"cell-last-name", editor:Slick.Editors.Text,
+            validator:requiredFieldValidator, sortable:true},
+        {id:"first_name", name:"First Name", field:"first_name",
+            width:60, minWidth:60,
+            cssClass:"cell-first-name", editor:Slick.Editors.Text,
+            validator:requiredFieldValidator, sortable:true},
+        {id:"emails", name:"Emails", field:"emails",
+            width:80, minWidth:80,
+            cssClass:"cell-emails", editor:Slick.Editors.Text,
+            validator:requiredFieldValidator, sortable:true},
+        {id:"pinnie_size", name:"Pinnie Size", field:"pinnie_size",
+            width:40, minWidth:40,
+            cssClass:"cell-emails", editor:Slick.Editors.Text,
+            validator:requiredFieldValidator, sortable:true},
+        {id:"shorts_size", name:"Shorts Size", field:"shorts_size",
+            width:40, minWidth:40,
+            cssClass:"cell-emails", editor:Slick.Editors.Text,
+            validator:requiredFieldValidator, sortable:true},
+        {id:"jersey_number", name:"Jersey Number", field:"jersey_number",
+            width:50, minWidth:50,
+            cssClass:"cell-emails", editor:Slick.Editors.Text,
             validator:requiredFieldValidator, sortable:true}
     ];
 
@@ -207,8 +217,6 @@
     }
 
     $(function () {
-
-        var data = get_data();
 
         dataView = new Slick.Data.DataView({inlineFilters:true});
         grid = new Slick.Grid("#myGrid", dataView, columns, options);
@@ -311,13 +319,24 @@
 
 
         // initialize the model after all the events have been hooked up
-        dataView.beginUpdate();
-        dataView.setItems(data);
-        dataView.setFilterArgs({
-                                   searchString:searchString
-                               });
-        dataView.setFilter(myFilter);
-        dataView.endUpdate();
+        var data = [];
+
+        // Get the data from ajax
+        $.ajax({
+                   url:'/teams/blue/players.json'
+               })
+            .done(function (new_data) {
+                      data = new_data;
+                      dataView.beginUpdate();
+                      dataView.setItems(data);
+                      dataView.setFilterArgs({
+                                                 searchString:searchString
+                                             });
+                      dataView.setFilter(myFilter);
+                      dataView.endUpdate();
+
+                  });
+
 
         // autosize first
         grid.autosizeColumns();
