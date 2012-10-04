@@ -75,7 +75,8 @@ def main(argv=sys.argv):
             external_id = int(team_data['id'])
             title = team_data['title']
             team = request.registry.content.create(
-                ITeam, external_id=external_id, title=title)
+                ITeam, external_id=external_id, title=title,
+                props=team_data)
             name = nameify(title.split(' '))
             teams[name] = team
 

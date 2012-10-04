@@ -1,0 +1,14 @@
+.heading {
+    margin-bottom: 0.5em;
+    color: #2f4f4f;
+}
+
+.selected {
+    background-color: #696969;
+    color: white !important;
+}
+
+.selected:hover {
+    background-color: #696969 !important;
+    color: #d3d3d3 !important;
+}

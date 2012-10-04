@@ -6,6 +6,8 @@ from fastbreak.interfaces import (
 )
 
 class TeamsView(object):
+    title = ''
+
     def __init__(self, context, request):
         self.context = context
         self.request = request
@@ -20,12 +22,14 @@ class TeamsView(object):
                  context=ITeams)
     def teams_view(self):
         return dict(
-            heading='TEAM: ' + self.context.title,
+            heading=self.context.title,
             teams=self.context.values()
         )
 
 
 class TeamView(object):
+    title = ''
+
     def __init__(self, context, request):
         self.context = context
         self.request = request
@@ -39,6 +43,7 @@ class TeamView(object):
                  context=ITeam)
     def team_view(self):
         return dict(
+            heading='Players',
             team=self.context,
             players=self.context.players(),
         )
