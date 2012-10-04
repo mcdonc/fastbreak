@@ -8,7 +8,8 @@
     <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css"
+    <link
+            href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css"
           rel="stylesheet">
     <link href="${request.static_url('substanced.sdi:static/base.css')}"
           rel="stylesheet"/>
@@ -20,8 +21,6 @@
     <link rel="shortcut icon"
           href="${request.static_url('substanced.sdi:static/favicon.ico')}"/>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"
-            type="text/javascript"></script>
 
     <tal:block metal:define-slot="head_more"></tal:block>
 
@@ -63,9 +62,9 @@
     </div>
 </div>
 
+<script
+        src="${request.static_url('fastbreak:static/slickgrid/lib/jquery-1.7.min.js')}"></script>
 
-<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js"></script>
 <tal:block metal:define-slot="tail_more"></tal:block>
-
 </body>
 </html>

@@ -15,6 +15,7 @@
     </div>
 
     <metal:tail_more metal:fill-slot="tail_more">
+
         <script
                 src="${request.static_url('fastbreak:static/slickgrid/sgt/lib/bootstrap-dropdown.js')}"></script>
         <script
@@ -41,12 +42,11 @@
         <script
                 src="${request.static_url('fastbreak:static/slickgrid/controls/slick.columnpicker.js')}"></script>
         <script
-                src="${request.static_url('fastbreak:static/demo76.js')}"></script>
-        <!--<script-->
-                <!--src="${request.static_url('fastbreak:static/sgt.js')}"></script>-->
+                src="${request.static_url('fastbreak:static/sgt.js')}"></script>
 
         <script
                 src="${request.static_url('fastbreak:static/slickgrid/sgt/lib/json2.js')}"></script>
+
         <script
                 src="${request.static_url('fastbreak:static/slickgrid/sgt/lib/hammer.js')}"></script>
         <script
