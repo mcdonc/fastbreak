@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title metal:define-slot="page-title">${heading|view.heading}</title>
+
+    <!--[if lt IE 9]>
+    <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link href="${request.static_url('substanced.sdi:static/bootstrap/css/bootstrap.min.css')}"
+          rel="stylesheet"/>
+    <link href="${request.static_url('substanced.sdi:static/base.css')}"
+          rel="stylesheet"/>
+
+    <!-- Fav icons -->
+    <link rel="shortcut icon"
+          href="${request.static_url('substanced.sdi:static/favicon.ico')}"/>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"
+            type="text/javascript"></script>
+
+    <tal:block metal:define-slot="head_more"></tal:block>
+
+</head>
+
+<body>
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="brand" href="${request.application_url}">
+                STORM Dashboard
+            </a>
+
+            <ul class="nav">
+                <li>
+                    <a
+                            href="${request.application_url}/teams/storm-blue">
+                        Blue
+                    </a>
+                </li>
+                <li>
+                    <a
+                            href="${request.application_url}/storm/orange">
+                        Orange
+                    </a>
+                </li>
+                <li>
+                    <a
+                            href="${request.application_url}/storm/white">White</a>
+                </li>
+                <li>
+                    <a
+                            href="${request.application_url}/storm/black">Black</a>
+                </li>
+                <li>
+                    <a
+                            href="${request.application_url}/storm/silver">Silver</a>
+                </li>
+                <li>|</li>
+                <li>
+                    <a href="${request.application_url}/players">
+                        Players</a>
+                </li>
+                <li>
+                    <a href="${request.application_url}/adults">
+                        Adults</a>
+                </li>
+            </ul>
+            <!--
+            <ul class="nav pull-right">
+                <li>
+                    <a href="">Management</a>
+                </li>
+            </ul>
+            -->
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+    <heading>
+        <h1>${heading|view.heading|''}</h1>
+
+        <div class="subnav" tal:condition="view.subnav_items|None"
+             style="background-color:#ffffe0;">
+            <ul class="nav nav-pills">
+                <li tal:repeat="si view.subnav_items">
+                    <a href="${si.url}">${si.title}</a>
+                </li>
+            </ul>
+        </div>
+    </heading>
+    <div metal:define-slot="content">
+    </div>
+</div>
+
+<script src="${request.static_url('substanced.sdi:static/bootstrap/js/bootstrap.min.js')}"
+        type="text/javascript"></script>
+<script src="http://twitter.github.com/bootstrap/assets/js/bootstrap-alert.js"></script>
+</body>
+</html>

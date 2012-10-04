@@ -1,0 +1,9 @@
+<metal:block use-macro="main_template">
+    <div metal:fill-slot="content">
+        <ul>
+            <li tal:repeat="team teams">
+                <a href="${request.resource_url(team)}">${team.title}</a>
+            </li>
+        </ul>
+    </div>
+</metal:block>
