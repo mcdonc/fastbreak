@@ -129,15 +129,13 @@
 */
         {id:"last_name", name:"Last Name", field:"last_name",
             behavior: "select",
-            width:60, minWidth:60,
             cssClass:"cell-last-name", editor:Slick.Editors.Text,
             validator:requiredFieldValidator, sortable:true},
         {id:"first_name", name:"First Name", field:"first_name",
-            width:60, minWidth:60,
             cssClass:"cell-first-name", editor:Slick.Editors.Text,
             validator:requiredFieldValidator, sortable:true},
         {id:"emails", name:"Emails", field:"emails",
-            width:80, minWidth:80,
+            width:90, minWidth:60,
             cssClass:"cell-emails", editor:Slick.Editors.Text,
             validator:requiredFieldValidator, sortable:true},
         {id:"pinnie_size", name:"Pinnie Size", field:"pinnie_size",
@@ -148,8 +146,8 @@
             width:40, minWidth:40,
             cssClass:"cell-emails", editor:Slick.Editors.Text,
             validator:requiredFieldValidator, sortable:true},
-        {id:"jersey_number", name:"Jersey Number", field:"jersey_number",
-            width:50, minWidth:50,
+        {id:"jersey_number", name:"Jersey #", field:"jersey_number",
+            width:30, minWidth:30,
             cssClass:"cell-emails", editor:Slick.Editors.Text,
             validator:requiredFieldValidator, sortable:true}
     ];

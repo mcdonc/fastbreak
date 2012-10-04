@@ -10,7 +10,7 @@
     </metal:head_more>
 
     <div metal:fill-slot="content">
-        <div style="width:98%">
+        <div>
 
             <div class="navbar fb-toolbar">
                 <div class="navbar-inner">
@@ -42,9 +42,10 @@
 
                 </div>
             </div>
+            <input/>
 
             <div id="myGrid" class="sgt-grid"
-                 style="height:400px;width:100%"
+                 style="height:500px"
                     data-json-url="${json_url}"></div>
         </div>
     </div>
