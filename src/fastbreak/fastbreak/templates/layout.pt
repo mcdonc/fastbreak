@@ -10,14 +10,13 @@
 
     <link
             href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css"
-          rel="stylesheet">
+            rel="stylesheet">
     <link href="${request.static_url('substanced.sdi:static/base.css')}"
           rel="stylesheet"/>
     <link
             href="${request.static_url('fastbreak:static/fastbreak.css')}"
             rel="stylesheet"/>
 
-    <!-- Fav icons -->
     <link rel="shortcut icon"
           href="${request.static_url('substanced.sdi:static/favicon.ico')}"/>
 
@@ -35,29 +34,25 @@
             </a>
 
             <ul class="nav">
-                <li tal:repeat="team layout.navbar_items">
-                    <a href="${team.url}"
-                       class="${team.selected}">${team.title}</a>
+                <li class="${team.active}"
+                    tal:repeat="team layout.navbar_items">
+                    <a href="${team.url}">${team.title}</a>
                 </li>
             </ul>
         </div>
+    </div>
+    <div class="subnav" tal:condition="view.subnav_items|None"
+         style="background-color:#ffffe0;">
+        <ul class="nav nav-pills">
+            <li class="${si.active}" tal:repeat="si view.subnav_items">
+                <a href="${si.url}">${si.title}</a>
+            </li>
+        </ul>
     </div>
 </div>
 
 
 <div class="container">
-    <heading>
-        <h1 class="heading">${heading|view.heading|''}</h1>
-
-        <div class="subnav" tal:condition="view.subnav_items|None"
-             style="background-color:#ffffe0;">
-            <ul class="nav nav-pills">
-                <li tal:repeat="si view.subnav_items">
-                    <a href="${si.url}">${si.title}</a>
-                </li>
-            </ul>
-        </div>
-    </heading>
     <div metal:define-slot="content">
     </div>
 </div>

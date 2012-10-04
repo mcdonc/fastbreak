@@ -36,16 +36,24 @@ class TeamView(object):
 
     @property
     def subnav_items(self):
-        return []
+        return [
+            dict(active='active', title='Players', url='#'),
+            dict(title='Tournaments', url='#', active=''),
+            dict(title='Actions', url='#', active=''),
+            dict(title='Email List', url='#', active='')
+        ]
 
     @view_config(renderer='templates/team_view.pt',
                  permission='view',
                  context=ITeam)
     def team_view(self):
+        json_url = self.request.resource_url(self.context,
+                                             'players.json')
         return dict(
             heading='Players',
             team=self.context,
             players=self.context.players(),
+            json_url=json_url
         )
 
     @view_config(name='players.json',

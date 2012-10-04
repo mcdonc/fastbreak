@@ -21,13 +21,13 @@ class FastbreakLayout(object):
         sorted_teams = sorted(request.root['teams'].values(),
                               key=lambda x: x.props['position'])
         for team in sorted_teams:
-            selected = ''
+            active = ''
             if context_name==team.__name__:
-                selected='selected'
+                active='active'
             teams.append(dict(
                 title=team.title,
                 url=request.resource_url(team),
-                selected=selected
+                active=active
             ))
         return teams
 

@@ -10,8 +10,43 @@
     </metal:head_more>
 
     <div metal:fill-slot="content">
-        <div id="myGrid" class="sgt-grid"
-             style="width:70%;height:400px"></div>
+        <div style="width:98%">
+
+            <div class="navbar fb-toolbar">
+                <div class="navbar-inner">
+                    <div class="span4 fb-toolbar-box">
+                        <div class="btn-group">
+                            <button class="btn"
+                                    title="Backward through series">
+                                <i id="fb-configure"
+                                   class="icon-circle-arrow-left"></i>
+                            </button>
+                            <button class="btn"
+                                    title="Forward through series">
+                                <i id="fb-configure"
+                                   class="icon-circle-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="span4 fb-toolbar-box">
+                        ${heading|view.heading|''} - Milestone 1
+                    </div>
+                    <div class="span3 fb-toolbar-box"
+                         style="text-align:right">
+                        <input id="fb-text-filter" type="text"
+                               placeholder="Filter by…"/>
+                        <button class="btn" type="button">
+                            <i id="fb-configure" class="icon-wrench"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="myGrid" class="sgt-grid"
+                 style="height:400px;width:100%"
+                    data-json-url="${json_url}"></div>
+        </div>
     </div>
 
     <metal:tail_more metal:fill-slot="tail_more">

@@ -80,7 +80,7 @@ def main(argv=sys.argv):
             name = nameify(title.split(' '))
             teams[name] = team
 
-            # Make it easier to associate the ref_teams in player data
+            # Make it easier to associate the refs_teams in player data
             # with a team
             team_refs[external_id] = team
 
@@ -91,16 +91,16 @@ def main(argv=sys.argv):
             first_name = player_data['first_name']
             last_name = player_data['last_name']
 
-            ref_team = int(player_data['ref_team'])
+            refs_team = int(player_data['refs_team'])
             player = request.registry.content.create(
                 IPlayer, external_id=external_id,
                 first_name=first_name, last_name=last_name,
-                team_name=ref_team, props=player_data)
+                team_name=refs_team, props=player_data)
             name = nameify([last_name, first_name, str(external_id)])
             people[name] = player
 
             # Connect the player to a team
-            this_team = team_refs[ref_team]
+            this_team = team_refs[refs_team]
             this_team_oid = this_team.oid
             player.connect_team_oid(this_team_oid)
 

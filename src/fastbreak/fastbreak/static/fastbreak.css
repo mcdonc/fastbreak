@@ -1,14 +1,18 @@
-.heading {
-    margin-bottom: 0.5em;
-    color: #2f4f4f;
+
+.container {
+    margin-top: 2em;
 }
 
-.selected {
-    background-color: #696969;
-    color: white !important;
+.fb-toolbar {
+    margin-bottom:0;
 }
 
-.selected:hover {
-    background-color: #696969 !important;
-    color: #d3d3d3 !important;
+.fb-toolbar-box {
+    margin-top: 0.5em;
+    font-size: larger;
+}
+
+.fb-toolbar-box .btn, .fb-toolbar-box .btn-group {
+    margin-top:0;
+    vertical-align: top;
 }

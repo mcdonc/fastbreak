@@ -322,9 +322,15 @@
         var data = [];
 
         // Get the data from ajax
+        var json_url = $('#myGrid').data('json-url');
+        console.log('json_url', json_url);
         $.ajax({
-                   url:'/teams/blue/players.json'
+                   url:json_url
                })
+            .error(function () {
+                   var s = 'Cannot load data at: ' + json_url;
+                   console.log(s);
+                           })
             .done(function (new_data) {
                       data = new_data;
                       dataView.beginUpdate();
