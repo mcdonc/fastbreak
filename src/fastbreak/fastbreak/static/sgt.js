@@ -321,7 +321,6 @@
 
         // Get the data from ajax
         var json_url = $('#myGrid').data('json-url');
-        console.log('json_url', json_url);
         $.ajax({
                    url:json_url
                })

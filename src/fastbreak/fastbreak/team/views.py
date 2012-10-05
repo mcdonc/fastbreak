@@ -1,3 +1,6 @@
+from csv import DictWriter
+from StringIO import StringIO
+
 from pyramid.view import view_config
 
 from fastbreak.interfaces import (
@@ -78,3 +81,45 @@ class TeamView(object):
                 )
             )
         return player_data
+
+
+    @view_config(name='download_roster',
+                 permission='view',
+                 context=ITeam)
+    def download_roster(self):
+        fieldnames = ['last_name', 'first_name', 'grade',
+                      'school', 'experience', 'tourneys',
+                      'all_emails',
+                      'parent_last_name', 'parent_first_name']
+        output = StringIO()
+        writer = DictWriter(output, fieldnames=fieldnames)
+        headers = dict((n, n) for n in fieldnames)
+        writer.writerow(headers)
+        for player in self.context.players():
+            tourneys = []
+            if player.props['lax_clash'] == 'Checked':
+                tourneys.append('A')
+            if player.props['fall_ball_classic'] == 'Checked':
+                tourneys.append('B')
+            if player.props['river_city'] == 'Checked':
+                tourneys.append('C')
+
+
+            writer.writerow(dict(
+                last_name=player.last_name,
+                first_name=player.first_name,
+                grade=player.props['grade'],
+                school=player.props['school'],
+                experience=player.props['years_experience'],
+                tourneys='/'.join(tourneys),
+                emails=player.props['emails'],
+                guardian1_lastname=player.props['Guardian1 Last'],
+                guardian1_firstname=player.props['Guardian1 First'],
+            ))
+
+        fn = self.context.title + '_team.csv'
+        res = Response(content_type='text/csv', )
+        res.content_disposition = 'attachment;filename=%s' % fn
+        res.body = output.getvalue()
+
+        return res

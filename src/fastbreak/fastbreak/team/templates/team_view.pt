@@ -29,7 +29,7 @@
                         </div>
                     </div>
                     <div class="span4 fb-toolbar-box">
-                        ${heading|view.heading|''} - Milestone 1
+                        ${heading|view.heading|''}
                     </div>
                     <div class="span3 fb-toolbar-box"
                          style="text-align:right">
@@ -42,7 +42,6 @@
 
                 </div>
             </div>
-            <input/>
 
             <div id="myGrid" class="sgt-grid"
                  style="height:500px"

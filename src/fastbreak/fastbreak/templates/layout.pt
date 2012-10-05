@@ -44,7 +44,7 @@
     <div class="subnav" tal:condition="view.subnav_items|None"
          style="background-color:#ffffe0;">
         <ul class="nav nav-pills">
-            <li class="${si.active}" tal:repeat="si view.subnav_items">
+            <li class="${si.active|''}" tal:repeat="si view.subnav_items">
                 <a href="${si.url}">${si.title}</a>
             </li>
         </ul>

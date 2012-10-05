@@ -28,6 +28,8 @@ class IPlayer(BaseContent):
         for k, v in props.items():
             self.props[k] = v
 
+        print self.props['lax_clash']
+
     def connect_team_oid(self, team_oid):
         self.connect_role(ROSTER, team_oid)
 
