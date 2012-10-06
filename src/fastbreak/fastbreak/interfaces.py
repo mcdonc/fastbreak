@@ -9,7 +9,7 @@ class ITeam(Interface):
 #
 
 class IPeople(Interface):
-    """ Interface for a folder holding coaches, parents, players """
+    """ Interface for a folder holding coaches, guardians, players """
 
 class IPlayer(Interface):
     """ Interface for a Player """
@@ -17,8 +17,8 @@ class IPlayer(Interface):
 class ICoach(Interface):
     """ Interface for a Coach """
 
-class IParent(Interface):
-    """ Interface for a Parent """
+class IGuardian(Interface):
+    """ Interface for a Guardian """
 
 #
 

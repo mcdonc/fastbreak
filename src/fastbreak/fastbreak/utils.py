@@ -1,3 +1,5 @@
+from types import ListType
+
 import colander
 
 from pyramid.decorator import reify
@@ -7,6 +9,7 @@ from substanced.objectmap import find_objectmap
 
 # Constants for roles
 ROSTER = 'roster'
+GUARDIAN = 'guardian'
 
 class BaseContent(Folder):
     title = ''
@@ -41,7 +44,8 @@ class BaseContent(Folder):
             for oid in self.get_relationids(target):
                 self.objectmap.disconnect(self, oid, target)
 
-    def connect_role(self, role, *seq):
+    def connect_role(self, role, seq):
+        assert isinstance(seq, ListType)
         for oid in seq:
             if oid is not colander.null:
                 self.objectmap.connect(self, oid, role)

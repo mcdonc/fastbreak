@@ -27,7 +27,7 @@ class SiteView(object):
                 url=request.resource_url(root, 'teams')
             ),
             dict(
-                title='Parents',
+                title='Guardians',
                 url=request.resource_url(root, 'teams')
             ),
             dict(

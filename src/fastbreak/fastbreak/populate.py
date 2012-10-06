@@ -19,12 +19,13 @@ from fastbreak.interfaces import (
     IPeople,
     ICoach,
     IPlayer,
-    IParent,
+    IGuardian,
     ITournaments,
     ITournament)
 
 def nameify(seq):
     return '-'.join(seq).lower()
+
 
 def main(argv=sys.argv):
     if len(argv) > 4:
@@ -84,6 +85,30 @@ def main(argv=sys.argv):
             # with a team
             team_refs[external_id] = team
 
+        # Guardians
+        map_guardian_ids = {}
+        for guardian_data in DictReader(open(join(csv_dir,
+                                                  'guardians.csv'))):
+            external_id = int(guardian_data['id'])
+            first_name = guardian_data['first_name']
+            last_name = guardian_data['last_name']
+
+            name = nameify([last_name, first_name, str(external_id)])
+            if name in people.keys():
+                # Already exists, likely a guardian of another player,
+                # so skip
+                continue
+
+            guardian = request.registry.content.create(
+                IGuardian, external_id=external_id,
+                first_name=first_name, last_name=last_name,
+                props=guardian_data)
+            people[name] = guardian
+
+            # We need a mapping of external ids to docids,
+            # so we can connect players to guardians in the next step
+            map_guardian_ids[external_id] = guardian.oid
+
         # Players
         for player_data in DictReader(open(join(csv_dir,
                                                 'players.csv'))):
@@ -102,7 +127,14 @@ def main(argv=sys.argv):
             # Connect the player to a team
             this_team = team_refs[refs_team]
             this_team_oid = this_team.oid
-            player.connect_team_oid(this_team_oid)
+            player.connect_team_oids([this_team_oid, ])
+
+            # Connect the player to guardians
+            guardian_oids = []
+            for external_id in player_data['refs_guardians'].split(','):
+                this_oid = map_guardian_ids[int(external_id)]
+                guardian_oids.append(this_oid)
+            player.connect_guardian_oids(guardian_oids)
 
 
 if __name__ == '__main__':

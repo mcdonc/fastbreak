@@ -16,6 +16,10 @@
                 <div class="navbar-inner">
                     <div class="span4 fb-toolbar-box">
                         <div class="btn-group">
+                            <button class="btn" id="fb-download"
+                                    title="Download Spreadsheet">
+                                <i class="icon-download"></i>
+                            </button>
                             <button class="btn"
                                     title="Backward through series">
                                 <i id="fb-configure"
@@ -43,9 +47,14 @@
                 </div>
             </div>
 
+            <p>
+                <a href="${csv_url}">csv</a>
+            </p>
+
             <div id="myGrid" class="sgt-grid"
                  style="height:500px"
-                    data-json-url="${json_url}"></div>
+                    data-json-url="${json_url}"
+                    data-csv-url="${csv_url}"></div>
         </div>
     </div>
 

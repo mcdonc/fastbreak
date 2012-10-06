@@ -19,7 +19,7 @@ from fastbreak.interfaces import (
     IPeople,
     ICoach,
     IPlayer,
-    IParent,
+    IGuardian,
     ITournaments,
     ITournament)
 

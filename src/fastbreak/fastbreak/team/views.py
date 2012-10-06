@@ -52,11 +52,14 @@ class TeamView(object):
     def team_view(self):
         json_url = self.request.resource_url(self.context,
                                              'players.json')
+        csv_url = self.request.resource_url(self.context,
+                                             'download_roster')
         return dict(
             heading='Players',
             team=self.context,
             players=self.context.players(),
-            json_url=json_url
+            json_url=json_url,
+            csv_url=csv_url
         )
 
     @view_config(name='players.json',
@@ -90,7 +93,7 @@ class TeamView(object):
         fieldnames = ['last_name', 'first_name', 'grade',
                       'school', 'experience', 'tourneys',
                       'all_emails',
-                      'parent_last_name', 'parent_first_name']
+                      'guardian_last_name', 'guardian_first_name']
         output = StringIO()
         writer = DictWriter(output, fieldnames=fieldnames)
         headers = dict((n, n) for n in fieldnames)

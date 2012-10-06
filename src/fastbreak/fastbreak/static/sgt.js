@@ -600,4 +600,11 @@
 
     });
 
+    $('#fb-download').on('click', function () {
+        var csv_url = $('#myGrid').data('csv-url');
+        console.log('csv_url', csv_url);
+        location.url = csv_url;
+        //return false;
+    })
+
 })(window.jQuery);

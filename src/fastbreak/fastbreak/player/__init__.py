@@ -1,12 +1,12 @@
 from persistent.mapping import PersistentMapping
 
 from substanced.content import content
-from substanced.folder import Folder
 
 from ..interfaces import IPlayer
 from ..utils import (
     BaseContent,
-    ROSTER
+    ROSTER,
+    GUARDIAN
     )
 
 @content(
@@ -28,10 +28,14 @@ class IPlayer(BaseContent):
         for k, v in props.items():
             self.props[k] = v
 
-        print self.props['lax_clash']
-
-    def connect_team_oid(self, team_oid):
-        self.connect_role(ROSTER, team_oid)
+    def connect_team_oids(self, team_oids):
+        self.connect_role(ROSTER, team_oids)
 
     def teams(self):
         return self.get_targets(ROSTER)
+
+    def connect_guardian_oids(self, guardian_oids):
+        self.connect_role(GUARDIAN, guardian_oids)
+
+    def guardians(self):
+        return self.get_targets(GUARDIAN)
