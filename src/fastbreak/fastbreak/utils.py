@@ -11,6 +11,16 @@ from substanced.objectmap import find_objectmap
 ROSTER = 'roster'
 GUARDIAN = 'guardian'
 
+def split_emails(emails_string):
+    """ Given a string with a semi-colon-delim, split """
+
+    data = set()
+    for addr1 in emails_string.strip().split(';'):
+        data.add(addr1.strip())
+
+    return list(data)
+
+
 class BaseContent(Folder):
     title = ''
 

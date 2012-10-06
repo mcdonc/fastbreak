@@ -20,3 +20,12 @@
 #fb-text-filter {
     width: 10em;
 }
+.fb-cheatsheet-row {
+    margin-bottom: 0.2em;
+    font-size: smaller;
+}
+
+.fb-cheetsheet-cell div {
+    margin:0;
+    line-height: 36px !important;
+}

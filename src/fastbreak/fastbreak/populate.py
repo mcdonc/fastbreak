@@ -23,6 +23,8 @@ from fastbreak.interfaces import (
     ITournaments,
     ITournament)
 
+from fastbreak.utils import split_emails
+
 def nameify(seq):
     return '-'.join(seq).lower()
 
@@ -92,6 +94,7 @@ def main(argv=sys.argv):
             external_id = int(guardian_data['id'])
             first_name = guardian_data['first_name']
             last_name = guardian_data['last_name']
+            emails = split_emails(guardian_data['emails'])
 
             name = nameify([last_name, first_name, str(external_id)])
             if name in people.keys():
@@ -102,6 +105,7 @@ def main(argv=sys.argv):
             guardian = request.registry.content.create(
                 IGuardian, external_id=external_id,
                 first_name=first_name, last_name=last_name,
+                emails=emails,
                 props=guardian_data)
             people[name] = guardian
 
@@ -115,16 +119,17 @@ def main(argv=sys.argv):
             external_id = int(player_data['id'])
             first_name = player_data['first_name']
             last_name = player_data['last_name']
+            emails = split_emails(player_data['emails'])
 
-            refs_team = int(player_data['refs_team'])
             player = request.registry.content.create(
                 IPlayer, external_id=external_id,
                 first_name=first_name, last_name=last_name,
-                team_name=refs_team, props=player_data)
+                emails=emails, props=player_data)
             name = nameify([last_name, first_name, str(external_id)])
             people[name] = player
 
             # Connect the player to a team
+            refs_team = int(player_data['refs_team'])
             this_team = team_refs[refs_team]
             this_team_oid = this_team.oid
             player.connect_team_oids([this_team_oid, ])

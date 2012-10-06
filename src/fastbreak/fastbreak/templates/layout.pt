@@ -29,11 +29,13 @@
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container-fluid">
-            <a class="brand" href="${request.application_url}">
-                STORM Dashboard
-            </a>
 
             <ul class="nav">
+                <li class="${layout.is_root_active}">
+                    <a class="brand" href="${request.application_url}">
+                        STORM Dashboard
+                    </a>
+                </li>
                 <li class="${team.active}"
                     tal:repeat="team layout.navbar_items">
                     <a href="${team.url}">${team.title}</a>

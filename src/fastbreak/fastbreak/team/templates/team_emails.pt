@@ -1,0 +1,8 @@
+<metal:block use-macro="main_template">
+    <div metal:fill-slot="content">
+        <h2 class="heading">${heading}</h2>
+        <pre>
+${joined_comma}
+        </pre>
+    </div>
+</metal:block>

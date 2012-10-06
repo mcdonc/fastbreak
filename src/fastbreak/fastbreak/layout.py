@@ -12,6 +12,21 @@ class FastbreakLayout(object):
         self.headings = []
 
     @property
+    def is_root_active(self):
+        """
+        Return 'active' if we are sitting on the root
+        """
+
+        request = self.request
+        context = self.context
+        u1 = request.resource_url(context)
+        u2 = request.application_url + '/'
+        if u1 == u2:
+            return 'active'
+        else:
+            return ''
+
+    @property
     def navbar_items(self):
         # Get the teams and sort them by order of "position"
         request = self.request

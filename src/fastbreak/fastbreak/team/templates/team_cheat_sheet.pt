@@ -1,0 +1,24 @@
+<metal:block use-macro="main_template">
+    <div metal:fill-slot="content">
+        <h2 class="heading">${heading}</h2>
+
+        <div class="row fb-cheatsheet-row" tal:repeat="row all_players">
+            <tal:block repeat="player row">
+                <div class="span1">
+                    <img width="70" title="Full Name"
+                         src="${request.static_url('fastbreak:static/images/headshot.jpg')}"
+                            />
+                </div>
+                <div class="span2 .fb-cheetsheet-cell">
+                    <div
+                            style="line-height: 16px"><strong>${player
+                            .title}</strong></div>
+                    <div style="line-height:
+                     16px">${player.props['school'][0:20]}</div>
+                    <div style="line-height: 16px">Grade: ${player.props['grade']}</div>
+                    <div style="line-height: 16px">${player.props['years_experience']}</div>
+                </div>
+            </tal:block>
+        </div>
+    </div>
+</metal:block>
