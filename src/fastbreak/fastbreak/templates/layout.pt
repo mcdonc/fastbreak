@@ -43,16 +43,15 @@
             </ul>
         </div>
     </div>
-    <div class="subnav" tal:condition="view.subnav_items|None"
-         style="background-color:#ffffe0;">
-        <ul class="nav nav-pills">
-            <li class="${si.active|''}" tal:repeat="si view.subnav_items">
-                <a href="${si.url}">${si.title}</a>
-            </li>
-        </ul>
-    </div>
 </div>
-
+<div style="margin-top:-1em">
+<ul class="nav nav-pills">
+    <li class="${si.active|''}"
+        tal:repeat="si view.subnav_items">
+        <a href="${si.url}">${si.title}</a>
+    </li>
+</ul>
+</div>
 
 <div class="container">
     <div metal:define-slot="content">

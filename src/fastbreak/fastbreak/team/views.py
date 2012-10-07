@@ -137,10 +137,11 @@ class TeamView(object):
         all_players = self.context.players()
 
         # Get the players into rows of 4
+        per_row = 3
         results = []
-        for i in range(0,len(all_players)-1, 4):
+        for i in range(0,len(all_players)-1, per_row):
             row = []
-            for j in (0,1,2,3):
+            for j in range(0,per_row):
                 try:
                     row.append(all_players[i+j])
                 except IndexError:

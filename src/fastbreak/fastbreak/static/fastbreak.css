@@ -1,6 +1,5 @@
 
 .container {
-    margin-top: 2em;
 }
 
 .fb-toolbar {
@@ -26,6 +25,4 @@
 }
 
 .fb-cheetsheet-cell div {
-    margin:0;
-    line-height: 36px !important;
 }

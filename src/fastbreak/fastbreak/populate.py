@@ -53,6 +53,13 @@ def main(argv=sys.argv):
 
     team_refs = {}
 
+    from os import listdir
+    x = '/Users/paul/projects/fastbreak/src/fastbreak/fastbreak/static/headshots'
+    headshot_filenames = {}
+    for fn in listdir(x):
+        if fn[-4:] == '.jpg':
+            headshot_filenames[fn] = fn
+
     with transaction.manager:
         # If needed, blow away existing data
         if init:
@@ -114,12 +121,23 @@ def main(argv=sys.argv):
             map_guardian_ids[external_id] = guardian.oid
 
         # Players
+        k = headshot_filenames.keys()
+        print k[0:10]
         for player_data in DictReader(open(join(csv_dir,
                                                 'players.csv'))):
             external_id = int(player_data['id'])
             first_name = player_data['first_name']
             last_name = player_data['last_name']
             emails = split_emails(player_data['emails'])
+
+            # Do we have a headshot
+            this_headshot_fn = 'no_headshot.gif'
+            hs_fn = '%s %s.jpg' % (last_name, first_name)
+            if hs_fn not in k:
+                print "no headshot", last_name, first_name
+                player_data['headshot_fn'] = 'no_headshot.gif'
+            else:
+                player_data['headshot_fn'] = hs_fn
 
             player = request.registry.content.create(
                 IPlayer, external_id=external_id,
@@ -140,6 +158,7 @@ def main(argv=sys.argv):
                 this_oid = map_guardian_ids[int(external_id)]
                 guardian_oids.append(this_oid)
             player.connect_guardian_oids(guardian_oids)
+
 
 
 if __name__ == '__main__':

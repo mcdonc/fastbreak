@@ -2,23 +2,34 @@
     <div metal:fill-slot="content">
         <h2 class="heading">${heading}</h2>
 
-        <div class="row fb-cheatsheet-row" tal:repeat="row all_players">
-            <tal:block repeat="player row">
-                <div class="span1">
-                    <img width="70" title="Full Name"
-                         src="${request.static_url('fastbreak:static/images/headshot.jpg')}"
+        <table width="100%">
+            <tbody>
+            <tr tal:repeat="row all_players"
+                style="height: 99px">
+                <td tal:repeat="player row" class="fb-cheetsheet-cell">
+                    <a href="${request.static_url('fastbreak:static/headshots/' + player.props['headshot_fn'])}">
+                    <img width="100" alt="${player.title}"
+                         style="display:block;float:left;
+                         margin-right:0.2em"
+                         src="${request.static_url('fastbreak:static/headshots/' + player.props['headshot_fn'])}"
                             />
-                </div>
-                <div class="span2 .fb-cheetsheet-cell">
-                    <div
-                            style="line-height: 16px"><strong>${player
-                            .title}</strong></div>
+                    </a>
+                    <div style="line-height: 16px">
+                        <strong>${player.title}</strong></div>
                     <div style="line-height:
-                     16px">${player.props['school'][0:20]}</div>
-                    <div style="line-height: 16px">Grade: ${player.props['grade']}</div>
-                    <div style="line-height: 16px">${player.props['years_experience']}</div>
-                </div>
-            </tal:block>
-        </div>
+                     16px">${player.props['school'][0:25]}
+                    </div>
+                    <div style="line-height: 16px">Grade:
+                        ${player.props['grade']}
+                    </div>
+                    <div style="line-height: 16px">
+                        ${player.props['years_experience']}
+                    </div>
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
     </div>
 </metal:block>

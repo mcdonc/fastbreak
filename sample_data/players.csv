@@ -1,0 +1,22 @@
+id,first_name,last_name,emails,pinnie_size,shorts_size,jersey_number,refs_team,refs_guardians
+1000,Amy,Adams,p@x.com,L,M,3,2000,"3000,3001"
+1001,Barbara,Bullock,x@p.com,XL,S,4,2000,"3002,3003"
+1002,Betty,Bullock,z@no.com,S,XL,10,2000,"3002,3003"
+1003,Billy Ann,Bullock,p@x.com,M,L,11,2001,"3002,3003"
+1004,Carly,Collins,x@p.com,S,M,7,2001,"3004,3005"
+1005,Debby,Dillon,z@no.com,XL,L,9,2002,3006
+1006,Eve,Evans,p@x.com,L,XL,2,2002,"3007,3008"
+1007,Gina,Grisham,x@p.com,M,S,13,2001,"3009,3010"
+1008,Heather,Holland,z@no.com,M,M,1,2000,"3011,3012"
+1009,Ima,Inez,p@x.com,M,M,14,2000,3013
+1010,Jenny,Jones,x@p.com,S,S,15,2000,"3014,3015"
+1011,Amy,Kravitz,z@no.com,L,XL,17,2001,"3016,3017"
+1012,Barbara,Kravitz,p@x.com,XL,L,20,2001,"3016,3017"
+1013,Betty,Kravitz,x@p.com,S,M,23,2002,"3016,3017"
+1014,Billy Ann,Kravitz,z@no.com,M,L,50,2002,"3016,3017"
+1015,Carly,Lough,p@x.com,S,XL,41,2001,3017
+1016,Debby,Miner,x@p.com,XL,S,39,2000,3018
+1017,Eve,Nunez,z@no.com,L,M,38,2000,3019
+1018,Gina,Ogletree,p@x.com,M,S,60,2000,3020
+1019,Carly,Prince,x@p.com,M,S,62,2001,3021
+1020,Deborah,Quora,z@no.com,M,L,88,2001,3022
