@@ -20,6 +20,9 @@
     <link rel="shortcut icon"
           href="${request.static_url('substanced.sdi:static/favicon.ico')}"/>
 
+    <link rel="stylesheet"
+          media="print"
+          href="${request.static_url('fastbreak:static/fastbreak-print.css')}" />
 
     <tal:block metal:define-slot="head_more"></tal:block>
 
@@ -44,7 +47,7 @@
         </div>
     </div>
 </div>
-<div style="margin-top:-1em">
+<div class="subnav" style="margin-top:-1em">
 <ul class="nav nav-pills">
     <li class="${si.active|''}"
         tal:repeat="si view.subnav_items">

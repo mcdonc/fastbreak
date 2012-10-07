@@ -25,4 +25,6 @@
 }
 
 .fb-cheetsheet-cell div {
+    line-height: 16px;
+    font-size: smaller;
 }

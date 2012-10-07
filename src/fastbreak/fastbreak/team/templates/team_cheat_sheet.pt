@@ -8,21 +8,18 @@
                 style="height: 99px">
                 <td tal:repeat="player row" class="fb-cheetsheet-cell">
                     <a href="${request.static_url('fastbreak:static/headshots/' + player.props['headshot_fn'])}">
-                    <img width="100" alt="${player.title}"
-                         style="display:block;float:left;
+                        <img width="100" alt="${player.title}"
+                             style="display:block;float:left;
                          margin-right:0.2em"
-                         src="${request.static_url('fastbreak:static/headshots/' + player.props['headshot_fn'])}"
-                            />
+                             src="${request.static_url('fastbreak:static/headshots/' + player.props['headshot_fn'])}"
+                                />
                     </a>
-                    <div style="line-height: 16px">
+
+                    <div>
                         <strong>${player.title}</strong></div>
-                    <div style="line-height:
-                     16px">${player.props['school'][0:25]}
-                    </div>
-                    <div style="line-height: 16px">Grade:
-                        ${player.props['grade']}
-                    </div>
-                    <div style="line-height: 16px">
+                    <div>${player.props['school'][0:22]}</div>
+                    <div>Grade: ${player.props['grade']}</div>
+                    <div>
                         ${player.props['years_experience']}
                     </div>
 
