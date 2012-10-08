@@ -338,6 +338,14 @@
                       dataView.setFilter(myFilter);
                       dataView.endUpdate();
 
+                      // autosize ...
+                      // XXX Not sure if we want this here to happen. But since
+                      // we have an ajax, the scrollbar / no scrollbar question
+                      // will only be decided when we have the first result set.
+                      // This line helps to avoid a horizontal scrollbar.
+                      // Perhaps, a better way would be to revisit the usage of forceFitColumns=true,
+                      // which however caused a problem in an earlier state of development.
+                      grid.autosizeColumns();
                   });
 
 
