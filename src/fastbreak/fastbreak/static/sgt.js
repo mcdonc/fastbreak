@@ -41,38 +41,6 @@
     }
 
 
-    function _safeConvert(obj) {
-        var type = $.type(obj);
-        if (type == 'object' && $(obj).parent().length > 0) {
-            obj = "DOM #" + $(obj).attr('id');
-        } else if (type == 'array' || type == 'object') {
-            var res;
-            if (type == 'array') {
-                res = [];
-            } else {
-                res = {};
-            }
-            $.each(obj, function (key, value) {
-                res[key] = _safeConvert(value);
-            });
-            obj = res;
-        }
-        return obj;
-    }
-
-    function log() {
-        var args = [new Date()];
-        var i;
-        for (i = 0; i < arguments.length; i++) {
-            args.push(arguments[i]);
-        }
-        args = _safeConvert(args);
-        var repr = JSON.stringify(args);
-        $('#logger').prepend('<code>' + repr + '</code><br>');
-    }
-
-    window.log = log;
-
     function requiredFieldValidator(value) {
         if (value === null || value === undefined || !value.length) {
             return {valid:false, msg:"This is a required field"};
@@ -83,42 +51,6 @@
     }
 
 
-    function locateCell(grid, evt) {
-        // There is something strange going on with the event targets here. We would like
-        // to get the target (typically a <div class="slick-cell" />), but that does not seem
-        // to be correct. Using originalEvent is good though.
-        var realEvt = evt.originalEvent || evt;
-        var target = $(realEvt.target);
-        var res;
-        if (target.parent().is('.slick-header-columns')) {
-            var column = target.index();
-            res = {
-                target:target,
-                type:'header',
-                column:column
-            };
-        } else {
-            // Find out the row and column of the cell
-            var cell = grid.getCellFromEvent(realEvt);
-            if (cell !== null) {
-                // We are in the canvas.
-                res = {
-                    target:target,
-                    type:'cell',
-                    row:cell.row,
-                    column:cell.cell
-                };
-            } else {
-                // We are not in the canvas.
-                res = {
-                    type:'outside'
-                };
-            }
-        }
-        return res;
-    }
-
-    var dataView;
     var grid;
     var data = [];
     var columns = [
@@ -383,17 +315,40 @@
         grid.registerPlugin(headerOptionsPlugin);
 
 
-        var $grid = $('#myGrid');
-        // Enable event translation for both the canvas (cells), and the headers.
-        // It seems the only way to run this is prevent_default = true.
-        // But this means that we need to wire all touch events we want.
-        $grid.hammer({
-                         prevent_default:true
-                     });
+        // cell menus
+        var cellOptionsPlugin = new Slick.Plugins.CellOptionsBar({
+        });
+        grid.registerPlugin(cellOptionsPlugin); 
 
+
+        // autoresize columns
+        var responsivenessPlugin = new Slick.Plugins.Responsiveness({
+        });
+        responsivenessPlugin.onResize.subscribe(function (evt, args) {
+            var columns = args.grid.getColumns();
+            var isWide = (args.width > 768); // ipad orientation narrow / wide
+            // Hide or show the last two columns, based on the layout.
+            // XXX this is a little rough... we'd need to be smarter here
+            // to conserve our current columns sizes and order.
+            if (isWide) {
+                if (columns.length < 5) {
+                    columns.push(origColumns[3]);
+                    columns.push(origColumns[4]);
+                }
+            } else {
+                if (columns.length > 3) {
+                    columns = origColumns.slice(0, 3);
+                }
+            }
+            args.grid.setColumns(columns);
+        });
+        grid.registerPlugin(responsivenessPlugin);
+
+/*
+        var $grid = $('#myGrid');
         // Help debugging by logging all the possible events with the cell information.
         $grid.on('hold tap doubletap transformstart transform transformend' +
-                     'dragstart drag dragend swipe release', function (evt) {
+                    'dragstart drag dragend swipe release', function (evt) {
             var locate = locateCell(grid, evt);
             if (locate.type == 'header') {
                 //log('Touch event (header):', evt.type, locate.column);
@@ -403,208 +358,7 @@
                 //log('Touch event (outside):', evt.type);
             }
         });
-
-        // Cell button bar
-
-        var $canvas = $grid.find('.grid-canvas');
-        var $viewport = $grid.find('.slick-viewport');
-
-        $canvas.optionsbar({
-                               content:[
-                                   {
-                                       cssClass:'btn btn-inverse',
-                                       label:"Edit",
-                                       command:"edit"
-                                   },
-                                   {
-                                       cssClass:'btn btn-inverse',
-                                       label:"Delete Row",
-                                       command:"delete-row"
-                                   }
-                               ]
-                           });
-        var cellOptionsBar = $canvas.data('optionsbar');
-        var finishEditBar;
-        $canvas.on('command.demo76', function (evt, options) {
-            // Find out the row and column of the cell
-            var realEvt = evt.originalEvent || evt;
-            var cell = grid.getCellFromEvent(realEvt);
-            log('Cell command:', options.command, cell);
-            if (options.command == 'edit') {
-                // Set this cell to be the active one. And activate the editor for it.
-                grid.setActiveCell(cell.row, cell.cell);
-                grid.editActiveCell();
-                // Pop up a second toolbar that can be used to cancel the editing.
-                finishEditBar.setPositionElement(realEvt.target, $grid);
-                finishEditBar.show(evt);
-
-            } else if (options.command == 'delete-row') {
-                var item = dataView.getItem(cell.row);
-                var RowID = item.id;
-                dataView.deleteItem(RowID);
-                grid.invalidate();
-                grid.render();
-            }
-
-
-        });
-
-
-        var instance = {};    // hold the state of our event workflow.
-        $grid.on({
-
-                     // This part is handling the pinch-to-resize on the canvas
-                     // (pinching in top of the cell, resizes the column.
-                     // An ambivalent experiment.)
-
-                     transformstart:function (evt) {
-                         // Find out the row and column of the cell
-                         var target = evt.originalEvent.target;
-                         var cell = grid.getCellFromEvent(evt.originalEvent);
-                         // Let's lock the column for the duration of the entire transform.
-                         instance.columnIndex = cell.cell;
-                         var cHeaders = $('#myGrid .slick-header .slick-header-column');
-                         instance.columnHeader = cHeaders.eq(instance.columnIndex);
-                         // Start the transform.
-                         var column = instance.columnHeader;
-                         instance.oldColor = column.css('color');
-                         instance.oldWidth = column.width();
-                         column.css('color', 'red');
-                         return false;
-                     },
-                     transform:function (evt) {
-                         var scale = evt.scale;
-                         if (scale === 0) {
-                             // why?
-                             return false;
-                         }
-                         var column = instance.columnHeader;
-                         column.width(instance.oldWidth * scale);
-                         return false;
-                     },
-                     transformend:function (evt) {
-                         var scale = evt.scale;
-                         if (scale === 0) {
-                             // why?
-                             return false;
-                         }
-                         var column = instance.columnHeader;
-                         var newWidth = instance.oldWidth * scale;
-                         column.width(newWidth);
-                         column.css('color', instance.oldColor);
-                         columns[instance.columnIndex].width = newWidth;
-                         grid.setColumns(columns);
-                         grid.autosizeColumns();
-                         return false;
-                     },
-
-
-                     // Tapping selects the tapped row, and unselects any other row.
-                     // Tapping a selected row pops the cell options menu buttons,
-                     // doubletapping has the same effect as selecting and tapping again.
-
-                     tap:function (evt) {
-                         var locate = locateCell(grid, evt);
-                         if (locate.type == 'cell') {
-                             // What is the current selection now?
-                             var selectedRows = grid.getSelectedRows();
-                             var isSameSelection = selectedRows.length == 1 && selectedRows[0] == locate.row;
-                             if (isSameSelection) {
-                                 // If the same row is already selected, then a single tap acts like
-                                 // a double tap: that is, this is a second tap and doubletap will be in effect.
-                                 cellOptionsBar.setPositionElement(locate.target, $grid);
-                                 cellOptionsBar.show(evt);
-                             } else {
-                                 // If we had no selection, or a different selection from this single row in the set:
-                                 // Then, the current selection is cleared, and a single
-                                 // row will be selected.
-                                 selectedRows = [locate.row];
-                                 grid.setSelectedRows(selectedRows);
-                                 //
-                                 // This must cancel the editing too.
-                                 // save the edited cells
-                                 if (!Slick.GlobalEditorLock.commitCurrentEdit()) {
-                                     // ???
-                                     Slick.GlobalEditorLock.cancelCurrentEdit();
-                                 }
-                             }
-                         }
-                     },
-
-                     doubletap:function (evt) {
-                         var locate = locateCell(grid, evt);
-                         if (locate.type == 'cell') {
-                             cellOptionsBar.setPositionElement(locate.target, $grid);
-                             cellOptionsBar.show();
-                         }
-                     }
-
-                 });
-
-
-        // The edit buttons are bound to a separate node then the first (hmmm...)
-        $viewport.optionsbar({
-                                 content:[
-                                     {
-                                         cssClass:'btn btn-inverse',
-                                         label:"Cancel",
-                                         command:"cancel-editing"
-                                     }
-                                 ]
-                             });
-        finishEditBar = $viewport.data('optionsbar');
-        $viewport.on('command.demo76', function (evt, options) {
-            // Find out the row and column of the cell
-            var realEvt = evt.originalEvent || evt;
-            var cell = grid.getCellFromEvent(realEvt);
-            if (options.command == 'cancel-editing') {
-                Slick.GlobalEditorLock.cancelCurrentEdit();
-            }
-        });
-
-        grid.onClick.subscribe(function (e, args) {
-            // Prevent clicking a cell. This would go to edit which we
-            // do not want now.
-            e.stopImmediatePropagation();
-            e.preventDefault();
-        });
-        grid.onDblClick.subscribe(function (e, args) {
-            // Prevent double clicking a cell. This would go to edit which we
-            // do not want now.
-            e.stopImmediatePropagation();
-            e.preventDefault();
-        });
-
-
-        // autoresize columns
-        var timer;
-        $(window).resize(function (evt) {
-            if (timer !== null) {
-                clearTimeout(timer);
-            }
-            timer = setTimeout(function () {
-                var width = $(window).width();
-                var wide = (width > 768); // ipad orientation narrow / wide
-                // Hide or show the last two columns, based on the layout.
-                // XXX this is a little rough... we'd need to be smarter here
-                // to conserve our current columns sizes and order.
-                if (wide) {
-                    if (columns.length < 5) {
-                        columns.push(origColumns[3]);
-                        columns.push(origColumns[4]);
-                    }
-                } else {
-                    if (columns.length > 3) {
-                        columns = origColumns.slice(0, 3);
-                    }
-                }
-
-                // and resize.
-                grid.setColumns(columns);
-                grid.autosizeColumns();
-                timer = null;
-            }, 400);
-        });
+*/
 
     });
 

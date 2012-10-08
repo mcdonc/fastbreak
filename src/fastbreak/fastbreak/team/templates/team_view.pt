@@ -84,12 +84,22 @@
         <script
                 src="${request.static_url('fastbreak:static/slickgrid/plugins/slick.headeroptionsbar.js')}"></script>
         <script
+                src="${request.static_url('fastbreak:static/slickgrid/plugins/slick.celloptionsbar.js')}"></script>
+        <script
+                src="${request.static_url('fastbreak:static/slickgrid/plugins/slick.responsiveness.js')}"></script>
+        <script
                 src="${request.static_url('fastbreak:static/slickgrid/controls/slick.columnpicker.js')}"></script>
+              
+
         <script
                 src="${request.static_url('fastbreak:static/sgt.js')}"></script>
 
+
         <script
                 src="${request.static_url('fastbreak:static/slickgrid/sgt/lib/json2.js')}"></script>
+        <script
+                src="${request.static_url('fastbreak:static/slickgrid/sgt/lib/screenlog.js')}"></script>
+
 
         <script
                 src="${request.static_url('fastbreak:static/slickgrid/sgt/lib/hammer.js')}"></script>
