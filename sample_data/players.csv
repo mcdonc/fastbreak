@@ -19,4 +19,44 @@ id,first_name,last_name,emails,pinnie_size,shorts_size,jersey_number,refs_team,r
 1017,Eve,Nunez,z@no.com,L,M,38,2000,3019
 1018,Gina,Ogletree,p@x.com,M,S,60,2000,3020
 1019,Carly,Prince,x@p.com,M,S,62,2001,3021
-1020,Deborah,Quora,z@no.com,M,L,88,2001,3022
+1020,Deborah,Quora,z@no.com,M,L,88,2003,3022
+1021,Barbara,Bullock,x@p.com,XL,S,4,2003,"3002,3003"
+1022,Betty,Bullock,z@no.com,S,XL,10,2003,"3002,3003"
+1023,Billy Ann,Bullock,p@x.com,M,L,11,2003,"3002,3003"
+1024,Carly,Collins,x@p.com,S,M,7,2003,"3004,3005"
+1025,Debby,Dillon,z@no.com,XL,L,9,2003,3006
+1026,Eve,Evans,p@x.com,L,XL,2,2003,"3007,3008"
+1027,Gina,Grisham,x@p.com,M,S,13,2003,"3009,3010"
+1028,Heather,Holland,z@no.com,M,M,1,2003,"3011,3012"
+1029,Ima,Inez,p@x.com,M,M,14,2003,3013
+1030,Jenny,Jones,x@p.com,S,S,15,2003,"3014,3015"
+1031,Amy,Kravitz,z@no.com,L,XL,17,2003,"3016,3017"
+1032,Barbara,Kravitz,p@x.com,XL,L,20,2003,"3016,3017"
+1033,Betty,Kravitz,x@p.com,S,M,23,2003,"3016,3017"
+1034,Billy Ann,Kravitz,z@no.com,M,L,50,2003,"3016,3017"
+1035,Carly,Lough,p@x.com,S,XL,41,2003,3017
+1036,Debby,Miner,x@p.com,XL,S,39,2003,3018
+1037,Eve,Nunez,z@no.com,L,M,38,2003,3019
+1038,Gina,Ogletree,p@x.com,M,S,60,2003,3020
+1039,Carly,Prince,x@p.com,M,S,62,2003,3021
+1040,Deborah,Quora,z@no.com,M,L,88,2003,3022
+1041,Barbara,Bullock,x@p.com,XL,S,4,2003,"3002,3003"
+1042,Betty,Bullock,z@no.com,S,XL,10,2003,"3002,3003"
+1043,Billy Ann,Bullock,p@x.com,M,L,11,2003,"3002,3003"
+1044,Carly,Collins,x@p.com,S,M,7,2003,"3004,3005"
+1045,Debby,Dillon,z@no.com,XL,L,9,2003,3006
+1046,Eve,Evans,p@x.com,L,XL,2,2003,"3007,3008"
+1047,Gina,Grisham,x@p.com,M,S,13,2003,"3009,3010"
+1048,Heather,Holland,z@no.com,M,M,1,2003,"3011,3012"
+1049,Ima,Inez,p@x.com,M,M,14,2003,3013
+1050,Jenny,Jones,x@p.com,S,S,15,2003,"3014,3015"
+1051,Amy,Kravitz,z@no.com,L,XL,17,2003,"3016,3017"
+1052,Barbara,Kravitz,p@x.com,XL,L,20,2003,"3016,3017"
+1053,Betty,Kravitz,x@p.com,S,M,23,2003,"3016,3017"
+1054,Billy Ann,Kravitz,z@no.com,M,L,50,2003,"3016,3017"
+1055,Carly,Lough,p@x.com,S,XL,41,2003,3017
+1056,Debby,Miner,x@p.com,XL,S,39,2003,3018
+1057,Eve,Nunez,z@no.com,L,M,38,2003,3019
+1058,Gina,Ogletree,p@x.com,M,S,60,2003,3020
+1059,Carly,Prince,x@p.com,M,S,62,2003,3021
+1060,Deborah,Quora,z@no.com,M,L,88,2003,3022
