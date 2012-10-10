@@ -1,9 +1,11 @@
-"""Bulk load test/migration data"""
+""" Convert data from LeagueAthletics CSV into Fastbreak data
+"""
 
 from csv import DictReader
 import logging
 import os
 from os.path import join
+from StringIO import StringIO
 import sys
 
 from pyramid.paster import (
@@ -23,10 +25,136 @@ from fastbreak.interfaces import (
     ITournaments,
     ITournament)
 
-from fastbreak.utils import split_emails
+from fastbreak.utils import (
+    split_emails,
+    nameify
+)
 
-def nameify(seq):
-    return '-'.join(seq).lower()
+class Tournaments(dict):
+    def __init__(self, full_path):
+        f = DictReader(full_path)
+        for r in DictReader(open(full_path, 'r')):
+            form_id = r['form_id']
+            self[form_id] = (dict(
+                form_id=form_id,
+                form_value=r['form_value'],
+                name=r['form_value'],
+                title=r['title'],
+                dates=r['dates'],
+                city=r['city'],
+                state=r['state'],
+                venue=r['venue']
+            ))
+
+
+class Teams(dict):
+    def __init__(self, full_path):
+        f = DictReader(full_path)
+        for r in DictReader(open(full_path, 'r')):
+            team_name = r['Team_Name']
+            self[team_name] = dict(
+                external_id=int(r['Team_ID']),
+                title=team_name,
+                position=int(r['Position']),
+            )
+
+
+def split_emails(emails_string):
+    """ Given a string with a semi-colon-delim, split """
+
+    data = set()
+    for addr1 in emails_string.strip().split(';'):
+        data.add(addr1.strip())
+
+    return list(data)
+
+
+class Members:
+    """ Used only for finding the external_id on a guardian """
+
+    def __init__(self, full_path, teams_data):
+        self.players = {}
+        self.guardians = {}
+        self.teams_data = teams_data
+        f = DictReader(full_path)
+        for r in DictReader(open(full_path, 'r')):
+            type = r['Type']
+            if type == 'Player':
+                external_id = int(r['RecordID'])
+                player = self.make_player(r, external_id)
+                self.players[external_id] = player
+            elif type == 'Parent':
+                external_id = int(r['RecordID'])
+                guardian = self.make_guardian(r, external_id)
+                self.guardians[external_id] = guardian
+            else:
+                raise KeyError, "Unknown 'Type': " + type
+
+    def make_player(self, row, external_id):
+        """ Given a row of CSV data, clean it up and return dict  """
+
+        # The row has the team name, for example 'STORM Blue'. We need
+        # the external_id of the team.
+        team_id = self.teams_data[row['Team Name']]['external_id']
+
+        guardian_ids = []
+        for g in (row['Guardian1 ID'], row['Guardian2 ID']):
+            if g.strip() != '':
+                guardian_ids.append(int(g.strip()))
+        player = dict(
+            external_id=external_id,
+            first_name=row['First Name'],
+            last_name=row['Last Name'],
+            emails=split_emails(row['Email']),
+            jersey_number=row['Jersey #'],
+            grade=row['Grade'],
+            cell_phone=row['Cell Phone'],
+            refs_team=[team_id, ],
+            refs_guardians=guardian_ids,
+        )
+
+        return player
+
+
+    def make_guardian(self, row, external_id):
+        """ Given a row of CSV data, clean it up and return dict  """
+
+        guardian = dict(
+            external_id=external_id,
+            first_name=row['First Name'],
+            last_name=row['Last Name'],
+            emails=split_emails(row['Email']),
+        )
+
+        return guardian
+
+    def link_registration_data(self, full_path, tournaments_data):
+        """ Given registration CSV, update player info  """
+
+        # The stupid CSV from LeagueAthletics has a label as the first
+        # line, work around this
+        lines = open(full_path, 'r').readlines()[1:]
+        new_file = StringIO('\n'.join(lines))
+
+        for r in DictReader(new_file):
+            if r['Team Name'] == '':
+                # We have a registrant who was not assigned to a team
+                continue
+            external_id = int(r['Record ID'])
+            player = self.players[external_id]
+
+            player['pinnie_size'] = r['pinnie_size']
+            player['shorts_size'] = r['shorts_size']
+            player['school'] = r['school']
+            player['years_experience'] = r['years_experience']
+
+            # Process tournaments
+            player['tournaments'] = {}
+            for this_tournament in tournaments_data.values():
+                form_id = this_tournament['form_id']
+                form_value = this_tournament['form_value']
+                if r[form_id] == form_value:
+                    player['tournaments'][form_id] = True
 
 
 def main(argv=sys.argv):
@@ -51,14 +179,17 @@ def main(argv=sys.argv):
     root = env['root']
     request = env['request']
 
-    team_refs = {}
 
-    from os import listdir
-    x = '/Users/paul/projects/fastbreak/src/fastbreak/fastbreak/static/headshots'
-    headshot_filenames = {}
-    for fn in listdir(x):
-        if fn[-4:] == '.jpg':
-            headshot_filenames[fn] = fn
+    # Tournaments, Teams, Members, Coaches and Team Managers
+    tournaments_data = Tournaments(join(csv_dir, 'tournaments.csv'))
+    teams_data = Teams(join(csv_dir, 'teams.csv'))
+    members_data = Members(join(csv_dir, 'members.csv'), teams_data)
+
+    # Take registration data and update player data such as what
+    # tournaments played in. This data is unique to a registration
+    # form, isn't contained on global member data.
+    members_data.link_registration_data(join(csv_dir, 'registrants.csv'),
+                                        tournaments_data)
 
     with transaction.manager:
         # If needed, blow away existing data
@@ -75,91 +206,75 @@ def main(argv=sys.argv):
             tournaments = request.registry.content.create(ITournaments)
             root['tournaments'] = tournaments
 
+
         # Convenience
         teams = root['teams']
         people = root['people']
         tournaments = root['tournaments']
 
-        # Make teams from teams.csv
-        for team_data in DictReader(open(join(csv_dir, 'teams.csv'))):
-            external_id = int(team_data['id'])
-            title = team_data['title']
+        # Teams
+        team_refs = {} # Make it easy to find these later
+        for v in teams_data.values():
+            external_id=v['external_id']
             team = request.registry.content.create(
-                ITeam, external_id=external_id, title=title,
-                props=team_data)
-            name = nameify(title.split(' '))
+                ITeam,
+                external_id=external_id,
+                title=v['title'],
+                props=v)
+            name = nameify(v['title'].split(' '))
             teams[name] = team
-
-            # Make it easier to associate the refs_teams in player data
-            # with a team
             team_refs[external_id] = team
 
         # Guardians
-        map_guardian_ids = {}
-        for guardian_data in DictReader(open(join(csv_dir,
-                                                  'guardians.csv'))):
-            external_id = int(guardian_data['id'])
-            first_name = guardian_data['first_name']
-            last_name = guardian_data['last_name']
-            emails = split_emails(guardian_data['emails'])
+        guardian_refs = {} # Make it easy to find these later
+        for v in members_data.guardians.values():
+            external_id = v['external_id']
+            first_name = v['first_name']
+            last_name = v['last_name']
 
             name = nameify([last_name, first_name, str(external_id)])
             if name in people.keys():
-                # Already exists, likely a guardian of another player,
-                # so skip
+                # Already exists, likely a guardian of another player
                 continue
 
             guardian = request.registry.content.create(
                 IGuardian, external_id=external_id,
                 first_name=first_name, last_name=last_name,
-                emails=emails,
-                props=guardian_data)
+                emails=v['emails'],
+                props=v)
             people[name] = guardian
-
-            # We need a mapping of external ids to docids,
-            # so we can connect players to guardians in the next step
-            map_guardian_ids[external_id] = guardian.oid
+            guardian_refs[external_id] = guardian
 
         # Players
-        k = headshot_filenames.keys()
-        print k[0:10]
-        for player_data in DictReader(open(join(csv_dir,
-                                                'players.csv'))):
-            external_id = int(player_data['id'])
-            first_name = player_data['first_name']
-            last_name = player_data['last_name']
-            emails = split_emails(player_data['emails'])
+        for v in members_data.players.values():
+            external_id = v['external_id']
+            first_name = v['first_name']
+            last_name = v['last_name']
 
-            # Do we have a headshot
-            this_headshot_fn = 'no_headshot.gif'
-            hs_fn = '%s %s.jpg' % (last_name, first_name)
-            if hs_fn not in k:
-                print "no headshot", last_name, first_name
-                player_data['headshot_fn'] = 'no_headshot.gif'
-            else:
-                player_data['headshot_fn'] = hs_fn
-
+            name = nameify([last_name, first_name, str(external_id)])
             player = request.registry.content.create(
                 IPlayer, external_id=external_id,
                 first_name=first_name, last_name=last_name,
-                emails=emails, props=player_data)
-            name = nameify([last_name, first_name, str(external_id)])
+                emails=v['emails'],
+                props=v)
             people[name] = player
 
             # Connect the player to a team
-            refs_team = int(player_data['refs_team'])
-            this_team = team_refs[refs_team]
-            this_team_oid = this_team.oid
-            player.connect_team_oids([this_team_oid, ])
+            team_oids = []
+            for external_id in v['refs_team']:
+                team = team_refs[external_id]
+                team_oids.append(team.oid)
+            player.connect_team_oids(team_oids)
 
             # Connect the player to guardians
             guardian_oids = []
-            for external_id in player_data['refs_guardians'].split(','):
-                this_oid = map_guardian_ids[int(external_id)]
-                guardian_oids.append(this_oid)
+            for external_id in v['refs_guardians']:
+                guardian = guardian_refs[external_id]
+                guardian_oids.append(guardian.oid)
             player.connect_guardian_oids(guardian_oids)
 
 
+    return
 
 if __name__ == '__main__':
     main()

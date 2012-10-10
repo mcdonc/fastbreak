@@ -1,4 +1,7 @@
-from types import ListType
+from types import (
+    ListType,
+    IntType
+    )
 
 import colander
 
@@ -19,6 +22,9 @@ def split_emails(emails_string):
         data.add(addr1.strip())
 
     return list(data)
+
+def nameify(seq):
+    return '-'.join(seq).lower()
 
 
 class BaseContent(Folder):
@@ -59,3 +65,12 @@ class BaseContent(Folder):
         for oid in seq:
             if oid is not colander.null:
                 self.objectmap.connect(self, oid, role)
+
+    def get_by_external_id(self, external_id):
+        """ Given an int for the external id, return child """
+
+        assert isinstance(external_id, IntType)
+        for v in self.items():
+            if v.get('external_id', None) == external_id:
+                return v
+
