@@ -6,11 +6,17 @@ from substanced.folder import Folder
 
 from ..interfaces import (
     ITeams,
-    ITeam
+    ITeam,
+    IPlayer,
+    ICoach,
+    ITeamManager
     )
 from ..utils import (
     BaseContent,
-    ROSTER
+    ROSTER,
+    HEADCOACH,
+    ASSTCOACH,
+    MANAGER
     )
 
 @content(
@@ -44,7 +50,23 @@ class Team(BaseContent):
             for k, v in props.items():
                 self.props[k] = v
 
+    def head_coaches(self):
+        """ Sorted list of players """
+        coaches = list(self.get_sources(HEADCOACH))
+        return sorted(coaches, key=lambda p: p.title)
+
+    def assistant_coaches(self):
+        """ Sorted list of players """
+        coaches = list(self.get_sources(ASSTCOACH))
+        return sorted(coaches, key=lambda p: p.title)
+
+    def managers(self):
+        """ Sorted list of players """
+        managers = list(self.get_sources(MANAGER))
+        return sorted(managers, key=lambda p: p.title)
+
     def players(self):
         """ Sorted list of players """
         players = list(self.get_sources(ROSTER))
         return sorted(players, key=lambda p: p.title)
+

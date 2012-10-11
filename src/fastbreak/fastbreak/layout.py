@@ -41,7 +41,7 @@ class FastbreakLayout(object):
                 active='active'
             teams.append(dict(
                 title=team.title,
-                url=request.resource_url(team),
+                url=request.resource_url(team, 'overview'),
                 active=active
             ))
         return teams

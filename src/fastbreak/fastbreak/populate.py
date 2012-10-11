@@ -13,6 +13,8 @@ from pyramid.paster import (
     bootstrap,
     )
 
+from substanced.file import File
+
 import transaction
 
 from fastbreak.interfaces import (
@@ -25,10 +27,13 @@ from fastbreak.interfaces import (
     ITournaments,
     ITournament)
 
-from fastbreak.utils import (
+from fastbreak.utils import (\
+    HEADCOACH,
+    ASSTCOACH,
+    MANAGER,
     split_emails,
     nameify
-)
+    )
 
 class Tournaments(dict):
     def __init__(self, full_path):
@@ -43,7 +48,8 @@ class Tournaments(dict):
                 dates=r['dates'],
                 city=r['city'],
                 state=r['state'],
-                venue=r['venue']
+                venue=r['venue'],
+                position=int(r['position'])
             ))
 
 
@@ -79,23 +85,23 @@ class Members:
         f = DictReader(full_path)
         for r in DictReader(open(full_path, 'r')):
             type = r['Type']
+            external_id = int(r['RecordID'])
+            # The row has the team name, for example 'STORM Blue'.
+            # We need the external_id of the team.
+            team_id = None
+            if r['Team Name'] != '':
+                team_id = self.teams_data[r['Team Name']]['external_id']
             if type == 'Player':
-                external_id = int(r['RecordID'])
-                player = self.make_player(r, external_id)
+                player = self.make_player(r, external_id, team_id)
                 self.players[external_id] = player
             elif type == 'Parent':
-                external_id = int(r['RecordID'])
-                guardian = self.make_guardian(r, external_id)
+                guardian = self.make_guardian(r, external_id, team_id)
                 self.guardians[external_id] = guardian
             else:
                 raise KeyError, "Unknown 'Type': " + type
 
-    def make_player(self, row, external_id):
+    def make_player(self, row, external_id, team_id):
         """ Given a row of CSV data, clean it up and return dict  """
-
-        # The row has the team name, for example 'STORM Blue'. We need
-        # the external_id of the team.
-        team_id = self.teams_data[row['Team Name']]['external_id']
 
         guardian_ids = []
         for g in (row['Guardian1 ID'], row['Guardian2 ID']):
@@ -109,14 +115,16 @@ class Members:
             jersey_number=row['Jersey #'],
             grade=row['Grade'],
             cell_phone=row['Cell Phone'],
+            position=row['Position'],
             refs_team=[team_id, ],
             refs_guardians=guardian_ids,
+            mobile_phone=row['Cell Phone']
         )
 
         return player
 
 
-    def make_guardian(self, row, external_id):
+    def make_guardian(self, row, external_id, team_id):
         """ Given a row of CSV data, clean it up and return dict  """
 
         guardian = dict(
@@ -124,6 +132,9 @@ class Members:
             first_name=row['First Name'],
             last_name=row['Last Name'],
             emails=split_emails(row['Email']),
+            mobile_phone=row['Cell Phone'],
+            position=row['Position'],
+            refs_team=[team_id, ]
         )
 
         return guardian
@@ -160,13 +171,15 @@ class Members:
 def main(argv=sys.argv):
     if len(argv) > 4:
         cmd = os.path.basename(argv[0])
-        s = 'usage: %s <config_uri> <csv_dir> <init>\n'
+        s = 'usage: %s <config_uri> <import_dir> <init>\n'
         print  s % cmd
         sys.exit()
 
     # Get arguments
     config_uri = argv[1]
-    csv_dir = argv[2]
+    import_dir = argv[2]
+    csv_dir = join(import_dir, 'csv')
+    headshots_dir = join(import_dir, 'headshots')
     try:
         init = argv[3] == 'init'
     except IndexError:
@@ -215,7 +228,7 @@ def main(argv=sys.argv):
         # Teams
         team_refs = {} # Make it easy to find these later
         for v in teams_data.values():
-            external_id=v['external_id']
+            external_id = v['external_id']
             team = request.registry.content.create(
                 ITeam,
                 external_id=external_id,
@@ -225,7 +238,20 @@ def main(argv=sys.argv):
             teams[name] = team
             team_refs[external_id] = team
 
-        # Guardians
+        # Tournaments
+        tournament_refs = {} # Make it easy to find these later
+        for v in tournaments_data.values():
+            external_id = v['form_id']
+            tournament = request.registry.content.create(
+                ITournament,
+                external_id=external_id,
+                title=v['title'],
+                position=v['position'],
+                props=v)
+            tournaments[external_id] = tournament
+            tournament_refs[external_id] = tournament
+
+        # Guardians and other adults
         guardian_refs = {} # Make it easy to find these later
         for v in members_data.guardians.values():
             external_id = v['external_id']
@@ -245,6 +271,28 @@ def main(argv=sys.argv):
             people[name] = guardian
             guardian_refs[external_id] = guardian
 
+        # Associate coaches and managers with teams
+
+        for v in members_data.guardians.values():
+            position = v['position']
+            if position not in ('Coach', 'Asst Coach', 'Manager'):
+                continue
+            team_oids = []
+            if position == 'Coach':
+                role = HEADCOACH
+            elif position == 'Asst Coach':
+                role = ASSTCOACH
+            elif position == 'Manager':
+                role = MANAGER
+            else:
+                raise KeyError, 'Position %s is unknown' % position
+            for external_id in v['refs_team']:
+                team = team_refs[external_id]
+                team_oids.append(team.oid)
+                adult = guardian_refs[v['external_id']]
+                adult.connect_role(role, team_oids)
+
+
         # Players
         for v in members_data.players.values():
             external_id = v['external_id']
@@ -255,7 +303,8 @@ def main(argv=sys.argv):
             player = request.registry.content.create(
                 IPlayer, external_id=external_id,
                 first_name=first_name, last_name=last_name,
-                emails=v['emails'],
+                emails=v['emails'], jersey_number=v['jersey_number'],
+                grade=v['grade'],
                 props=v)
             people[name] = player
 
@@ -273,8 +322,48 @@ def main(argv=sys.argv):
                 guardian_oids.append(guardian.oid)
             player.connect_guardian_oids(guardian_oids)
 
+            # Connect the player to tournaments. Some players might be
+            # in a registration with no tournaments
+            if v.get('tournaments', False):
+                tournament_oids = []
+                for k, v in v['tournaments'].items():
+                    tournament = tournament_refs[k]
+                    tournament_oids.append(tournament.oid)
+                player.connect_tournament_oids(tournament_oids)
+
+            # Connect headshots
+            large_fn = join(headshots_dir, '%s %s.jpg') % (last_name,
+                                                           first_name)
+            tb_fn = join(headshots_dir, '%s %s TB.jpg') % (last_name,
+                                                           first_name)
+            if os.path.exists(tb_fn):
+                fileobj = open(tb_fn)
+            else:
+                print "No headshot for", last_name, first_name
+                fileobj = open(join(headshots_dir, 'no_headshot.jpg'))
+            stream = File(fileobj)
+            player.add('headshot_small.jpg', stream)
+
+    # Validations
+
+    # Make sure we don't have any children with no parents!
+    for person in root['people'].values():
+        # Get the players
+        if IPlayer.providedBy(person):
+            if len(person.guardians()) == 0:
+                print "no guardians", person.title
+
+    # Do we have any coaches
+    for person in members_data.guardians.values():
+        if person['last_name'] == 'McFadden':
+            print 'Coach', person['position']
+
+    for team in root['teams'].values():
+        print team.title, team.head_coaches(),\
+        team.assistant_coaches(), team.managers()
 
     return
+
 
 if __name__ == '__main__':
     main()

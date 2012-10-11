@@ -17,8 +17,15 @@ class IPlayer(Interface):
 class ICoach(Interface):
     """ Interface for a Coach """
 
+class IAssistantCoach(Interface):
+    """ Interface for a Guardian """
+
+class ITeamManager(Interface):
+    """ Interface for a Guardian """
+
 class IGuardian(Interface):
     """ Interface for a Guardian """
+
 
 #
 

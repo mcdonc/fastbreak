@@ -53,8 +53,8 @@
 
             <div id="myGrid" class="sgt-grid"
                  style="height:500px"
-                    data-json-url="${json_url}"
-                    data-csv-url="${csv_url}"></div>
+                 data-json-url="${json_url}"
+                 data-csv-url="${csv_url}"></div>
         </div>
     </div>
 
@@ -89,7 +89,7 @@
                 src="${request.static_url('fastbreak:static/slickgrid/plugins/slick.responsiveness.js')}"></script>
         <script
                 src="${request.static_url('fastbreak:static/slickgrid/controls/slick.columnpicker.js')}"></script>
-              
+
 
         <script
                 src="${request.static_url('fastbreak:static/sgt.js')}"></script>

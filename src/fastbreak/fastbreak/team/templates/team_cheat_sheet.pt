@@ -7,16 +7,18 @@
             <tr tal:repeat="row all_players"
                 style="height: 99px">
                 <td tal:repeat="player row" class="fb-cheetsheet-cell">
-                    <a href="${request.static_url('fastbreak:static/headshots/' + player.props['headshot_fn'])}">
+                    <a href="${request.resource_url(player, 'headshot_small.jpg')}">
                         <img width="100" alt="${player.title}"
                              style="display:block;float:left;
                          margin-right:0.2em"
-                             src="${request.static_url('fastbreak:static/headshots/' + player.props['headshot_fn'])}"
+                             src="${request.resource_url(player, 'headshot_small.jpg')}"
                                 />
                     </a>
 
                     <div>
-                        <strong>${player.title}</strong></div>
+                        <strong>
+                            <a href="${request.resource_url(player)}">${player.title}</a>
+                        </strong></div>
                     <div>${player.props['school'][0:22]}</div>
                     <div>Grade: ${player.props['grade']}</div>
                     <div>

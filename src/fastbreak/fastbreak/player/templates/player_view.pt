@@ -1,0 +1,56 @@
+<metal:block use-macro="main_template">
+    <div metal:fill-slot="content">
+        <div class="row">
+            <div class="span8">
+                <h2 class="heading">${heading}</h2>
+                <table class="table" style="width: 70%">
+                    <tbody>
+                    <tr>
+                        <td>School</td>
+                        <td>${context.props['school']}</td>
+                    </tr>
+                    <tr>
+                        <td>Grade</td>
+                        <td>${context.props['grade']}</td>
+                    </tr>
+                    <tr>
+                        <td>Experience</td>
+                        <td>${context.props['years_experience']}</td>
+                    </tr>
+                    <tr>
+                        <td>Position</td>
+                        <td>${context.props['grade']}</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div tal:condition="teams">
+                    <h4>Teams</h4>
+
+                    <ul>
+                        <li tal:repeat="t teams">
+                            <a href="${request.resource_url(t)}">${t.title}</a>
+                        </li>
+                    </ul>
+                </div>
+                <div tal:condition="all_guardians">
+                    <h4>Guardians</h4>
+
+                    <ul>
+                        <li tal:repeat="g all_guardians">
+                            <a href="${request.resource_url(g)}">
+                                ${g.first_name} ${g.last_name}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="span4">
+                <img width="400"
+                     alt="${context.title}"
+                     src="${request.resource_url(context, 'headshot_small.jpg')}"/>
+            </div>
+        </div>
+
+    </div>
+</metal:block>

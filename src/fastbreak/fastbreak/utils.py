@@ -13,6 +13,10 @@ from substanced.objectmap import find_objectmap
 # Constants for roles
 ROSTER = 'roster'
 GUARDIAN = 'guardian'
+ATTENDING = 'attending'
+HEADCOACH = 'headcoach'
+ASSTCOACH = 'asstcoach'
+MANAGER = 'manager'
 
 def split_emails(emails_string):
     """ Given a string with a semi-colon-delim, split """

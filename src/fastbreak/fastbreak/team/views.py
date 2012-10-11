@@ -40,18 +40,62 @@ class TeamView(object):
 
     @property
     def subnav_items(self):
-        return [
-            dict(active='active', title='Players', url='#'),
-            dict(title='Cheat Sheet', url='cheat_sheet', active=''),
-            dict(title='Tournaments', url='#', active=''),
-            dict(title='Actions', url='#', active=''),
-            dict(title='Email List', url='emails', active='')
-        ]
+        request = self.request
+        context = self.context
+        url = request.url
 
-    @view_config(renderer='templates/team_view.pt',
+        nav_items = [
+            ('Overview', 'overview'),
+            ('Contacts', 'contacts'),
+            ('Cheat Sheet', 'cheat_sheet'),
+            ('Tournaments', 'tournaments'),
+            ('Actions', 'actions'),
+            ('Grid', 'grid'),
+            ('Email List', 'emails'),
+        ]
+        data_items = []
+        for i in nav_items:
+            data_items.append(
+                dict(
+                    title=i[0],
+                    url=request.resource_url(context, i[1]),
+                    active='active' if i[1] in url else ''
+                )
+            )
+        return data_items
+
+    @view_config(renderer='templates/team_overview.pt',
+                 name='overview',
                  permission='view',
                  context=ITeam)
-    def team_view(self):
+    def team_overview(self):
+        context = self.context
+
+        return dict(
+            heading=context.title + ' Overview',
+            players=context.players(),
+            head_coaches=context.head_coaches(),
+            assistant_coaches=context.assistant_coaches(),
+            managers=context.managers()
+        )
+
+
+    @view_config(renderer='templates/team_contacts.pt',
+                 name='contacts',
+                 permission='view',
+                 context=ITeam)
+    def team_contacts(self):
+        return dict(
+            heading=self.context.title + ' Overview',
+            players=self.context.players()
+        )
+
+
+    @view_config(renderer='templates/team_grid.pt',
+                 name='grid',
+                 permission='view',
+                 context=ITeam)
+    def team_grid(self):
         json_url = self.request.resource_url(self.context,
                                              'players.json')
         csv_url = self.request.resource_url(self.context,
@@ -87,6 +131,46 @@ class TeamView(object):
             )
         return player_data
 
+    @view_config(renderer='templates/team_tournaments.pt',
+                 permission='view',
+                 name='tournaments',
+                 context=ITeam)
+    def team_tournaments(self):
+        request = self.request
+        context = self.context
+
+        tournaments = []
+        player_ids = [p.oid for p in context.players()]
+        all_tournaments = sorted(request.root['tournaments'].values(),
+                                 key=lambda x: x.position)
+        for tournament in all_tournaments:
+            player_oids = []
+            for player in tournament.players():
+                if player.oid in player_ids:
+                    player_oids.append(player.oid)
+            t = dict(
+                title=tournament.title,
+                count=len(player_oids),
+                player_oids=player_oids
+            )
+            tournaments.append(t)
+
+        players_data = []
+        for player in self.context.players():
+            attending = []
+            for tournament in tournaments:
+                attending.append(player.oid in tournament['player_oids'])
+            players_data.append(dict(
+                title=player.title,
+                attending=attending
+            ))
+        return dict(
+            heading='Tournaments for ' + self.context.title,
+            team=self.context,
+            tournaments=tournaments,
+            players_data=players_data
+        )
+
 
     @view_config(name='download_roster',
                  permission='view',
@@ -100,7 +184,6 @@ class TeamView(object):
         headers = dict((n, n) for n in fieldnames)
         writer.writerow(headers)
         for player in self.context.players():
-
             g1 = player.guardians()[0]
             g1_last_name = g1.last_name
             g1_first_name = g1.first_name
@@ -139,11 +222,11 @@ class TeamView(object):
         # Get the players into rows of 4
         per_row = 3
         results = []
-        for i in range(0,len(all_players)-1, per_row):
+        for i in range(0, len(all_players) - 1, per_row):
             row = []
-            for j in range(0,per_row):
+            for j in range(0, per_row):
                 try:
-                    row.append(all_players[i+j])
+                    row.append(all_players[i + j])
                 except IndexError:
                     continue
             results.append(row)
@@ -152,7 +235,6 @@ class TeamView(object):
             heading=self.context.title + ' Cheat Sheet',
             all_players=results
         )
-
 
 
     @view_config(renderer='templates/team_emails.pt',
