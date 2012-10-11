@@ -250,6 +250,16 @@ class TeamView(object):
         for p in self.context.players():
             for email in p.all_emails():
                 all_emails.add(email)
+        # XXX TODO revisit this, probably can do better set arithmetic
+        for p in self.context.head_coaches():
+            for email in p.emails:
+                all_emails.add(email)
+        for p in self.context.assistant_coaches():
+            for email in p.emails:
+                all_emails.add(email)
+        for p in self.context.managers():
+            for email in p.emails:
+                all_emails.add(email)
 
         joined_comma = ', '.join(sorted(all_emails))
 
