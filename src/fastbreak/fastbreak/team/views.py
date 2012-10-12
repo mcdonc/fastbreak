@@ -86,9 +86,12 @@ class TeamView(object):
                  permission='view',
                  context=ITeam)
     def team_contacts(self):
+        csv_url = self.request.resource_url(self.context,
+                                            'download_roster')
         return dict(
             heading=self.context.title + ' Overview',
-            players=self.context.players()
+            players=self.context.players(),
+            csv_url=csv_url
         )
 
 
@@ -191,13 +194,15 @@ class TeamView(object):
             g1_title = g1.title
             g1_emails = ','.join(g1.emails)
 
+            tournaments = [t.title for t in player.tournaments()]
+
             writer.writerow(dict(
                 last_name=player.last_name,
                 first_name=player.first_name,
                 grade=player.props['grade'],
                 school=player.props['school'],
                 experience=player.props['years_experience'],
-                tourneys='/'.join(player.tourneys()),
+                tourneys='/'.join(tournaments),
                 emails=', '.join(player.emails),
                 guardian1_name=g1_title,
                 guardian1_emails=g1_emails

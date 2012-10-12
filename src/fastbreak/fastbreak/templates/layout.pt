@@ -71,7 +71,19 @@
         </ul>
     </div>
 
-    <h2 class="heading" tal:condition="heading">${heading}</h2>
+    <div class="row" style="vertical-align: bottom;">
+        <div class="span8">
+            <h2 class="heading" tal:condition="heading">${heading}</h2>
+        </div>
+        <!-- TODO XXX Why can't I get stuff on bottom with
+        vertical-align -->
+        <div class="span3"
+             style="margin-top: 1.6em; text-align: right;">
+            <div metal:define-slot="heading-menu">
+            </div>
+        </div>
+    </div>
+
 
     <div metal:define-slot="content">
     </div>

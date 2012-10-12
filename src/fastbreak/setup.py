@@ -31,8 +31,9 @@ requires = [
     'waitress',
     'pyramid_tm',
     'pyramid_layout',
-    'substanced'
-]
+    'substanced',
+    'velruse>=0.3b3'
+    ]
 
 if sys.version_info < (2, 6, 0):
     requires.append('simplejson')
@@ -59,6 +60,8 @@ setupkw = dict(
     entry_points="""\
       [console_scripts]
       populate = fastbreak.populate:main
+      [paste.app_factory]
+      main = substanced_velruse:main
       """
 )
 
