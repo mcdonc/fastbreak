@@ -44,12 +44,14 @@ class TeamView(object):
         context = self.context
         url = request.url
 
+        # TODO XXX Turn this into more protocol-y
         nav_items = [
             ('Overview', 'overview'),
+            ('Positions', 'positions'),
             ('Contacts', 'contacts'),
             ('Cheat Sheet', 'cheat_sheet'),
             ('Tournaments', 'tournaments'),
-#            ('Grid', 'grid'),
+            #            ('Grid', 'grid'),
             ('Email List', 'emails'),
         ]
         data_items = []
@@ -221,7 +223,7 @@ class TeamView(object):
         # Get the players into rows of 4
         per_row = 3
         results = []
-        for i in range(0, len(all_players) - 1, per_row):
+        for i in range(0, len(all_players), per_row):
             row = []
             for j in range(0, per_row):
                 try:
@@ -230,9 +232,61 @@ class TeamView(object):
                     continue
             results.append(row)
 
+        heading = '%s Cheat Sheet (%s Players)' % (
+            self.context.title, len(all_players)
+            )
         return dict(
-            heading=self.context.title + ' Cheat Sheet',
-            all_players=results
+            heading=heading,
+            results=results
+        )
+
+    @view_config(renderer='templates/team_positions.pt',
+                 permission='view',
+                 name='positions',
+                 context=ITeam)
+    def positions_view(self):
+        # Hard-wire the tourney names for each team
+        team_name = self.context.title
+
+        # Organize the players into sequences by position
+        by_position = {'Attack': [], 'Midfield': [], 'Defense': [],
+                       'Player': [], 'Goalie': []}
+
+        all_players = self.context.players()
+        for player in all_players:
+            by_position[player.position].append(player)
+
+        # Get the players into rows of 4
+        per_row = 4
+        for position, position_players in by_position.items():
+            results = []
+            for i in range(0, len(position_players), per_row):
+                row = []
+                for j in range(0, per_row):
+                    try:
+                        row.append(position_players[i + j])
+                    except IndexError:
+                        continue
+                results.append(row)
+                # Now that we have re-organized position_players into
+            # "results" (sequences of per_row length, replace.
+            by_position[position] = results
+
+        positions = [
+            dict(title='Attack', players=by_position['Attack']),
+            dict(title='Midfield', players=by_position['Midfield']),
+            dict(title='Defense', players=by_position['Defense']),
+            dict(title='Player', players=by_position['Player']),
+            dict(title='Goalie', players=by_position['Goalie']),
+        ]
+
+        heading = '%s By Position (%s Players)' % (
+            self.context.title, len(all_players)
+            )
+        return dict(
+            heading=heading,
+            positions=positions,
+            total_players=len(all_players)
         )
 
 
@@ -249,7 +303,7 @@ class TeamView(object):
         for p in self.context.players():
             for email in p.all_emails():
                 all_emails.add(email)
-        # XXX TODO revisit this, probably can do better set arithmetic
+                # XXX TODO revisit this, probably can do better set arithmetic
         for p in self.context.head_coaches():
             for email in p.emails:
                 all_emails.add(email)

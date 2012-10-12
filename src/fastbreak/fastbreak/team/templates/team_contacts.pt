@@ -7,6 +7,7 @@
             <tr>
                 <th>Name</th>
                 <th>Emails</th>
+                <th>Player Mobile</th>
                 <th>Parent</th>
                 <th>Parent Emails</th>
                 <th>Parent Mobile</th>
@@ -20,20 +21,25 @@
                         ${p.first_name}</a>
                 </td>
                 <td>
-                    <a tal:repeat="email p.emails"
-                       href="mailto:${email}">
-                        ${email}
-                    </a>
+                    <div tal:repeat="email p.emails">
+                        <a href="mailto:${email}">
+                            ${email}
+                        </a>
+                    </div>
+                </td>
+                <td>
+                    ${p.props['mobile_phone']}
                 </td>
                 <tal:block tal:define="pg p.guardians()[0]">
                     <td>
                         ${pg.last_name}, ${pg.first_name}
                     </td>
                     <td>
-                        <a tal:repeat="email pg.emails"
-                           href="mailto:${email}">
-                            ${email}
-                        </a>
+                        <div tal:repeat="email pg.emails">
+                            <a href="mailto:${email}">
+                                ${email}
+                            </a>
+                        </div>
                     </td>
                     <td>
                         ${pg.props['mobile_phone']}

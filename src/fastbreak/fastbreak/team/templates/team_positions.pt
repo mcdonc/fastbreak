@@ -1,0 +1,30 @@
+<metal:block use-macro="main_template">
+    <div metal:fill-slot="content">
+
+        <tal:repeat repeat="position positions">
+            <table class="fb-team-positions" cellpadding="3"
+                   tal:condition="len(position.players)">
+                <caption>${position.title}</caption>
+                <tbody>
+                <tr tal:repeat="row position.players">
+                    <td tal:repeat="player row"
+                        class="fb-cheetsheet-cell">
+                        <a href="${request.resource_url(player, 'headshot_small.jpg')}">
+                            <img class="fb-positions-headshot" alt="${player.title}"
+                                 src="${request.resource_url(player, 'headshot_small.jpg')}"
+                                    />
+                        </a>
+
+                        <div>
+                            <strong>
+                                <a href="${request.resource_url(player)}">${player.title}</a>
+                            </strong></div>
+                        <div>#${player.jersey_number}</div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </tal:repeat>
+
+    </div>
+</metal:block>
