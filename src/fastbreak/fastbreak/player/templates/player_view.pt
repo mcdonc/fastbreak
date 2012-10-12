@@ -6,6 +6,14 @@
                 <table class="table" style="width: 70%">
                     <tbody>
                     <tr>
+                        <td>Jersey Number</td>
+                        <td>${context.props['jersey_number']}</td>
+                    </tr>
+                    <tr>
+                        <td>Position</td>
+                        <td>${context.props['position']}</td>
+                    </tr>
+                    <tr>
                         <td>School</td>
                         <td>${context.props['school']}</td>
                     </tr>
@@ -16,10 +24,6 @@
                     <tr>
                         <td>Experience</td>
                         <td>${context.props['years_experience']}</td>
-                    </tr>
-                    <tr>
-                        <td>Position</td>
-                        <td>${context.props['grade']}</td>
                     </tr>
                     </tbody>
                 </table>

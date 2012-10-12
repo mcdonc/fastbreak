@@ -2,10 +2,9 @@
     <div metal:fill-slot="content">
         <h2 class="heading">${heading}</h2>
 
-        <table width="100%">
+        <table width="100%" cellpadding="3">
             <tbody>
-            <tr tal:repeat="row all_players"
-                style="height: 99px">
+            <tr tal:repeat="row all_players">
                 <td tal:repeat="player row" class="fb-cheetsheet-cell">
                     <a href="${request.resource_url(player, 'headshot_small.jpg')}">
                         <img width="100" alt="${player.title}"
@@ -18,7 +17,9 @@
                     <div>
                         <strong>
                             <a href="${request.resource_url(player)}">${player.title}</a>
+                            #${player.jersey_number}
                         </strong></div>
+                    <div>${player.position}</div>
                     <div>${player.props['school'][0:22]}</div>
                     <div>Grade: ${player.props['grade']}</div>
                     <div>

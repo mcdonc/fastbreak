@@ -272,7 +272,6 @@ def main(argv=sys.argv):
             guardian_refs[external_id] = guardian
 
         # Associate coaches and managers with teams
-
         for v in members_data.guardians.values():
             position = v['position']
             if position not in ('Coach', 'Asst Coach', 'Manager'):
@@ -304,7 +303,7 @@ def main(argv=sys.argv):
                 IPlayer, external_id=external_id,
                 first_name=first_name, last_name=last_name,
                 emails=v['emails'], jersey_number=v['jersey_number'],
-                grade=v['grade'],
+                grade=v['grade'],position=v['position'],
                 props=v)
             people[name] = player
 

@@ -24,7 +24,7 @@ from ..utils import (
 class IPlayer(BaseContent):
     def __init__(self, external_id,
                  first_name, last_name, emails,
-                 jersey_number, grade,
+                 jersey_number, grade, position,
                  props):
         BaseContent.__init__(self)
         self.external_id = external_id
@@ -34,6 +34,7 @@ class IPlayer(BaseContent):
         self.emails = PersistentList(emails)
         self.jersey_number = jersey_number
         self.grade = grade
+        self.position = position
         self.title = last_name + ', ' + first_name
 
         self.props = PersistentMapping()
