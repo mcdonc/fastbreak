@@ -6,6 +6,7 @@ from substanced.interfaces import IRoot
 def griddemo_view(context, request):
     return dict(heading="Grid Demo")
 
+
 class SiteView(object):
     title = ''
 
@@ -44,4 +45,11 @@ class SiteView(object):
         return dict(
             heading='STORM Dashboard',
             teams=self.context.values()
+        )
+
+    @view_config(renderer='templates/exception_view.pt',
+                 context=Exception)
+    def exception_view(self):
+        return dict(
+            heading='Oops An Error'
         )
