@@ -87,8 +87,9 @@ def external_login_complete(request):
     site_root = connection.root()['app_root']
     principals = find_service(site_root, 'principals')
     users = principals['users']
+    display_name = profile['displayName'].lower()
     user = [user for user in users.values() if user.__name__ ==
-                                               profile['displayName']]
+                                               display_name]
     if not user:
         return external_login_denied(request)
     headers = remember(request, oid_of(user[0]))
