@@ -164,7 +164,7 @@ class TeamView(object):
                 attending=attending
             ))
         return dict(
-            heading='Tournaments for ' + self.context.title,
+            heading=self.context.title + ' Tournaments',
             team=self.context,
             tournaments=tournaments,
             players_data=players_data

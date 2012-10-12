@@ -14,7 +14,7 @@
 
             <div class="navbar fb-toolbar">
                 <div class="navbar-inner">
-                    <div class="span4 fb-toolbar-box">
+                    <div class="span5 fb-toolbar-box">
                         <div class="btn-group">
                             <button class="btn" id="fb-download"
                                     title="Download Spreadsheet">
@@ -32,10 +32,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="span4 fb-toolbar-box">
-                        ${heading|view.heading|''}
-                    </div>
-                    <div class="span3 fb-toolbar-box"
+                    <div class="span5 fb-toolbar-box"
                          style="text-align:right">
                         <input id="fb-text-filter" type="text"
                                placeholder="Filter by…"/>

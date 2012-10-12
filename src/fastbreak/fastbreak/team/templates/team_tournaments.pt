@@ -1,6 +1,5 @@
 <metal:block use-macro="main_template">
     <div metal:fill-slot="content">
-        <h2 class="heading">${heading}</h2>
 
         <table class="table table-striped table-bordered table-hover">
             <thead>

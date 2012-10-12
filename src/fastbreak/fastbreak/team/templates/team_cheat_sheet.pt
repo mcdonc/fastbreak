@@ -1,6 +1,5 @@
 <metal:block use-macro="main_template">
     <div metal:fill-slot="content">
-        <h2 class="heading">${heading}</h2>
 
         <table width="100%" cellpadding="3">
             <tbody>

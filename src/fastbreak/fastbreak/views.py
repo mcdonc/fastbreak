@@ -3,8 +3,8 @@ from pyramid.view import view_config
 from substanced.interfaces import IRoot
 
 @view_config(name="griddemo", renderer="templates/demo76.pt")
-def griddemo_view(request):
-    return {}
+def griddemo_view(context, request):
+    return dict(heading="Grid Demo")
 
 class SiteView(object):
     title = ''

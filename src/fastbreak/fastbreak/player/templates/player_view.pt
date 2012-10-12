@@ -2,7 +2,6 @@
     <div metal:fill-slot="content">
         <div class="row">
             <div class="span8">
-                <h2 class="heading">${heading}</h2>
                 <table class="table" style="width: 70%">
                     <tbody>
                     <tr>
