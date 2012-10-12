@@ -49,8 +49,7 @@ class TeamView(object):
             ('Contacts', 'contacts'),
             ('Cheat Sheet', 'cheat_sheet'),
             ('Tournaments', 'tournaments'),
-            ('Actions', 'actions'),
-            ('Grid', 'grid'),
+#            ('Grid', 'grid'),
             ('Email List', 'emails'),
         ]
         data_items = []
