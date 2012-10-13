@@ -1,5 +1,7 @@
 <metal:block use-macro="main_template">
     <div metal:fill-slot="content">
-        <p>Sorry, we'll look into it.</p>
+        <p>Sorry, we'll look into it. Below is the geeky error
+            information.</p>
+        <pre>${msg}</pre>
     </div>
 </metal:block>
