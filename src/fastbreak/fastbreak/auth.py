@@ -68,7 +68,7 @@ class TeamsView(object):
                 request.session.flash('Failed login', 'error')
 
         return dict(
-            heading='Login',
+            heading=None,
             url=request.mgmt_path(request.root, 'login'),
             came_from=came_from,
             login=login,

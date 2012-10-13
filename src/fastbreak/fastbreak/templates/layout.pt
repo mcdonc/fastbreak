@@ -71,7 +71,8 @@
         </ul>
     </div>
 
-    <div class="row" style="vertical-align: bottom;">
+    <div class="row" style="vertical-align: bottom;"
+         tal:condition="heading">
         <div class="span8">
             <h2 class="heading" tal:condition="heading">${heading}</h2>
         </div>

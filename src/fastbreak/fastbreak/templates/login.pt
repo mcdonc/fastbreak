@@ -1,6 +1,14 @@
 <metal:block use-macro="main_template">
 
     <div metal:fill-slot="content">
+        <div class="alert alert-info">
+            <h4>Consent to Privacy Policy</h4>
+
+            <p>The information in Fastbreak is both sensitive
+                (minors) and business critical (New World Sports).
+                By logging in, you agree not to use this information
+                for any purpose other than your STORM duties.</p>
+        </div>
         <div class="row">
             <div class="span5" tal:condition="providers">
 
