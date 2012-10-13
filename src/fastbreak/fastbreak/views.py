@@ -47,13 +47,13 @@ class SiteView(object):
             teams=self.context.values()
         )
 
-#    @view_config(renderer='templates/exception_view.pt',
-#                 context=Exception)
-#    def exception_view(self):
-#        context = self.context
-#        msg_fmt = '%s: %s'
-#        msg = msg_fmt % (str(type(context)), context.message)
-#        return dict(
-#            heading='Oops An Error',
-#            msg=msg
-#        )
+    @view_config(renderer='templates/exception_view.pt',
+                 context=Exception)
+    def exception_view(self):
+        context = self.context
+        msg_fmt = '%s: %s'
+        msg = msg_fmt % (str(type(context)), context.message)
+        return dict(
+            heading='Oops An Error',
+            msg=msg
+        )

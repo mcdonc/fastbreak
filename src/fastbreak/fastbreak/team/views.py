@@ -196,21 +196,12 @@ class TeamView(object):
 
             tournaments = [t.title for t in player.tournaments()]
 
-            try:
-                school = player.props['school']
-            except KeyError:
-                school = "No school listed"
-            try:
-                experience = player.props['years_experience']
-            except KeyError:
-                experience = "No years listed"
-
             writer.writerow(dict(
                 last_name=player.last_name,
                 first_name=player.first_name,
                 grade=player.grade,
-                school=school,
-                experience=experience,
+                school=player.school,
+                experience=player.experience,
                 tourneys='/'.join(tournaments),
                 emails=', '.join(player.emails),
                 guardian1_name=g1_title,

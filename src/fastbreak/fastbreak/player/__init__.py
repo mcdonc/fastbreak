@@ -25,6 +25,7 @@ class IPlayer(BaseContent):
     def __init__(self, external_id,
                  first_name, last_name, emails,
                  jersey_number, grade, position,
+                 school, experience,
                  props):
         BaseContent.__init__(self)
         self.external_id = external_id
@@ -35,6 +36,8 @@ class IPlayer(BaseContent):
         self.jersey_number = jersey_number
         self.grade = grade
         self.position = position
+        self.school = school
+        self.experience = experience
         self.title = last_name + ', ' + first_name
 
         self.props = PersistentMapping()

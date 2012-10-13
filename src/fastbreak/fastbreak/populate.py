@@ -116,6 +116,8 @@ class Members:
             grade=row['Grade'],
             cell_phone=row['Cell Phone'],
             position=row['Position'],
+            school=row.get('school', 'No school listed'),
+            experience=row.get('experience', 'No experience listed'),
             refs_team=[team_id, ],
             refs_guardians=guardian_ids,
             mobile_phone=row['Cell Phone']
@@ -304,6 +306,7 @@ def main(argv=sys.argv):
                 first_name=first_name, last_name=last_name,
                 emails=v['emails'], jersey_number=v['jersey_number'],
                 grade=v['grade'],position=v['position'],
+                school=v['school'], experience=v['experience'],
                 props=v)
             people[name] = player
 

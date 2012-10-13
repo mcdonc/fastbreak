@@ -19,10 +19,10 @@
                             #${player.jersey_number}
                         </strong></div>
                     <div>${player.position}</div>
-                    <div>${player.props['school'][0:22]}</div>
+                    <div>${player.school[0:22]}</div>
                     <div>Grade: ${player.props['grade']}</div>
                     <div>
-                        ${player.props['years_experience']}
+                        ${player.experience}
                     </div>
 
                 </td>
