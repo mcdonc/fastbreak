@@ -44,7 +44,6 @@ class SiteView(object):
                  context=IRoot)
     def site_view(self):
 
-        x
         return dict(
             heading='STORM Dashboard',
             teams=self.context.values()
