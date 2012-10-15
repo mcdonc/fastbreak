@@ -17,11 +17,6 @@ class SiteView(object):
     @property
     def subnav_items(self):
 
-        if not hasattr(self.context, '__name__'):
-            # XXX TODO Find a better way to handle the case when 
-            # this is an Exception as the context
-            return []
-
         request = self.request
         root = request.root
         return [
@@ -49,6 +44,7 @@ class SiteView(object):
                  context=IRoot)
     def site_view(self):
 
+        x
         return dict(
             heading='STORM Dashboard',
             teams=self.context.values()

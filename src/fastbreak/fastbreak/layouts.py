@@ -18,10 +18,6 @@ class FastbreakMainLayout(object):
 
         request = self.request
         context = self.context
-        if not hasattr(context, '__name__'):
-            # XXX TODO Find a better way to handle the case when 
-            # this is an Exception as the context
-            return ''
         u1 = request.resource_url(context)
         u2 = request.application_url + '/'
         if u1 == u2:
@@ -33,11 +29,6 @@ class FastbreakMainLayout(object):
     def navbar_items(self):
         # Get the teams and sort them by order of "position"
         request = self.request
-
-        if not hasattr(self.context, '__name__'):
-            # XXX TODO Find a better way to handle the case when 
-            # this is an Exception as the context
-            return []
 
         context_name = self.context.__name__
 
