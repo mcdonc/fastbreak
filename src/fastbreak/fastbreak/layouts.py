@@ -1,10 +1,9 @@
 from pyramid_layout.layout import layout_config
 
-
 @layout_config(
-    template='templates/layout.pt'
+    template='templates/main_layout.pt'
 )
-class FastbreakLayout(object):
+class FastbreakMainLayout(object):
     def __init__(self, context, request):
         self.context = context
         self.request = request
@@ -59,3 +58,14 @@ class FastbreakLayout(object):
     @property
     def project_title(self):
         return 'Pyramid Layout App!'
+
+@layout_config(
+    template='templates/simple_layout.pt',
+    name="simple"
+)
+class FastbreakSimpleLayout(object):
+    """ Used for login, exception views, etc. """
+
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request

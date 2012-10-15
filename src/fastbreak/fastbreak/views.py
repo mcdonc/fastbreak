@@ -58,6 +58,8 @@ class SiteView(object):
     @view_config(renderer='templates/exception_view.pt',
                  context=Exception)
     def exception_view(self):
+        request = self.request
+        request.layout_manager.use_layout('simple')
         context = self.context
         msg_fmt = '%s: %s'
         msg = msg_fmt % (str(type(context)), context.message)

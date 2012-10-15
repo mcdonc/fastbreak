@@ -1,0 +1,83 @@
+<!doctype html>
+        <!--[if lt IE 7]>
+        <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+        <!--[if IE 7]>
+        <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+        <!--[if IE 8]>
+        <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+        <!--[if gt IE 8]><!-->
+<html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8"/>
+    <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /> -->
+    <!-- Mobile viewport optimized: j.mp/bplateviewport -->
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1"/>
+
+    <title metal:define-slot="page-title">${heading|view.heading}</title>
+
+    <!--[if lt IE 9]>
+    <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link
+            href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css"
+            rel="stylesheet">
+    <link href="${request.static_url('substanced.sdi:static/base.css')}"
+          rel="stylesheet"/>
+    <link
+            href="${request.static_url('fastbreak:static/fastbreak.css')}"
+            rel="stylesheet"/>
+
+    <link rel="shortcut icon"
+          href="${request.static_url('substanced.sdi:static/favicon.ico')}"/>
+
+    <tal:block metal:define-slot="head_more"></tal:block>
+
+</head>
+
+<body>
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <ul class="nav">
+                <li>
+                    <a class="brand"
+                       href="${request.application_url}">
+                        Fastbreak
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="row" style="vertical-align: bottom;"
+         tal:condition="heading">
+        <div class="span8">
+            <h2 class="heading" tal:condition="heading">${heading}</h2>
+        </div>
+    </div>
+
+    <div id="messages" class="${request.is_xhr and 'ajax-replace' or ''}">
+        <div tal:repeat="queue ('info', 'success', 'error', '')" tal:omit-tag="">
+            <div class="alert alert-${queue}"
+                 tal:define="messages request.session.pop_flash(queue)"
+                 tal:condition="messages"
+                 tal:repeat="message messages">
+                ${structure:message}
+            </div>
+        </div>
+    </div>
+    <div metal:define-slot="content">
+    </div>
+
+</div>
+
+<tal:block metal:define-slot="tail_more"></tal:block>
+</body>
+</html>

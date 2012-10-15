@@ -41,6 +41,7 @@ class TeamsView(object):
     def login(self):
         request = self.request
         context = self.context
+        request.layout_manager.use_layout('simple')
 
         login_url = request.mgmt_path(request.context, 'login')
         referrer = request.url
@@ -108,6 +109,7 @@ def external_login_complete(request):
 
 @view_config(context='velruse.AuthenticationDenied')
 def external_login_denied(request):
+    request.layout_manager.use_layout('simple')
     connection = get_connection(request)
     site_root = connection.root()['app_root']
     login_url = request.mgmt_path(site_root, 'login')
