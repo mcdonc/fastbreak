@@ -48,6 +48,10 @@ class TeamsView(object):
             # never use the login form itself as came_from
             referrer = request.mgmt_path(request.root)
         came_from = request.session.setdefault('came_from', referrer)
+
+        # XXX TODO Overrule this
+        came_from = request.resource_url(request.root)
+
         login = ''
         password = ''
         if 'form.submitted' in request.params:
@@ -94,6 +98,9 @@ def external_login_complete(request):
         return external_login_denied(request)
     headers = remember(request, oid_of(user[0]))
     request.session.flash('Welcome!', 'success')
+
+    # XXX TODO Overrule this
+    came_from = request.resource_url(request.root)
     return HTTPFound(location=came_from, headers=headers)
 
 

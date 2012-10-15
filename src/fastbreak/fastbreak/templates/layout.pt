@@ -44,11 +44,11 @@
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container-fluid">
-
             <ul class="nav">
                 <li class="${layout.is_root_active}">
-                    <a class="brand" href="${request.application_url}">
-                        STORM Dashboard
+                    <a class="brand"
+                       href="${request.application_url}">
+                        Fastbreak
                     </a>
                 </li>
                 <li class="${team.active}"
@@ -56,7 +56,31 @@
                     <a href="${team.url}">${team.title}</a>
                 </li>
             </ul>
+
+            <div class="nav pull-right">
+                <div class="btn-group" tal:condition="request.user">
+                    <a class="btn btn-primary"
+                       href="${request.mgmt_path(request.user)}"><i
+                            class="icon-user icon-white"></i>${request.user.__name__}</a>
+                    <a class="btn btn-primary dropdown-toggle"
+                       data-toggle="dropdown" href="#"><span
+                            class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="${request.mgmt_path(request.user, '')}"><i
+                                    class="icon-pencil"></i>
+                                Account</a></li>
+                        <li>
+                            <a href="${request.mgmt_path(request.root, '@@logout')}"><i
+                                    class="icon-stop"></i> Log Out</a>
+                        </li>
+                    </ul>
+                </div>
+                    <span class="navbar-text"
+                          tal:condition="not request.user">Not logged in</span>
+            </div>
         </div>
+
     </div>
 </div>
 
@@ -85,14 +109,24 @@
         </div>
     </div>
 
-
+    <div id="messages" class="${request.is_xhr and 'ajax-replace' or ''}">
+        <div tal:repeat="queue ('info', 'success', 'error', '')" tal:omit-tag="">
+            <div class="alert alert-${queue}"
+                 tal:define="messages request.session.pop_flash(queue)"
+                 tal:condition="messages"
+                 tal:repeat="message messages">
+                ${structure:message}
+            </div>
+        </div>
+    </div>
     <div metal:define-slot="content">
     </div>
 
 </div>
 
+<script src="http://code.jquery.com/jquery-1.7.min.js"></script>
 <script
-        src="${request.static_url('fastbreak:static/slickgrid/lib/jquery-1.7.min.js')}"></script>
+        src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js"></script>
 
 <tal:block metal:define-slot="tail_more"></tal:block>
 </body>
