@@ -95,12 +95,14 @@ def external_login_complete(request):
     user = [user for user in users.values() if user.__name__ ==
                                                display_name]
     if not user:
+        fmt = 'Twitter user "%s" is not setup in Fastbreak'
+        request.session.flash(fmt % profile['displayName'])
         return external_login_denied(request)
     headers = remember(request, oid_of(user[0]))
     request.session.flash('Welcome!', 'success')
 
     # XXX TODO Overrule this
-    came_from = request.resource_url(request.root)
+    came_from = '/'
     return HTTPFound(location=came_from, headers=headers)
 
 
@@ -109,7 +111,6 @@ def external_login_denied(request):
     connection = get_connection(request)
     site_root = connection.root()['app_root']
     login_url = request.mgmt_path(site_root, 'login')
-    request.session.flash('Failed login', 'error')
     return HTTPFound(location=login_url)
 
 
