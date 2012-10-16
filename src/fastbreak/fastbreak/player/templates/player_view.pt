@@ -6,23 +6,23 @@
                     <tbody>
                     <tr>
                         <td>Jersey Number</td>
-                        <td>${context.props['jersey_number']}</td>
+                        <td>${context.jersey_number}</td>
                     </tr>
                     <tr>
                         <td>Position</td>
-                        <td>${context.props['position']}</td>
+                        <td>${context.position}</td>
                     </tr>
                     <tr>
                         <td>School</td>
-                        <td>${context.props['school']}</td>
+                        <td>${context.school}</td>
                     </tr>
                     <tr>
                         <td>Grade</td>
-                        <td>${context.props['grade']}</td>
+                        <td>${context.grade}</td>
                     </tr>
                     <tr>
                         <td>Experience</td>
-                        <td>${context.props['years_experience']}</td>
+                        <td>${context.experience}</td>
                     </tr>
                     </tbody>
                 </table>
