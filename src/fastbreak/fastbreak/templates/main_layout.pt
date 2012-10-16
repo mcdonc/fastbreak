@@ -14,7 +14,7 @@
     <meta name="viewport"
           content="width=device-width,initial-scale=1"/>
 
-    <title metal:define-slot="page-title">${heading|view.heading}</title>
+    <title metal:define-slot="page-title">${heading}</title>
 
     <!--[if lt IE 9]>
     <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -46,9 +46,8 @@
         <div class="container-fluid">
             <ul class="nav">
                 <li class="${layout.is_root_active}">
-                    <a class="brand"
-                       href="${request.application_url}">
-                        Fastbreak
+                    <a class="brand" href="${request.application_url}">
+                        ${heading}
                     </a>
                 </li>
                 <li class="${team.active}"
@@ -110,7 +109,8 @@
     </div>
 
     <div id="messages" class="${request.is_xhr and 'ajax-replace' or ''}">
-        <div tal:repeat="queue ('info', 'success', 'error', '')" tal:omit-tag="">
+        <div tal:repeat="queue ('info', 'success', 'error', '')"
+             tal:omit-tag="">
             <div class="alert alert-${queue}"
                  tal:define="messages request.session.pop_flash(queue)"
                  tal:condition="messages"

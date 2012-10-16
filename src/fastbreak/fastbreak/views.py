@@ -45,7 +45,7 @@ class SiteView(object):
     def site_view(self):
 
         return dict(
-            heading='STORM Dashboard',
+            heading='Fastbreak',
             teams=self.context.values()
         )
 

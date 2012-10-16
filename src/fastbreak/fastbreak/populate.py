@@ -116,8 +116,8 @@ class Members:
             grade=row['Grade'],
             cell_phone=row['Cell Phone'],
             position=row['Position'],
-            school=row.get('school', 'No school listed'),
-            experience=row.get('experience', 'No experience listed'),
+            school='School not listed',
+            experience='Experience not listed',
             refs_team=[team_id, ],
             refs_guardians=guardian_ids,
             mobile_phone=row['Cell Phone']
@@ -159,7 +159,7 @@ class Members:
             player['pinnie_size'] = r['pinnie_size']
             player['shorts_size'] = r['shorts_size']
             player['school'] = r['school']
-            player['years_experience'] = r['years_experience']
+            player['experience'] = r['years_experience']
 
             # Process tournaments
             player['tournaments'] = {}
