@@ -73,7 +73,7 @@ class TeamsView(object):
                 request.session.flash('Failed login', 'error')
 
         return dict(
-            heading=None,
+            heading='Fastbreak Login',
             url=request.mgmt_path(request.root, 'login'),
             came_from=came_from,
             login=login,
