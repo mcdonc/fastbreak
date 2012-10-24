@@ -1,0 +1,41 @@
+<metal:block use-macro="main_template">
+    <div metal:fill-slot="content">
+
+        <table class="table table-striped table-bordered
+         table-condensed">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Emails</th>
+                <th>Mobile</th>
+                <th>Teams</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr tal:repeat="c coaches">
+                <td>
+                    <a href="${request.resource_url(g)}">
+                        ${c.last_name},
+                        ${c.first_name}</a>
+                </td>
+                <td>
+                    <div tal:repeat="email c.emails">
+                        <a href="mailto:${email}">
+                            ${email}
+                        </a>
+                    </div>
+                </td>
+                <td>
+                    ${c.props['mobile_phone']}
+                </td>
+                <td>
+                    <div tal:repeat="t c.teams()">
+                        <a href="${request.resource_url(t)}">
+                            ${t.title}</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</metal:block>

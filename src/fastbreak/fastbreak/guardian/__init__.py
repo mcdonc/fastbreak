@@ -3,17 +3,23 @@ from types import ListType
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
 
+from zope.interface import implementer
+
 from substanced.content import content
 
 from ..interfaces import IGuardian
 
-from ..utils import BaseContent
+from ..utils import (
+    BaseContent,
+    GUARDIAN
+    )
 
 @content(
     IGuardian,
     name='Guardian',
-    icon='icon-tags',
-    )
+    icon='icon-tags'
+)
+@implementer(IGuardian)
 class Guardian(BaseContent):
     def __init__(self, external_id,
                  first_name, last_name, emails,
@@ -29,3 +35,6 @@ class Guardian(BaseContent):
         self.props = PersistentMapping()
         for k, v in props.items():
             self.props[k] = v
+
+    def players(self):
+        return self.get_sources(GUARDIAN)

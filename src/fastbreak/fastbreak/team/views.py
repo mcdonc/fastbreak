@@ -11,15 +11,11 @@ from fastbreak.interfaces import (
 
 class TeamsView(object):
     title = ''
+    subnav_items = []
 
     def __init__(self, context, request):
         self.context = context
         self.request = request
-
-    @property
-    def subnav_items(self):
-        return []
-
 
     @view_config(renderer='templates/teams_view.pt',
                  permission='view',
@@ -33,37 +29,19 @@ class TeamsView(object):
 
 class TeamView(object):
     title = ''
+    subnav_items = [
+        dict(title='Overview', suffix='overview'),
+        dict(title='Positions', suffix='positions'),
+        dict(title='Contacts', suffix='contacts'),
+        dict(title='Cheat Sheet', suffix='cheat_sheet'),
+        dict(title='Tournaments', suffix='tournaments'),
+        #dict(title='Grid', suffix='grid'),
+        dict(title='Email List', suffix='emails')
+    ]
 
     def __init__(self, context, request):
         self.context = context
         self.request = request
-
-    @property
-    def subnav_items(self):
-        request = self.request
-        context = self.context
-        url = request.url
-
-        # TODO XXX Turn this into more protocol-y
-        nav_items = [
-            ('Overview', 'overview'),
-            ('Positions', 'positions'),
-            ('Contacts', 'contacts'),
-            ('Cheat Sheet', 'cheat_sheet'),
-            ('Tournaments', 'tournaments'),
-            #            ('Grid', 'grid'),
-            ('Email List', 'emails'),
-        ]
-        data_items = []
-        for i in nav_items:
-            data_items.append(
-                dict(
-                    title=i[0],
-                    url=request.resource_url(context, i[1]),
-                    active='active' if i[1] in url else ''
-                )
-            )
-        return data_items
 
     @view_config(renderer='templates/team_overview.pt',
                  name='overview',
@@ -89,7 +67,7 @@ class TeamView(object):
         csv_url = self.request.resource_url(self.context,
                                             'download_roster')
         return dict(
-            heading=self.context.title + ' Overview',
+            heading=self.context.title + ' Contacts',
             players=self.context.players(),
             csv_url=csv_url
         )

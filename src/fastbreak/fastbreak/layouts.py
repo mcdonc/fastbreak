@@ -37,8 +37,8 @@ class FastbreakMainLayout(object):
                               key=lambda x: x.props['position'])
         for team in sorted_teams:
             active = ''
-            if context_name==team.__name__:
-                active='active'
+            if context_name == team.__name__:
+                active = 'active'
             teams.append(dict(
                 title=team.title,
                 url=request.resource_url(team, 'overview'),
@@ -46,9 +46,22 @@ class FastbreakMainLayout(object):
             ))
         return teams
 
-    @property
-    def project_title(self):
-        return 'Pyramid Layout App!'
+    def list_subnav(self, nav_items=[]):
+        request = self.request
+        context = self.context
+        url = request.url
+
+        data_items = []
+        for i in nav_items:
+            data_items.append(
+                dict(
+                    title=i['title'],
+                    url=request.resource_url(context, i['suffix']),
+                    active='active' if i['suffix'] in url else ''
+                )
+            )
+        return data_items
+
 
 @layout_config(
     template='templates/simple_layout.pt',

@@ -173,7 +173,7 @@ class Members:
 def main(argv=sys.argv):
     if len(argv) > 4:
         cmd = os.path.basename(argv[0])
-        s = 'usage: %s <config_uri> <import_dir> <init>\n'
+        s = 'usage: %s <config_uri> <import_dir>\n'
         print  s % cmd
         sys.exit()
 
@@ -182,10 +182,6 @@ def main(argv=sys.argv):
     import_dir = argv[2]
     csv_dir = join(import_dir, 'csv')
     headshots_dir = join(import_dir, 'headshots')
-    try:
-        init = argv[3] == 'init'
-    except IndexError:
-        init = False
 
     # Setup the environment
     setup_logging(config_uri)
@@ -207,19 +203,19 @@ def main(argv=sys.argv):
                                         tournaments_data)
 
     with transaction.manager:
-        # If needed, blow away existing data
-        if init:
-            for name in ('teams', 'people', 'tournaments'):
-                if root.get(name):
-                    del root[name]
 
-            # Make top-level folders
-            teams = request.registry.content.create(ITeams)
-            root['teams'] = teams
-            people = request.registry.content.create(IPeople)
-            root['people'] = people
-            tournaments = request.registry.content.create(ITournaments)
-            root['tournaments'] = tournaments
+        # Setup top-level data
+        for name in ('teams', 'people', 'tournaments'):
+            if root.get(name):
+                del root[name]
+
+        # Make top-level folders
+        teams = request.registry.content.create(ITeams)
+        root['teams'] = teams
+        people = request.registry.content.create(IPeople)
+        root['people'] = people
+        tournaments = request.registry.content.create(ITournaments)
+        root['tournaments'] = tournaments
 
 
         # Convenience
@@ -355,14 +351,7 @@ def main(argv=sys.argv):
             if len(person.guardians()) == 0:
                 print "no guardians", person.title
 
-    # Do we have any coaches
-    for person in members_data.guardians.values():
-        if person['last_name'] == 'McFadden':
-            print 'Coach', person['position']
 
-    for team in root['teams'].values():
-        print team.title, team.head_coaches(),\
-        team.assistant_coaches(), team.managers()
 
     return
 

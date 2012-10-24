@@ -1,8 +1,8 @@
 from pyramid.view import view_config
 
-from fastbreak.interfaces import IPlayer
+from fastbreak.interfaces import IGuardian
 
-class PlayerView(object):
+class GuardianView(object):
     title = ''
     subnav_items = []
 
@@ -10,15 +10,14 @@ class PlayerView(object):
         self.context = context
         self.request = request
 
-    @view_config(renderer='templates/player_view.pt',
+    @view_config(renderer='templates/guardian_view.pt',
                  permission='view',
-                 context=IPlayer
+                 context=IGuardian
     )
-    def player_view(self):
+    def guardian_view(self):
         context = self.context
         heading = context.first_name + ' ' + context.last_name
         return dict(
             heading=heading,
-            all_guardians=self.context.guardians(),
-            teams=self.context.teams()
+            all_players=self.context.players()
         )

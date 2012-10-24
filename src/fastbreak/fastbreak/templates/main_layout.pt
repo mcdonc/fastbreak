@@ -88,7 +88,7 @@
     <div class="subnav" style="margin-top:-1em">
         <ul class="nav nav-pills">
             <li class="${si.active|''}"
-                tal:repeat="si view.subnav_items">
+                tal:repeat="si layout.list_subnav(view.subnav_items)">
                 <a href="${si.url}">${si.title}</a>
             </li>
         </ul>

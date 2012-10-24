@@ -24,13 +24,10 @@ from substanced.util import oid_of
 from velruse import login_url as velruse_login_url
 
 class TeamsView(object):
+    subnav_items = []
     def __init__(self, context, request):
         self.context = context
         self.request = request
-
-    @property
-    def subnav_items(self):
-        []
 
     @forbidden_view_config(renderer='templates/login.pt')
     @view_config(name='login', renderer='templates/login.pt')
