@@ -25,6 +25,7 @@
                 <th>Jersey #</th>
                 <th>First Name</th>
                 <th>Last Name</th>
+                <th>Grad Year</th>
                 <th>DOB</th>
                 <th>Street Address</th>
                 <th>City, State</th>
@@ -42,6 +43,14 @@
                 </td>
                 <td>
                     ${p.last_name}
+                </td>
+                <td tal:define="gy p.grade">
+                    <span tal:condition="gy=='12'">2013</span>
+                    <span tal:condition="gy=='11'">2014</span>
+                    <span tal:condition="gy=='10'">2015</span>
+                    <span tal:condition="gy=='9'">2016</span>
+                    <span tal:condition="gy=='8'">2017</span>
+                    <span tal:condition="gy=='7'">2018</span>
                 </td>
                 <td>
                     ${p.props['birthdate']}
@@ -85,6 +94,9 @@
                 <th>
                     &nbsp;
                 </th>
+                <th>
+                    &nbsp;
+                </th>
             </tr>
             <tr>
                 <th>
@@ -96,7 +108,7 @@
                 <th>
                     Last Name
                 </th>
-                <th>
+                <th colspan="2">
                     Phone
                 </th>
                 <th>
@@ -116,7 +128,7 @@
                 <td>&nbsp;</td>
                 <td>${hc.first_name}</td>
                 <td>${hc.last_name}</td>
-                <td>${hc.props['mobile_phone']}</td>
+                <td colspan="2">${hc.props['mobile_phone']}</td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
