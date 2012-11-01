@@ -33,6 +33,7 @@ class TeamView(object):
         dict(title='Overview', suffix='overview'),
         dict(title='Positions', suffix='positions'),
         dict(title='Contacts', suffix='contacts'),
+        dict(title='Tourney Roster', suffix='tourney_roster'),
         dict(title='Cheat Sheet', suffix='cheat_sheet'),
         dict(title='Tournaments', suffix='tournaments'),
         #dict(title='Grid', suffix='grid'),
@@ -70,6 +71,20 @@ class TeamView(object):
             heading=self.context.title + ' Contacts',
             players=self.context.players(),
             csv_url=csv_url
+        )
+
+    @view_config(renderer='templates/team_tourney_roster.pt',
+                 name='tourney_roster',
+                 permission='view',
+                 context=ITeam)
+    def team_tourney_roster(self):
+        csv_url = self.request.resource_url(self.context,
+                                            'download_roster')
+        return dict(
+            heading=self.context.title + ' Contacts',
+            players=self.context.players(),
+            csv_url=csv_url,
+            hc=self.context.head_coaches()[0]
         )
 
 
