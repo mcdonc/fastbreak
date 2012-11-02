@@ -33,7 +33,8 @@ class TeamView(object):
         dict(title='Overview', suffix='overview'),
         dict(title='Positions', suffix='positions'),
         dict(title='Contacts', suffix='contacts'),
-        dict(title='Tourney Roster', suffix='tourney_roster'),
+        dict(title='FallBall Roster', suffix='tourney_fallballtourney'),
+        dict(title='Recruiting Info', suffix='tourney_recruitinginfo'),
         dict(title='Cheat Sheet', suffix='cheat_sheet'),
         dict(title='Tournaments', suffix='tournaments'),
         #dict(title='Grid', suffix='grid'),
@@ -73,17 +74,30 @@ class TeamView(object):
             csv_url=csv_url
         )
 
-    @view_config(renderer='templates/team_tourney_roster.pt',
-                 name='tourney_roster',
+    @view_config(renderer='templates/team_fallballtourney.pt',
+                 name='tourney_fallballtourney',
                  permission='view',
                  context=ITeam)
-    def team_tourney_roster(self):
-        csv_url = self.request.resource_url(self.context,
-                                            'download_roster')
+    def team_fallballtourney(self):
         return dict(
-            heading=self.context.title + ' Contacts',
+            heading=self.context.title + ' FallBall',
             players=self.context.players(),
-            csv_url=csv_url,
+            hc=self.context.head_coaches()[0]
+        )
+
+
+    @view_config(renderer='templates/team_recruitinginfo.pt',
+                 name='tourney_recruitinginfo',
+                 permission='view',
+                 context=ITeam)
+    def team_recruitinginfo(self):
+        players = sorted(
+            self.context.players(),
+            key=lambda p: p.grade + p.jersey_number.zfill(2)
+        )
+        return dict(
+            heading=self.context.title + ' Recruiting',
+            players=players,
             hc=self.context.head_coaches()[0]
         )
 

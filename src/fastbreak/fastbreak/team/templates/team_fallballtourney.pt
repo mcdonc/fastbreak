@@ -1,7 +1,4 @@
 <metal:block use-macro="main_template">
-    <div metal:fill-slot="heading-menu">
-        <a href="${csv_url}">Download Spreadsheet</a>
-    </div>
     <div metal:fill-slot="content">
 
         <table class="table table-striped table-bordered
@@ -12,7 +9,7 @@
                     TEAM NAME
                 </th>
                 <th colspan="3">
-                    &nbsp;
+                    ${context.title}
                 </th>
                 <th>
                     DIVISION
