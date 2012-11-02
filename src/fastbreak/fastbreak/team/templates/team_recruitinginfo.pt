@@ -2,13 +2,12 @@
     <div metal:fill-slot="content">
 
         <table class="table table-striped table-bordered
-         table-condensed">
+         table-condensed" style="font-size: smaller">
             <thead>
             <tr>
                 <th>#</th>
                 <th>Player</th>
                 <th>GY</th>
-                <th>Parents</th>
                 <th>School</th>
                 <th>Address</th>
                 <th>Phone</th>
@@ -32,15 +31,10 @@
                     <span tal:condition="gy=='7'">2018</span>
                 </td>
                 <td>
-                    <div tal:repeat="g p.guardians()">
-                        ${g.first_name} ${g.last_name}
-                    </div>
+                    ${p.props['school'][0:30]}
                 </td>
                 <td>
-                    ${p.props['school']}
-                </td>
-                <td>
-                    <div>${p.props['address_1']}</div>
+                    ${p.props['address_1']}
                     ${p.props['city']},
                     ${p.props['state']}
                     ${p.props['zip']}
