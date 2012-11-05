@@ -107,6 +107,18 @@ class Members:
         for g in (row['Guardian1 ID'], row['Guardian2 ID']):
             if g.strip() != '':
                 guardian_ids.append(int(g.strip()))
+
+        # LeagueAthletics exports 00 as -1, isn't that a joy
+        jersey_number=row['Jersey #']
+
+        if jersey_number == '-1':
+            jersey_number = '00'
+
+        # XXX TODO LeagueAthletics won't let me hack 48/58 for Paulk.
+        # Put a very specific hack in that hopefully only applies once.
+        if jersey_number == '48' and row['Last Name'] == 'Paulk':
+            jersey_number = '48/58'
+
         player = dict(
             external_id=external_id,
             first_name=row['First Name'],
@@ -118,7 +130,7 @@ class Members:
             state=row['State'],
             zip=row['Zip'],
             emails=split_emails(row['Email']),
-            jersey_number=row['Jersey #'],
+            jersey_number=jersey_number,
             grade=row['Grade'],
             cell_phone=row['Cell Phone'],
             position=row['Position'],
