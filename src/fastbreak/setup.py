@@ -30,7 +30,6 @@ except:
 requires = [
     'waitress',
     'pyramid_tm',
-    'pyramid_layout',
     'substanced',
     'pyramid_exclog',
     'velruse>=0.3b3'
