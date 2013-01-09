@@ -1,7 +1,0 @@
-<metal:block use-macro="main_template">
-    <div metal:fill-slot="content">
-        <pre>
-${joined_comma}
-        </pre>
-    </div>
-</metal:block>

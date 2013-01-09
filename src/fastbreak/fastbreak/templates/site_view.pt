@@ -1,5 +1,0 @@
-<metal:block use-macro="main_template">
-    <div metal:fill-slot="content">
-        <p>Welcome to Fastbreak.</p>
-    </div>
-</metal:block>
