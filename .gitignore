@@ -17,4 +17,6 @@ trace_file
 .DS_Store
 .mr.developer.cfg
 sources
+include/
+lib/
 
