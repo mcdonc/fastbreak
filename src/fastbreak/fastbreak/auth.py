@@ -1,3 +1,5 @@
+import colander
+
 from pyramid.httpexceptions import (
     HTTPForbidden,
     HTTPFound
@@ -9,17 +11,23 @@ from pyramid.view import (
     )
 from pyramid.security import (
     remember,
+    NO_PERMISSION_REQUIRED,
     )
 
 from pyramid_zodbconn import get_connection
+from pyramid.session import check_csrf_token
 
 from substanced.sdi import (
     mgmt_view,
-    check_csrf_token,
     )
 
-from substanced.content import find_service
-from substanced.util import oid_of
+from substanced.schema import Schema
+from substanced.util import (
+    oid_of,
+    find_content,
+    find_service,
+    )
+from substanced.form import FormView
 
 from velruse import login_url as velruse_login_url
 
@@ -85,24 +93,24 @@ class TeamsView(object):
 def external_login_complete(request):
     profile = request.context.profile
     came_from = request.session.get('came_from', request.application_url)
-    connection = get_connection(request)
-    site_root = connection.root()['app_root']
+    site_root = find_content(request.context, 'Root')
     principals = find_service(site_root, 'principals')
     users = principals['users']
     display_name = profile['displayName'].lower()
     user = [user for user in users.values() if user.__name__ ==
                                                display_name]
     if not user:
-        fmt = 'Twitter user "%s" is not setup in Fastbreak'
-        request.session.flash(fmt % profile['displayName'])
-        return external_login_denied(request)
+        request.session['twitter_name'] = display_name
+        return HTTPFound(request.resource_url(site_root, 'register_user'))
+        ## fmt = 'Twitter user "%s" is not setup in Fastbreak'
+        ## request.session.flash(fmt % profile['displayName'])
+        # return external_login_denied(request)
     headers = remember(request, oid_of(user[0]))
     request.session.flash('Welcome!', 'success')
 
     # XXX TODO Overrule this
     came_from = '/'
     return HTTPFound(location=came_from, headers=headers)
-
 
 @view_config(context='velruse.AuthenticationDenied')
 def external_login_denied(request):
@@ -111,6 +119,57 @@ def external_login_denied(request):
     site_root = connection.root()['app_root']
     login_url = request.mgmt_path(site_root, 'login')
     return HTTPFound(location=login_url)
+
+
+
+
+@colander.deferred
+def deferred_twitter_name_default(node, kw):
+    request = kw['request']
+    twitter_name = request.session.get('twitter_name', '')
+    def twitter_name_default(node, val):
+        return twitter_name
+    return twitter_name_default
+
+class LoginName(colander.SchemaNode):
+    schema_type = colander.String
+
+    @property
+    def default(self):
+        request = self.bindings['request']
+        twitter_name = request.session.get('twitter_name', '')
+        return twitter_name
+
+    def validator(self, node, val):
+        if 'group.' in val:
+            raise colander.Invalid('Login name must not contain group.')
+
+class RegisterUserSchema(Schema):
+    login = LoginName()
+    
+    email = colander.SchemaNode(
+        colander.String(),
+        validator=colander.Email(),
+        )
+
+@view_config(
+    name='register_user',
+    permission=NO_PERMISSION_REQUIRED, 
+    renderer='templates/form.pt',
+    )
+class RegisterUserView(FormView):
+    title = 'Add User'
+    schema = RegisterUserSchema()
+    buttons = ('register',)
+
+    def register_success(self, appstruct):
+        login = appstruct['login']
+        email = appstruct['email']
+        pservice = find_service(self.context, 'principals')
+        pservice.add_user(login, email=email)
+        return HTTPFound(
+            self.request.sdiapi.mgmt_path(self.context, 'awaiting_approval')
+            )
 
 
 def includeme(config): # pragma: no cover
